@@ -36,6 +36,8 @@ levels(long$tissue) <- unlist(lapply(strsplit(levels(long$tissue), split = '\\_'
 long <- merge(long, utr, all.x = T)
 long$value <- factor(long$value)
 str(long)
+long$UTR_length <- NULL
+#fwrite(long, 'derived/tables/210609_prt_rna_binary_concordance.txt', sep = '\t')
 
 # merge with constraints
 constr <- constraints[,c('gene','loeuf','pTS','pHI')]
@@ -44,18 +46,19 @@ long <- merge(long,constr, by = 'hgnc_symbol', all.x = T)
 
 
 # compare 5' UTR lengths bween concordant / discordant across genes stratified by tissue
-max(log10(na.omit(long$UTR_length)))
-min(log10(na.omit(long$UTR_length)))
+#max(log10(na.omit(long$UTR_length)))
+#min(log10(na.omit(long$UTR_length)))
 top = 2.1 # 3.4
 comparisons <- list(c("concordance","discordance_prt_high"), c("concordance","discordance_rna_high"), c("discordance_prt_high","discordance_rna_high"))
-p1 <- ggplot(long, aes(x=value,y=loeuf, fill = value)) +
-  geom_boxplot() +
+p1 <- ggplot(long, aes(x=value,y=pHI, fill = value)) +
+  geom_jitter(size = 0.5, alpha = 0.5) +
+  geom_violin(alpha = 0.8) +
   xlab('Concordance group') +
-  ylab("LOEUF") +
-  ggsignif::geom_signif(comparisons = comparisons ,map_signif_level=TRUE, y_position = c(top, top+0.4, top+0.8)) +
+  #ylab("LOEUF") +
+  #ggsignif::geom_signif(comparisons = comparisons ,map_signif_level=TRUE, y_position = c(top, top+0.4, top+0.8)) +
   facet_wrap(~tissue) +
   theme_bw() +
-  ylim(c(0,top+1.2)) +
+  #ylim(c(0,top+1.2)) +
   theme(axis.text=element_text(size=12), axis.text.x=element_blank(), axis.title=element_text(size=14,face="bold")) +
   ggtitle('Comparison of LOEUFs using Human Proteome Map Categories (wilcox.test)')
 

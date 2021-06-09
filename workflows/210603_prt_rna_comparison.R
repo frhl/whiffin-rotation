@@ -57,8 +57,9 @@ exclude <- counts[counts > median(counts)]
 
 # plot pearson correlations in scatter plot
 pairs_df <- do.call(rbind, pairs)
+fwrite(pairs_df, 'derived/tables/210609_prt_rna_numerical.txt', sep = '\t')
 pairs_df$bottom.percetile <- pairs_df$gene.id %in% names(counts)
-p <- ggplot(pairs_df[pairs_df$rna != 0 & pairs_df$prt != 0,], aes(x=prt, y=rna, color = bottom.percetile), ) +
+p <- ggplot(pairs_df[pairs_df$rna != 0 & pairs_df$prt != 0 & pairs_df$tissue == 'Brain_Cortex',], aes(x=prt, y=rna, color = bottom.percetile), ) +
   geom_point(size = 0.5) + 
   stat_cor(method = "pearson", label.x = -2, label.y = 15, vjust = -1) + 
   geom_smooth(method='lm', formula= y~x) +
@@ -66,49 +67,40 @@ p <- ggplot(pairs_df[pairs_df$rna != 0 & pairs_df$prt != 0,], aes(x=prt, y=rna, 
   ylab('RNA Tissue median') +
   facet_wrap(~tissue)
 
-ggsave('derived/plots/210603_rna_prt_median_correlations_5thpercentile.pdf',width = 16, height = 16)
+#p
+
+
+
+# combine with 5' UTR data
+
+
+#ggsave('derived/plots/210603_rna_prt_median_correlations_5thpercentile.pdf',width = 16, height = 16)
 
 # check bottom quantile
-for (tissue in)
-
-cat <- unique()
-cortex <- pairs_df[pairs_df$tissue %in% 'Brain_Cortex',]
-cortex <- merge(cortex, utr)
-cortex_narm <- cortex[!is.na(cortex$rna) & !is.na(cortex$prt),]
-cor(cortex_narm$rna, cortex_narm$prt)
-fit <- lm(prt ~ rna + UTR_length, data = cortex_narm)
-
-
-summary(fit)
-summary(lm(UTR_length ~ prt, data = cortex_narm))
-summary(lm(UTR_length ~ rna, data = cortex_narm))
-
-plot(cortex_narm$rna, log(cortex_narm$UTR_length))
-summary(fit)
-
-plot(cortex_narm$rna, log(cortex_narm$UTR_length))
-plot(cortex_narm$prt, log(cortex_narm$UTR_length))
+#for (tissue in)#
+#
+#cat <- unique()
+#cortex <- pairs_df[pairs_df$tissue %in% 'Brain_Cortex',]
+#cortex <- merge(cortex, utr)
+#cortex_narm <- cortex[!is.na(cortex$rna) & !is.na(cortex$prt),]
+#cor(cortex_narm$rna, cortex_narm$prt)
+#fit <- lm(prt ~ rna + UTR_length, data = cortex_narm)
 
 
-plot(residuals(fit), (cortex_narm$UTR_length), xlab = 'Resdiuals', ylab = '5"-UTR length')
+#summary(fit)
+#summary(lm(UTR_length ~ prt, data = cortex_narm))
+#summary(lm(UTR_length ~ rna, data = cortex_narm))
+
+#plot(cortex_narm$rna, log(cortex_narm$UTR_length))
+#summary(fit)
+
+#plot(cortex_narm$rna, log(cortex_narm$UTR_length))
+#plot(cortex_narm$prt, log(cortex_narm$UTR_length))
 
 
-
-# check table cor instead
-head(table_cor)
-dis_rna <- table_cor == 'discordance_rna_high'; sum(dis_rna, na.rm = T)
-dis_prt <- table_cor == 'discordance_prt_high'; sum(dis_prt, na.rm = T)
-concordance <- table_cor == 'concordance'; sum(concordance, na.rm = T)
-
-# extract genes x categories that are disconcordant
-cols <- colnames(table_cor)[grepl('category',colnames(table_cor))]
-for (col in cols){
-  
-  
-}
+#plot(residuals(fit), (cortex_narm$UTR_length), xlab = 'Resdiuals', ylab = '5"-UTR length')
 
 
-# compare 5' UTR lengths bween concordant / discordant across genes stratified by tissue
 
 
 
