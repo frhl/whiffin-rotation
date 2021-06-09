@@ -34,8 +34,8 @@ loc_direction <- as.numeric(unlist(lapply(strsplit(loc, split = '\\:'), function
 
 # generate new matrix with these details
 dt <- data.table(gene_symbol, ensgid, ensgid_version, enstid, enstid_version, biotype, biotype_transcript, chr = loc_chr, bp_start = loc_start, bp_end = loc_end, direction = loc_direction, seq = mat$seq) # ~ 17k genes
-fwrite(dt, 'derived/210607_MANE.GRCh38.v0.93.select_ensembl_rna_matrix.txt', sep = '\t')
-fwrite(dt, '~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.select_ensembl_rna_matrix.txt', sep = '\t')
+#fwrite(dt, 'derived/210607_MANE.GRCh38.v0.93.select_ensembl_rna_matrix.txt', sep = '\t')
+#fwrite(dt, '~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.select_ensembl_rna_matrix.txt', sep = '\t')
 
 # find uAUG, uORFs
 #manually search: uAUG = ATG, uORF = ATG + a stop codon (TAG, TAA, TGA) in frame
@@ -71,9 +71,10 @@ biotype_transcript <-  gsub('transcript_type=','',mat_cds[,7])
 gene_symbol <-  gsub('gene_name=','',mat_cds[,6])
 exon <-  gsub('exon_number=','',mat_cds[,9])
 exon_id <-  gsub('exon_id=','',mat_cds[,10])
+transcript_name <-  gsub('transcript_name=','',mat_cds[,8])
 
 # keep in CDS
-cds_dt <- data.table(id, type, origin, chr, bp_start, bp_end, direction, extra, gene_symbol, parent, ensgid_version, enstid_version, biotype, biotype_transcript, exon, exon_id)
+cds_dt <- data.table(id, type, origin, chr, bp_start, bp_end, direction, extra, gene_symbol, parent, ensgid_version, enstid_version, biotype, biotype_transcript, exon, exon_id, transcript_name)
 fwrite(cds_dt, '~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.select_ensembl_genomic_matrix_cds.txt', sep = '\t')
 
 
@@ -99,18 +100,20 @@ biotype_transcript <-  gsub('transcript_type=','',mat_utr[,7])
 gene_symbol <-  gsub('gene_name=','',mat_utr[,6])
 exon <-  gsub('exon_number=','',mat_utr[,9])
 exon_id <-  gsub('exon_id=','',mat_utr[,10])
+transcript_name <-  gsub('transcript_name=','',mat_utr[,8])
 
 # keep in CDS
-utr_dt <- data.table(id, type, origin, chr, bp_start, bp_end, direction, extra, gene_symbol, parent, ensgid_version, enstid_version, biotype, biotype_transcript, exon, exon_id)
+utr_dt <- data.table(id, type, origin, chr, bp_start, bp_end, direction, extra, gene_symbol, parent, ensgid_version, enstid_version, biotype, biotype_transcript, exon, exon_id, transcript_name)
 fwrite(utr_dt, '~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.select_ensembl_genomic_matrix_UTRs.txt', sep = '\t')
 
-final_dt <- rbind(utr_dt, cds_dt)
-fwrite(final_dt, 'derived/210607_MANE.GRCh38.v0.93.select_ensembl_genomic_matrix.txt', sep = '\t')
-
-
-fwrite(final_dt, '~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.select_ensembl_genomic_matrix.txt', sep = '\t')
 
 
 
+#final_dt <- rbind(utr_dt, cds_dt)
+#fwrite(final_dt, 'derived/210607_MANE.GRCh38.v0.93.select_ensembl_genomic_matrix.txt', sep = '\t')
+#fwrite(final_dt, '~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.select_ensembl_genomic_matrix.txt', sep = '\t')
 
-final_dt
+
+
+
+#final_dt
