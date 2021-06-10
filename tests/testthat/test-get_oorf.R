@@ -1,10 +1,14 @@
 
+source('R/null_omit.R')
+source('R/find_orfs.R')
 
 test_that("easy example", {
 
   # in frame
   x1 <- 'ATGAAA'
   x2 <- 'ATGAAATAG'
+  
+  
   expect_equal(get_oorf(x1, x2)[[1]], "ATGAAAATGAAATAG")
   
   # add one base to 5' end
@@ -15,11 +19,6 @@ test_that("easy example", {
   
   # only in seperate but not overlapping
   x1 <- 'ATGXXXTAG'
-  x2 <- 'ATGYYYTAG'
-  expect_equal(length(get_oorf(x1,x2)), 0)
-  
-  # not overlapping
-  x1 <- 'ATGXX'
   x2 <- 'ATGYYYTAG'
   expect_equal(length(get_oorf(x1,x2)), 0)
   
@@ -47,3 +46,16 @@ test_that("in/out of frame with CDS", {
   expect_equal(length(get_oorf(x1,x2, inframe = T)), 0)
   
 })
+
+test_that("",{
+  
+  # not overlapping (overlapping)
+  x1 <- 'ATGXX'
+  x2 <- 'ATGYYYTAG'
+  get_oorf(x1,x2)
+  
+  
+  
+  
+})
+

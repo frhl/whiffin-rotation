@@ -52,7 +52,7 @@ d2$u3_max_kozak <- unlist(lapply(d1$three_prime_UTR, function(x) max(unlist(get_
 d2$u3_GC <- unlist(lapply(d1$three_prime_UTR, get_gc))
 
 d2 <- d2[!duplicated(d2),]
-fwrite(d2, 'derived/tables/210610_MANE.v0.93.UTR_features.txt', sep = '\t')
+fwrite(d2, 'derived/tables/210610b_MANE.v0.93.UTR_features.txt', sep = '\t')
 
 
 
@@ -66,6 +66,7 @@ fwrite(d2, 'derived/tables/210610_MANE.v0.93.UTR_features.txt', sep = '\t')
 #lines(density(na.omit(gc_content[d$type == 'three_prime_UTR'])), col = 'blue')
 #legend(0.91,4, legend=c("CDS", "5'-UTR", "3'-UTR"),
 #       col=c("black", 'red',"blue"), lty=c(1,1,1), cex=1)
+
 
 #d$five_prime_uorfs <- d$uorfs
 

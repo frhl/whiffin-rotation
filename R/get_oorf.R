@@ -7,6 +7,11 @@ get_oorf <- function(utr, cds, inframe = NULL){
   
   combined <- paste0(utr, cds)
   orfs <- find_orfs(combined)
+  
+  # find ORFs and AUGs (the difference must be )
+  orf_start <- as.numeric(unlist(lapply(names(orfs), function(x) strsplit(x, split = '_')[[1]][1])))
+  starts <- find_codon(utr, codon =  'ATG')
+  
   if (length(orfs) > 0){
     
     # check overlap
@@ -21,7 +26,6 @@ get_oorf <- function(utr, cds, inframe = NULL){
     if (!is.null(inframe)){
       
       stopifnot(is.logical(inframe))
-      orf_start <- as.numeric(unlist(lapply(names(orfs), function(x) strsplit(x, split = '_')[[1]][1])))
       cds_start <- nchar(utr)+3
       inframe_cds <- (orf_start - cds_start) %% 3 == 0 & orf_start < cds_start
       bool <-  inframe_cds & overlap
@@ -31,7 +35,7 @@ get_oorf <- function(utr, cds, inframe = NULL){
 
     return(orfs[overlap])
   }
-  return(NA)
+  return(NULL)
 }
 
 
