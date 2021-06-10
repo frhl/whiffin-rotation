@@ -6,6 +6,11 @@
 \usage{
 count_codon(x, codon = "ATG")
 }
+\arguments{
+\item{x}{string, sequence}
+
+\item{codon}{string}
+}
 \description{
-find codons
+cound codons
 }

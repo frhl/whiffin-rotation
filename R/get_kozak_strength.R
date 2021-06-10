@@ -1,10 +1,13 @@
-
-
-
+#' @title get kozak strength
+#' @description get kozak strength
+#' @param x sequence
+#' @export
 
 
 
 get_utr_kozak_strength <- function(x){
+  
+  # THIS IS AN OLD FUNCTION. REDO!
   
   # strengths
   kozaks <- list(
@@ -14,7 +17,6 @@ get_utr_kozak_strength <- function(x){
     weak_1 =   '...ATG.',
     weak_2 = 'ATG'
   )
-  
   
   # get sequence around ATG
   orfs <- find_orfs(x)

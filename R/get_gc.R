@@ -1,4 +1,7 @@
-
+#' @title get GC content
+#' @description get GC content
+#' @param x sequence
+#' @export
 
 get_gc <- function(x){
  
