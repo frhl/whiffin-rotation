@@ -23,7 +23,9 @@ get_oorf <- function(utr, cds, inframe = NULL){
     
     # in/out of frame to CDS
     if (!is.null(inframe)){
+      
       stopifnot(is.logical(inframe))
+      orf_start <- extract_starts(orfs)
       cds_start <- nchar(utr)+3
       inframe_cds <- (orf_start - cds_start) %% 3 == 0 & orf_start < cds_start
       bool <-  inframe_cds & overlap

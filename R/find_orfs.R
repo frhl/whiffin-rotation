@@ -14,9 +14,11 @@ find_orfs <- function(x, start = 'ATG', stop = '(TAG)|(TAA)|(TGA)'){
   stop_pos <- find_codon(x, stop)
   outlist <- list()
   if (!is.null(start_pos) & !is.null(stop_pos)){
+    
     mat <- expand.grid(start_pos, stop_pos)
     mat <- mat[mat$Var2 > mat$Var1,]
-    mat <- mat[(mat$Var2 - mat$Var1) %% 3 == 0, ]
+    mat <- mat[(mat$Var2 - mat$Var1) %% 3 == 0, ] # keep in frame
+    mat <- mat[!duplicated(mat$Var1),] # remove many matching stop codons
     
     # return sequences if open reading frame exists
     if (nrow(mat) > 0){

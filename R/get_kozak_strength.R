@@ -1,11 +1,11 @@
 #' @title get kozak strength
-#' @description get kozak strength
+#' @description get kozak strength (Assumes AUG as start codon)
 #' @param x sequence
+#' @note currently this only check for kozaks in open reading frames.
 #' @export
 
 
-
-get_utr_kozak_strength <- function(x){
+get_kozak_strength <- function(x, only_orf = F){
   
   # THIS IS AN OLD FUNCTION. REDO!
   
@@ -18,31 +18,34 @@ get_utr_kozak_strength <- function(x){
     weak_2 = 'ATG'
   )
   
-  # get sequence around ATG
-  orfs <- find_orfs(x)
-  if (length(orfs) > 0){
-    if (all(!is.na(orfs))){
-      starts <- as.numeric(strsplit(names(orfs), split = '_')[[1]][1])
-      check <- lapply(starts, function(i) ((i-5):(i+1)))
-      check <- lapply(check, function(i) i[i>0])
-      
-      kozak_match <- lapply(check, function(is){
-        
-        seq_selected <- paste0(unlist(strsplit(x,split = ''))[is], collapse = '')
-        # find kozak sequence
-        lst <- lapply(kozaks, function(kozak) grepl(kozak, seq_selected))
-        match <- min((1:5)[unlist(lst)])
-        #names <- unlist(lapply(strsplit(names(kozaks), split = '_'), function(x) x[1]))
-        names <- c(3,2,2,1,1)
-        return(names[match])
-        
-      })
-      
-      names(kozak_match) <- starts
-      kozak_match <- null_omit(kozak_match)
-      return(kozak_match)
+  # specify whether ORF is needed or not
+  starts <- find_codon(x)
+  if (only_orf){
+    orfs <- find_orfs(x)
+    if (length(orfs) > 0){
+      starts <- extract_starts(orfs)
+    } else {
+      return(NULL)
     }
   }
-  return(NA)
-
+  
+  # process kozaks
+  if (!is.null(starts)){
+    sequence <- split_seq(x)
+    strengths <- lapply(starts, function(i){
+      i1 <- max(1, i-5)
+      i2 <- i+1
+      context <- paste0(sequence[i1:i2], collapse = '')
+      kozak_match <- unlist(lapply(kozaks, function(k){
+        grepl(k, context)
+      }))
+      kozak_number <- max(c(3,2,2,1,1)[kozak_match])
+      return(kozak_number)
+    })
+    
+    names(strengths) <- starts
+    return(strengths)
+    
+  }
+ 
 }
