@@ -2,7 +2,6 @@ context('find_orfs')
 
 test_that("basic usage single ORF", {
 
-  
   # basic usage 1)
   x = 'ATGTAG'
   result <- find_orfs(x)
@@ -32,13 +31,13 @@ test_that("basic usage multiple ORFs", {
   expect_equal(result[[1]], 'ATGATGTAG')
   expect_equal(result[[2]], 'ATGTAG')
   
-  # multiple ORFs (non overlappi g)
+  # multiple ORFs 
   x = 'ATGTAGATGTAG'
   result <- find_orfs(x)
-  expect_equal(names(result),c('3_6','3_12','9_12'))
+  expect_equal(names(result),c('3_6','9_12'))
   expect_equal(result[[1]], "ATGTAG")
-  expect_equal(result[[2]], "ATGTAGATGTAG")
-  expect_equal(result[[3]], 'ATGTAG')
+  #expect_equal(result[[2]], "ATGTAGATGTAG")
+  expect_equal(result[[2]], 'ATGTAG')
   
   # multiple ORFs (overlapping)
   x = 'ATGxATGxATGxTAGxTAGxTAG'
@@ -51,7 +50,25 @@ test_that("basic usage multiple ORFs", {
 
 })
 
+test_that("ORF stops after first stop codon", {
+  
+  x = 'ATGXXXTAGXXXTAG'
+  result <- find_orfs(x)
+  expect_equal(length(result), 1)
+  
+})
+
 test_that("expected no ORF", {
+  
+  # only start
+  x = 'ATGAAA'
+  result <- find_orfs(x)
+  expect_equal(length(result), 0)
+  
+  # only end
+  x = 'AAATAG'
+  result <- find_orfs(x)
+  expect_equal(length(result), 0)
   
   # stop then start
   x = 'TAGATG'

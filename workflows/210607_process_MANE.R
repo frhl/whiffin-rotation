@@ -1,7 +1,7 @@
-# this is a messy workflow to create UTR and sequence files. Load them into a seperate script.
+# this is a very messy workflow to create UTR and sequence files. Load them into a seperate script.
 
 
-library(data.table)
+devtools::load_all()
 
 
 # read data and convert to matrix
@@ -18,7 +18,7 @@ colnames(sequences) <- 'full'
 mat <- as.data.table(do.call(rbind, lapply(sequences$full, function(x) unlist(strsplit(x, split = '<')))))
 colnames(mat) <- c('id','seq')
 
-# format header
+# format header and clean up..
 enstid_version <- unlist(lapply(strsplit(mat$id, split = ' '), function(x) x[1]))
 enstid <- unlist(lapply(strsplit(enstid_version, split = '\\.'), function(x) x[1]))
 ensgid_version <- unlist(lapply(strsplit(gsub('gene:','',mat$id), split = ' '), function(x) x[4]))
@@ -39,15 +39,13 @@ dt <- data.table(gene_symbol, ensgid, ensgid_version, enstid, enstid_version, bi
 
 # find uAUG, uORFs
 #manually search: uAUG = ATG, uORF = ATG + a stop codon (TAG, TAA, TGA) in frame
-
 x <- read.table('extdata/MANE.GRCh38.v0.93.select_ensembl_genomic.gff', sep = '\t')
 y <- x
 table(y$V3)
 
-
+# the only entries we are interested in
 cds <- y[ y$V3 %in% c('CDS','exon','start_codon' ,'stop_codon'),]
 utrs <- y[ y$V3 %in% c('five_prime_UTR','three_prime_UTR'),]
-
 
 ## deal with CDS first
 mat_cds <- do.call(rbind, strsplit(cds$V9,split =';'))
@@ -76,7 +74,6 @@ transcript_name <-  gsub('transcript_name=','',mat_cds[,8])
 # keep in CDS
 cds_dt <- data.table(id, type, origin, chr, bp_start, bp_end, direction, extra, gene_symbol, parent, ensgid_version, enstid_version, biotype, biotype_transcript, exon, exon_id, transcript_name)
 fwrite(cds_dt, '~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.select_ensembl_genomic_matrix_cds.txt', sep = '\t')
-
 
 ## deal with CDS first
 mat_utr <- do.call(rbind, strsplit(utrs$V9,split =';'))
@@ -108,12 +105,3 @@ fwrite(utr_dt, '~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.
 
 
 
-
-#final_dt <- rbind(utr_dt, cds_dt)
-#fwrite(final_dt, 'derived/210607_MANE.GRCh38.v0.93.select_ensembl_genomic_matrix.txt', sep = '\t')
-#fwrite(final_dt, '~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.select_ensembl_genomic_matrix.txt', sep = '\t')
-
-
-
-
-#final_dt

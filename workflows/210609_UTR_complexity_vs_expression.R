@@ -1,6 +1,7 @@
+# author: frederik heymann (21-06-09)
+# description: compare complexity of UTR across different tissue/protein expression tables
 
-library(data.table)
-library(ggplot2)
+devtools::load_all()
 
 # load expression and UTR data
 expression <- fread('derived/tables/210609_prt_rna_numerical.txt', sep = '\t')

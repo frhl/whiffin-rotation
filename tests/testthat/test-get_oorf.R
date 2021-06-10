@@ -1,6 +1,4 @@
-
-source('R/null_omit.R')
-source('R/find_orfs.R')
+context('get_oorf')
 
 test_that("easy example", {
 
@@ -45,15 +43,17 @@ test_that("in/out of frame with CDS", {
   
 })
 
-test_that("",{
+test_that("expexted to not find anything",{
   
   # not overlapping (overlapping)
   x1 <- 'ATGXX'
   x2 <- 'ATGYYYTAG'
-  get_oorf(x1,x2)
+  expect_equal(length(get_oorf(x1,x2)), 0)
   
-  
-  
+  # in UTR and CDS but not overlapping
+  x1 <- 'ATGXXXTAG'
+  x2 <- 'ATGYYYTAG'
+  expect_equal(length(get_oorf(x1,x2)), 0)
   
 })
 
