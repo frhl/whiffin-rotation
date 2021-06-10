@@ -1,4 +1,5 @@
-# Process UTRs and CDS
+# author: Frederik Heymann Lassen, 07-June-2021
+# description: find uORFs and various UTR complexity 
 
 # load package
 devtools::load_all()

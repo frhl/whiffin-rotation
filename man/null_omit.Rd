@@ -6,6 +6,9 @@
 \usage{
 null_omit(x)
 }
+\arguments{
+\item{x}{list}
+}
 \description{
 omit nulls from list
 }

@@ -5,7 +5,12 @@
 #' @export
 
 find_codon <- function(x, codon = 'ATG'){
-  return(as.numeric(gregexpr(codon, x)[[1]])+2)
+  codon <- as.numeric(gregexpr(codon, x)[[1]])+2
+  if (all(codon == 1)){
+    return(NULL)
+  } else {
+    return(codon)
+  }
 }
 
 

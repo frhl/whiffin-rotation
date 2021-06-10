@@ -7,27 +7,29 @@
 #' The rest of the stop codons (in-frame) will not be considered for the corresponding start codon.
 #' @export
 
-
 find_orfs <- function(x, start = 'ATG', stop = '(TAG)|(TAA)|(TGA)'){
   
   # Check for in-frame codons
-  start <- find_codon(x, start)
-  stop <- find_codon(x, stop)
-  mat <- expand.grid(start, stop)
-  mat <- mat[mat$Var2 > mat$Var1,]
-  mat <- mat[(mat$Var2 - mat$Var1) %% 3 == 0, ]
+  start_pos <- find_codon(x, start)
+  stop_pos <- find_codon(x, stop)
   outlist <- list()
-  
-  # return sequences if open reading frame exists
-  if (nrow(mat) > 0){
-    seq_x <- split_seq(x)
-    positions <- as.character(apply(mat, 1, function(x) paste(x, collapse = '_')))
-    outlist <- lapply(1:nrow(mat), function(i){
-      paste0(seq_x[(mat$Var1[i]-2):(mat$Var2[i])], collapse = '')
-    })
-    names(outlist) <- positions
+  if (!is.null(start_pos) & !is.null(stop_pos)){
+    mat <- expand.grid(start_pos, stop_pos)
+    mat <- mat[mat$Var2 > mat$Var1,]
+    mat <- mat[(mat$Var2 - mat$Var1) %% 3 == 0, ]
+    
+    # return sequences if open reading frame exists
+    if (nrow(mat) > 0){
+      seq_x <- split_seq(x)
+      positions <- as.character(apply(mat, 1, function(x) paste(x, collapse = '_')))
+      outlist <- lapply(1:nrow(mat), function(i){
+        paste0(seq_x[(mat$Var1[i]-2):(mat$Var2[i])], collapse = '')
+      })
+      names(outlist) <- positions
+    }
   }
   return(outlist)
 }
+
 
 
