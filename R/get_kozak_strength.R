@@ -21,7 +21,7 @@ get_kozak_strength <- function(x, only_orf = F){
   # specify whether ORF is needed or not
   starts <- find_codon(x)
   if (only_orf){
-    orfs <- find_orfs(x)
+    orfs <- get_orf(x)
     if (length(orfs) > 0){
       starts <- extract_starts(orfs)
     } else {

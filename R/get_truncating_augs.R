@@ -5,11 +5,11 @@
 #' @param stop string, regex
 #' @export
 
-find_truncating_augs <- function(x, start = 'ATG', stop = '(TAG)|(TAA)|(TGA)'){
+get_truncating_augs <- function(x, start = 'ATG', stop = '(TAG)|(TAA)|(TGA)'){
   
   # truncating AUGs are AUGs that are not in an ORF
   starts <- find_codon(x)
-  orfs_seq <- find_orfs(x, start, stop)
+  orfs_seq <- get_orf(x, start, stop)
   orf_names <- unlist(lapply(strsplit(names(orfs_seq), split = '_'), function(x) x[1]))
   orfs <- as.numeric(orf_names)
   truncations <- starts[!starts %in% orfs]

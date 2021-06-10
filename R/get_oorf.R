@@ -9,7 +9,7 @@ get_oorf <- function(utr, cds, inframe = NULL){
   
   # check for open reading frames in combined data
   combined <- paste0(utr, cds)
-  orfs <- find_orfs(combined)
+  orfs <- get_orf(combined)
   
   if (length(orfs) > 0){
     

@@ -7,7 +7,7 @@
 #' The rest of the stop codons (in-frame) will not be considered for the corresponding start codon.
 #' @export
 
-find_orfs <- function(x, start = 'ATG', stop = '(TAG)|(TAA)|(TGA)'){
+get_orf <- function(x, start = 'ATG', stop = '(TAG)|(TAA)|(TGA)'){
   
   # Check for in-frame codons
   start_pos <- find_codon(x, start)

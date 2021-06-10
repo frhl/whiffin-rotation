@@ -44,7 +44,7 @@ oorf_kozak <- function(i){
 # 5' UTR
 d2$u5_len <- unlist(lapply(d1$five_prime_UTR, function(x) nchar(x)))
 d2$u5_AUG <- unlist(lapply(d1$five_prime_UTR, count_codon))
-d2$u5_ORF <- unlist(lapply(d1$five_prime_UTR, function(x) length(find_orfs(x))))
+d2$u5_ORF <- unlist(lapply(d1$five_prime_UTR, function(x) length(get_orf(x))))
 d2$u5_oORF_all <-  unlist(lapply(1:nrow(d2), function(i) length(get_oorf(d1$five_prime_UTR[i], d1$CDS[i]))))
 d2$u5_oORF_inframe <-  unlist(lapply(1:nrow(d2), function(i) length(get_oorf(d1$five_prime_UTR[i], d1$CDS[i], inframe = T))))
 d2$u5_oORF_outframe <-  unlist(lapply(1:nrow(d2), function(i) length(get_oorf(d1$five_prime_UTR[i], d1$CDS[i], inframe = F))))
@@ -59,7 +59,7 @@ d2$u5_oORF_kozak <-  unlist(lapply(1:nrow(d2), function(i) length(get_oorf(d1$fi
 # 3' UTR
 d2$u3_len <- unlist(lapply(d1$three_prime_UTR, function(x) nchar(x)))
 d2$u3_AUG <- unlist(lapply(d1$three_prime_UTR, count_codon))
-d2$u3_ORF <- unlist(lapply(d1$three_prime_UTR, function(x) length(find_orfs(x))))
+d2$u3_ORF <- unlist(lapply(d1$three_prime_UTR, function(x) length(get_orf(x))))
 d2$u3_max_kozak <- unlist(lapply(d1$three_prime_UTR, function(x) max(unlist(get_utr_kozak_strength(x)))))
 d2$u3_GC <- unlist(lapply(d1$three_prime_UTR, get_gc))
 

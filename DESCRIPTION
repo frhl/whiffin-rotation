@@ -1,7 +1,7 @@
 Package: utrsRus
 Type: Package
 Title: UTR analysis using R
-Version: 0.1.0
+Version: 0.1.1
 Author: FL
 Maintainer: FL <flassen@well.ox.ac.uk>
 Description: A package to aid MS work in the Oxford Kessler Lab. 
@@ -20,13 +20,13 @@ Imports:
     gplots
 RoxygenNote: 7.1.1
 Collate:
-	'count_codon.R'	
-	'find_orfs.R'
+    'count_codon.R'	
+    'get_orf.R'
     'get_kozak_strength.R'
     'kmer.R'
     'null_omit.R'
     'find_codon.R'	
-    'find_truncating_augs.R'
+    'get_truncating_augs.R'
     'get_gc.R'		
     'get_oorf.R'		
     'misc.R'			
