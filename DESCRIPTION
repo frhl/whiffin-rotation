@@ -26,6 +26,7 @@ Collate:
     'kmer.R'
     'null_omit.R'
     'find_codon.R'	
+    'find_truncating_augs.R'
     'get_gc.R'		
     'get_oorf.R'		
     'misc.R'			

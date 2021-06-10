@@ -1,9 +1,9 @@
+# Process UTRs and CDS
 
-# process 5 and 3 prime UTRs to find complexity
+# load package
 devtools::load_all()
 
-library(data.table)
-
+# data that contains 5' UTRs, CDS and 3' UTRs
 d <- fread('~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.combined-table.txt', sep = '\t')
 d$enstid <- unlist(lapply(strsplit(d$enstid_version, split = '\\.'), function(x) x[1]))
 
@@ -20,7 +20,6 @@ d1 <- do.call(rbind, lapply(unique(d$enstid_version), function(x){
   nrow$three_prime_UTR <- row$seq[row$type == 'three_prime_UTR']
   return(nrow)
 }))
-
 
 # keep track of data here
 d1 <- d1[!duplicated(d1),]
@@ -46,23 +45,7 @@ d2$u3_ORF <- unlist(lapply(d1$three_prime_UTR, function(x) length(find_orfs(x)))
 d2$u3_max_kozak <- unlist(lapply(d1$three_prime_UTR, function(x) max(unlist(get_utr_kozak_strength(x)))))
 d2$u3_GC <- unlist(lapply(d1$three_prime_UTR, get_gc))
 
+# write out table with UTR complexity features
 d2 <- d2[!duplicated(d2),]
 fwrite(d2, 'derived/tables/210610b_MANE.v0.93.UTR_features.txt', sep = '\t')
 
-
-
-
-
-
-
-# look at GC content
-#plot(density(na.omit(d2$u5_GC)), main = 'GC content (%)', xlim = c(0.2,1), ylim = c(0, 4))
-#lines(density(na.omit(gc_content[d$type == 'five_prime_UTR'])), col = 'red', legend = 'ga')
-#lines(density(na.omit(gc_content[d$type == 'three_prime_UTR'])), col = 'blue')
-#legend(0.91,4, legend=c("CDS", "5'-UTR", "3'-UTR"),
-#       col=c("black", 'red',"blue"), lty=c(1,1,1), cex=1)
-
-
-#d$five_prime_uorfs <- d$uorfs
-
-#find_orfs(d[3,]$seq)

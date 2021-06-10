@@ -6,4 +6,8 @@ test_that("basic usage", {
   expect_equal(find_truncating_augs(x1)[[1]], "ATGXXATGXXXTGA")
   expect_equal(find_orfs(x1)[[1]], "ATGXXXTGA")
   
+  x1 <- 'XATGXXATGXXXTGA'
+  expect_equal(find_truncating_augs(x1)[[1]], "ATGXXATGXXXTGA")
+  expect_equal(find_orfs(x1)[[1]], "ATGXXXTGA")
+  
 })
