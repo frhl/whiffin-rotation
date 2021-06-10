@@ -8,58 +8,26 @@
 #' @export
 
 
-find_orfs <- function(x, start = 'ATG', stop = c('TAG', 'TAA', 'TGA')){
+find_orfs <- function(x, start = 'ATG', stop = '(TAG)|(TAA)|(TGA)'){
   
-  seq <- unlist(strsplit(x, split = ''))
+  # Check for in-frame codons
+  start <- find_codon(x, start)
+  stop <- find_codon(x, stop)
+  mat <- expand.grid(start, stop)
+  mat <- mat[mat$Var2 > mat$Var1,]
+  mat <- mat[(mat$Var2 - mat$Var1) %% 3 == 0, ]
+  outlist <- list()
   
-  # get start codons
-  split_start <- unlist(strsplit(x, split = start))
-  split_start_n <- unlist(lapply(split_start, nchar))+3 
-  starts <- cumsum(split_start_n) # start codon = i-2 : i .. e.g. seq[(1610-2):1610]
-  
-  if (length(starts) > 0) {
-    
-    # get stop codons
-    split_stop <- unlist(strsplit(x, split = stop))
-    split_stop_n <- unlist(lapply(split_stop, nchar))+3 
-    stops <- cumsum(split_stop_n) # start codon = i-2 : i .. e.g. seq[(1927-2):1927]
-    
-    # find matching stop-start codons (ORFs)
-    orfs <- lapply(starts, function(cur_start){
-      
-      # look through stops 
-      valid_stops <- stops[stops > cur_start & stops <= length(seq)]
-      inframe_stops_bool <- (valid_stops-cur_start) %% 3 == 0
-      
-      if (any(inframe_stops_bool)){
-        #print(cur_start)
-        inframe_stops <- valid_stops[inframe_stops_bool] 
-        inframe_stop <- inframe_stops[1]
-        
-        # assertions
-        kmers <- seq[(cur_start-2):(inframe_stop)]
-        kmers <- unlist(lapply(seq(3, length(kmers), by = 3), function(i){
-          paste0(kmers[(i-2):i], collapse = '')
-        }))
-        stopifnot(kmers[1] == start)
-        stopifnot(kmers[length(kmers)] %in% stop)
-        orf <- paste0(kmers, collapse = '')
-        return(orf)
-      }
-      
-      return(NULL)
+  # return sequences if open reading frame exists
+  if (nrow(mat) > 0){
+    seq_x <- split_seq(x)
+    positions <- as.character(apply(mat, 1, function(x) paste(x, collapse = '_')))
+    outlist <- lapply(1:nrow(mat), function(i){
+      paste0(seq_x[(mat$Var1[i]-2):(mat$Var2[i])], collapse = '')
     })
-    
-    # get end of sequence
-    ends <- as.numeric(unlist(lapply(orfs, function(x) if (!is.null(x)) return(nchar(x)) else return(NA))))
-    names(orfs) <- paste0(starts,'_',starts+ends)
-    orfs <- null_omit(orfs)
-    return(orfs)
+    names(outlist) <- positions
   }
-  
-  return(NA)
-
+  return(outlist)
 }
-  
-  
-  
+
+

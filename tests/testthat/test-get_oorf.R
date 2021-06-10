@@ -7,8 +7,6 @@ test_that("easy example", {
   # in frame
   x1 <- 'ATGAAA'
   x2 <- 'ATGAAATAG'
-  
-  
   expect_equal(get_oorf(x1, x2)[[1]], "ATGAAAATGAAATAG")
   
   # add one base to 5' end

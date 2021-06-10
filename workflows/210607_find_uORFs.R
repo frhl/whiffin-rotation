@@ -1,11 +1,6 @@
 
 # process 5 and 3 prime UTRs to find complexity
-source('R/find_orfs.R')
-source('R/get_gc.R')
-source('R/count_codon.R')
-source('R/null_omit.R')
-source('R/get_kozak_strength.R')
-source('R/get_oorf.R')
+devtools::load_all()
 
 library(data.table)
 

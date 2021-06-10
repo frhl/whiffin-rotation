@@ -1,4 +1,8 @@
-
+#' @title kmer
+#' @description convers sequence into kmers
+#' @param x string, seqeuence
+#' @param k kmer length
+#' @export
 
 kmer <- function(x, k = 3){
   split_x <- unlist(strsplit(x, split = ''))

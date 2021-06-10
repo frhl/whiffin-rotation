@@ -1,16 +1,15 @@
-
-
-
-
+#' @title get overlapping open reading frames
+#' @description get overlapping open reading frames
+#' @param utr utr sequence
+#' @param cds cds sequence
+#' @param inframe boolean should the ORFs be in frame with CDS?
+#' @export
 
 get_oorf <- function(utr, cds, inframe = NULL){
   
+  # check for open reading frames in combined data
   combined <- paste0(utr, cds)
   orfs <- find_orfs(combined)
-  
-  # find ORFs and AUGs (the difference must be )
-  orf_start <- as.numeric(unlist(lapply(names(orfs), function(x) strsplit(x, split = '_')[[1]][1])))
-  starts <- find_codon(utr, codon =  'ATG')
   
   if (length(orfs) > 0){
     
@@ -24,15 +23,12 @@ get_oorf <- function(utr, cds, inframe = NULL){
     
     # in/out of frame to CDS
     if (!is.null(inframe)){
-      
       stopifnot(is.logical(inframe))
       cds_start <- nchar(utr)+3
       inframe_cds <- (orf_start - cds_start) %% 3 == 0 & orf_start < cds_start
       bool <-  inframe_cds & overlap
       return(orfs[unlist(ifelse(inframe, list(bool), list(!bool & overlap)))])
-      
     }
-
     return(orfs[overlap])
   }
   return(NULL)

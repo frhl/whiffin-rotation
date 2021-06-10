@@ -1,12 +1,11 @@
-
+#' @title find codon
+#' @description use regex to return position of codon
+#' @param x string (dna sequence)
+#' @param codon string, regex.
+#' @export
 
 find_codon <- function(x, codon = 'ATG'){
-
-  split_codon <- unlist(strsplit(x, split = codon))
-  split_codon_n <- unlist(lapply(split_codon, nchar))+3 
-  codons <- cumsum(split_codon_n) 
-  return(codons)
-  
+  return(as.numeric(gregexpr(codon, x)[[1]])+2)
 }
 
 
