@@ -6,14 +6,11 @@
 
 get_altered_cds <- function(utr,cds){
   
-  browser()
-  
-  truncation <- get_truncating_augs(utr)
-  if (!is.null(truncation)) trunc_start <- extract_starts(truncation)
-  
+  # without matching stop
   elongation <- get_oorf(utr, cds)
-  if (!is.null(elongation)) elong_start <- extract_starts(elongation)
-  
-  
+  truncation <- lapply(get_truncating_augs(utr), function(x) paste0(x, cds))
+  combined <- c(elongation, truncation)
+  combined <- combined[!duplicated(unlist(combined))]
+  return(combined)
   
 }

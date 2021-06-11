@@ -15,13 +15,14 @@ get_truncating_augs <- function(x, start = 'ATG', stop = '(TAG)|(TAA)|(TGA)'){
     orfs <- as.numeric(orf_names)
     truncations <- truncations[!truncations %in% orfs]
   }
-
+  
   # split sequence and get truncations
   seq_splitted <- split_seq(x)
   seq_out <- lapply(truncations, function(i){
     paste0(seq_splitted[(i-2):nchar(x)], collapse = '')
   })
-  names(seq_out) <- paste0(truncations,'_0')
-  return(seq_out)
   
+  # append name
+  if (length(seq_out)) names(seq_out) <- paste0(truncations,'_0')
+  return(seq_out)
 }

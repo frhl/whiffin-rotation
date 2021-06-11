@@ -60,6 +60,11 @@ test_that("ORF stops after first stop codon", {
 
 test_that("expected no ORF", {
   
+  # nothing
+  x = 'AAAAAA'
+  result <- get_orf(x)
+  expect_equal(length(result), 0)
+  
   # only start
   x = 'ATGAAA'
   result <- get_orf(x)

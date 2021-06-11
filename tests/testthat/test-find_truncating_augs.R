@@ -16,3 +16,12 @@ test_that("basic usage", {
   expect_equal(length(get_orf(x2)), 0)
   
 })
+
+test_that("expect nothing returned", {
+  
+  # nothing
+  x1 <- 'AAAAAAAA'
+  expect_equal(length(get_truncating_augs(x1)), 0)
+  expect_true(is.list(get_truncating_augs(x1)))
+  
+})
