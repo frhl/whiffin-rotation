@@ -19,3 +19,20 @@ test_that("basic functionality", {
   expect_equal(get_oorf_kozak(x1, x2)[[2]], 2)
   
 })
+
+test_that("expect nothing to be returned", {
+  
+  # nothing
+  x1 = 'ATGTAG'
+  x2 = 'ATGTAG'
+  expect_equal(length(get_oorf_kozak(x1, x2)), 0)
+  
+  # nothing
+  x1 = 'AAAAAA'
+  x2 = 'AAAAAA'
+  expect_equal(length(get_oorf_kozak(x1, x2)), 0)
+
+  
+})
+
+

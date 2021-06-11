@@ -10,12 +10,16 @@
 
 get_oorf_kozak <- function(utr, cds, f = get_altered_cds){
   
+  kozak_strength <- list()
   combined <- paste0(utr, cds)
   kozak <- get_kozak_strength(combined)
-  kozak_start <- extract_starts(kozak)
-  oorfs <- extract_starts(f(utr, cds))
-  return(kozak[kozak_start %in% oorfs])
-  
+  oorf <- f(utr, cds)
+  if (length(oorf) > 0){
+    kozak_start <- extract_starts(kozak)
+    oorf_start <- extract_starts(oorf)
+    kozak_strength <- kozak[kozak_start %in% oorf_start]
+  }
+  return(kozak_strength)
 }
 
   
