@@ -13,8 +13,21 @@ dt <- dt[dt$prt != 0, ]
 
 
 # setup ggplot
-pdf('derived/210611_UTR_complexity_vs_continious.pdf', width = 12, height = 12)
+pdf('derived/210611b_UTR_complexity_vs_continious.pdf', width = 12, height = 12)
 
+# AUGs across sequences
+text = paste0(sum(complexity$u5_AUG > 0),'/',nrow(complexity),' genes')
+ggplot(dt[u5_AUG > 0], aes(x=rna_std, y = prt_std, color = log2(u5_AUG))) +
+  geom_point() +
+  facet_wrap(~tissue) +
+  xlab('Normalized Log RNA expression') +
+  ylab('Normalized Log Protein Expression') +
+  geom_hline(yintercept = 0, alpha = 0.2) +
+  geom_vline(xintercept = 0, alpha = 0.2) +
+  ggtitle('U5_AUG (U5_AUG > 0)', text) +
+  theme_bw() 
+
+# ORFs in 5' UTR
 ggplot(dt[dt$u5_ORF > 1], aes(x=rna_std, y = prt_std, color = u5_ORF)) +
   geom_point() +
   facet_wrap(~tissue) +
@@ -26,6 +39,7 @@ ggplot(dt[dt$u5_ORF > 1], aes(x=rna_std, y = prt_std, color = u5_ORF)) +
   geom_smooth(color = 'red', linetype = 'dashed', formula = y ~ poly(x, 2)) +
   theme_bw() 
 
+# oORFs that are in frame with CDS
 text = paste0(sum(complexity$u5_oORF_inframe > 0),'/',nrow(complexity),' genes')
 ggplot(dt[dt$u5_oORF_inframe > 0], aes(x=rna_std, y = prt_std, color = u5_oORF_inframe)) +
   geom_point() +
@@ -39,6 +53,7 @@ ggplot(dt[dt$u5_oORF_inframe > 0], aes(x=rna_std, y = prt_std, color = u5_oORF_i
   geom_smooth(color = 'red', linetype = 'dashed', formula = y ~ x) +
   theme_bw() 
 
+# oORFs that are out of frame
 text = paste0(sum(complexity$u5_oORF_outframe > 0),'/',nrow(complexity),' genes')
 ggplot(dt[dt$u5_oORF_outframe > 0], aes(x=rna_std, y = prt_std, color = u5_oORF_outframe)) +
   geom_point() +
@@ -51,6 +66,7 @@ ggplot(dt[dt$u5_oORF_outframe > 0], aes(x=rna_std, y = prt_std, color = u5_oORF_
   geom_smooth(color = 'red', linetype = 'dashed', formula = y ~ x) +
   theme_bw()
 
+# oORFs with truncations AND elongated CDS
 text = paste0(sum(complexity$u5_oORF_altered_cds > 0),'/',nrow(complexity),' genes')
 ggplot(dt[dt$u5_oORF_altered_cds > 0], aes(x=rna_std, y = prt_std, color = u5_oORF_outframe)) +
   geom_point() +
@@ -63,7 +79,9 @@ ggplot(dt[dt$u5_oORF_altered_cds > 0], aes(x=rna_std, y = prt_std, color = u5_oO
   geom_smooth(color = 'red', linetype = 'dashed', formula = y ~ x) +
   theme_bw()
 
-text = paste0(sum(complexity$u5_oORF_kozak > 0),'/',nrow(complexity),' genes')
+
+# kozak strength across all tissues in oORFs
+text = paste0(sum(complexity$u5_oORF_kozak != 0),'/',nrow(complexity),' genes')
 ggplot(dt[dt$u5_oORF_kozak != 0], aes(x=rna_std, y = prt_std, color = u5_oORF_kozak)) +
   geom_point(data = dt[dt$u5_oORF_kozak %in% c(1)], alpha = 0.9) +
   geom_point(data = dt[dt$u5_oORF_kozak %in% c(2)], alpha = 0.9) +
@@ -77,16 +95,31 @@ ggplot(dt[dt$u5_oORF_kozak != 0], aes(x=rna_std, y = prt_std, color = u5_oORF_ko
   geom_smooth(color = 'red', linetype = 'dashed', formula = y ~ x) +
   theme_bw()
 
-text = paste0(sum(complexity$u5_AUG > 0),'/',nrow(complexity),' genes')
-ggplot(dt[u5_AUG > 0], aes(x=rna_std, y = prt_std, color = log2(u5_AUG))) +
-  geom_point() +
+# kozak strength in brain_cortex
+ggplot(dt[dt$u5_oORF_kozak & dt$tissue =='Brain_Cortex',], aes(x=rna_std, y = prt_std, color = u5_oORF_kozak, group = u5_oORF_kozak)) +
+  geom_point(data = dt[dt$u5_oORF_kozak %in% c(1) & dt$tissue =='Brain_Cortex'], alpha = 0.9, size = 4) +
+  geom_point(data = dt[dt$u5_oORF_kozak %in% c(2) & dt$tissue =='Brain_Cortex'], alpha = 0.9, size = 4) +
+  geom_point(data = dt[dt$u5_oORF_kozak %in% c(3) &  dt$tissue =='Brain_Cortex'], alpha = 0.9, size = 4) +
   facet_wrap(~tissue) +
   xlab('Normalized Log RNA expression') +
   ylab('Normalized Log Protein Expression') +
+  ggtitle('u5_oORF_kozak i.e. kozak strength truncations/elongation of CDS (u5_oORF_kozak == 3, only strong)') +
   geom_hline(yintercept = 0, alpha = 0.2) +
   geom_vline(xintercept = 0, alpha = 0.2) +
-  ggtitle('U5_AUG (U5_AUG > 0)', text) +
-  theme_bw() 
+  geom_smooth(linetype = 'dashed', se = F, method = lm) +
+  theme_bw()
+
+# kozak strength violin plot in brain as a function of difference in RNA and Protein expression
+dt$delta <- dt$rna_std - dt$prt_std
+ggplot(dt[dt$tissue == 'Brain_Cortex' & dt$u5_oORF_kozak != 0, ], 
+       aes(y=delta, x = u5_oORF_kozak, group = u5_oORF_kozak, fill = u5_oORF_kozak)) +
+  geom_violin() +
+  ggsignif::geom_signif(comparisons = list(c(1,3), c(2,3)), y_position = c(5.2,4.8), test =  't.test') +
+  ggtitle('(Tissue=Brain_Cortex) Comparison of u5_oORF_kozak strength as a function of rna_std - prt_std',  'p-values from t-test') +
+  ylab('Standard RNA - Standard Protein') +
+  xlab('Kozak Strength') +
+  theme_bw() +
+  geom_jitter()
 
 graphics.off()
 
