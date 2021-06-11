@@ -29,16 +29,6 @@ d2$five_prime_UTR <- NULL
 d2$three_prime_UTR <- NULL
 d2$CDS <- NULL
 
-# helper function for evaluating kozak strengthåfor any specific oorf
-oorf_kozak <- function(i){
-  combined <- paste0(d1$five_prime_UTR[i], d1$CDS[i])
-  oorf_start <- extract_starts(get_oorf(d1$five_prime_UTR[i], d1$CDS[i]))
-  kozak <- get_kozak_strength(combined, only_orf = T)
-  kozak_start <- extract_starts(kozak)
-  valid <- intersect(kozak_start, oorf_start)
-  highest_kozak_oorf <- max(unlist(kozak[which(kozak_start == valid)]))
-  return(highest_kozak_oorf)
-}
 
 # 5' UTR
 d2$u5_len <- unlist(lapply(d1$five_prime_UTR, function(x) nchar(x)))
@@ -47,12 +37,11 @@ d2$u5_ORF <- unlist(lapply(d1$five_prime_UTR, function(x) length(get_orf(x))))
 d2$u5_oORF_all <-  unlist(lapply(1:nrow(d2), function(i) length(get_oorf(d1$five_prime_UTR[i], d1$CDS[i]))))
 d2$u5_oORF_inframe <-  unlist(lapply(1:nrow(d2), function(i) length(get_oorf(d1$five_prime_UTR[i], d1$CDS[i], inframe = T))))
 d2$u5_oORF_outframe <-  unlist(lapply(1:nrow(d2), function(i) length(get_oorf(d1$five_prime_UTR[i], d1$CDS[i], inframe = F))))
-#d2$u5_oORF_truncating <- 
-#d2$u5_oORF_kozak <- unlist(lapply(1:nrow(d2), function(i) oorf_kozak(i)))
-d2$u5_max_kozak <- unlist(lapply(d1$five_prime_UTR, function(x) max(unlist(get_utr_kozak_strength(x)))))
+d2$u5_oORF_altered_cds <-  unlist(lapply(1:nrow(d2), function(i) length(get_altered_cds(d1$five_prime_UTR[i], d1$CDS[i]))))
+d2$u5_oORF_kozak <-  unlist(lapply(1:nrow(d2), function(i) max(unlist(get_oorf_kozak(d1$five_prime_UTR[i], d1$CDS[i])))))
+d2$u5_oORF_kozak[d2$u5_oORF_kozak == -Inf] <- 0 # the max on list operation returns warnings. fix here.
+d2$u5_oORF_kozak <-  unlist(lapply(1:nrow(d2), function(i) max(unlist(get_oorf_kozak(d1$five_prime_UTR[i], d1$CDS[i])))))
 d2$u5_GC <- unlist(lapply(d1$five_prime_UTR, get_gc))
-
-d2$u5_oORF_kozak <-  unlist(lapply(1:nrow(d2), function(i) length(get_oorf(d1$five_prime_UTR[i], d1$CDS[i], inframe = F))))
 
 
 # 3' UTR
@@ -64,5 +53,5 @@ d2$u3_GC <- unlist(lapply(d1$three_prime_UTR, get_gc))
 
 # write out table with UTR complexity features
 d2 <- d2[!duplicated(d2),]
-fwrite(d2, 'derived/tables/210610c_MANE.v0.93.UTR_features.txt', sep = '\t')
+fwrite(d2, 'derived/tables/210611_MANE.v0.93.UTR_features.txt', sep = '\t')
 

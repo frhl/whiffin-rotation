@@ -5,7 +5,7 @@ devtools::load_all()
 
 # load expression and UTR data
 expression <- fread('derived/tables/210609_prt_rna_numerical.txt', sep = '\t')
-complexity <- fread('derived/tables/210610b_MANE.v0.93.UTR_features.txt', sep = '\t')
+complexity <- fread('derived/tables/210611_MANE.v0.93.UTR_features.txt', sep = '\t')
 dt <- merge(complexity, expression, by.x = 'ensgid',by.y = 'gene.id')
 dt$rna_std <- (dt$rna - mean(dt$rna, na.rm = T))/sd(dt$rna, na.rm = T)
 dt$prt_std <- (dt$prt - mean(dt$prt, na.rm = T))/sd(dt$prt, na.rm = T)
@@ -13,58 +13,79 @@ dt <- dt[dt$prt != 0, ]
 
 
 # setup ggplot
-pdf('derived/210610_UTR_complexity_vs_continious.pdf', width = 12, height = 12)
-ggplot(dt[!is.na(dt$u5_max_kozak)], aes(x=rna_std, y = prt_std, color = log2(u5_len))) +
+pdf('derived/210611_UTR_complexity_vs_continious.pdf', width = 12, height = 12)
+
+ggplot(dt[dt$u5_ORF > 1], aes(x=rna_std, y = prt_std, color = u5_ORF)) +
   geom_point() +
   facet_wrap(~tissue) +
   xlab('Normalized Log RNA expression') +
   ylab('Normalized Log Protein Expression') +
+  ggtitle('U5_ORF (u5_ORF > 1)','2nd order polynominal fit') +
   geom_hline(yintercept = 0, alpha = 0.2) +
   geom_vline(xintercept = 0, alpha = 0.2) +
   geom_smooth(color = 'red', linetype = 'dashed', formula = y ~ poly(x, 2)) +
   theme_bw() 
-  
-ggplot(dt[u5_ORF > 1], aes(x=rna_std, y = prt_std, color = u5_ORF)) +
-  geom_point() +
-  facet_wrap(~tissue) +
-  xlab('Normalized Log RNA expression') +
-  ylab('Normalized Log Protein Expression') +
-  ggtitle('U5_ORF (u5_ORF > 1)') +
-  geom_hline(yintercept = 0, alpha = 0.2) +
-  geom_vline(xintercept = 0, alpha = 0.2) +
-  geom_smooth(color = 'red', linetype = 'dashed', formula = poly(x, 2)) +
-  theme_bw() 
 
+text = paste0(sum(complexity$u5_oORF_inframe > 0),'/',nrow(complexity),' genes')
 ggplot(dt[dt$u5_oORF_inframe > 0], aes(x=rna_std, y = prt_std, color = u5_oORF_inframe)) +
   geom_point() +
   facet_wrap(~tissue) +
   xlab('Normalized Log RNA expression') +
   ylab('Normalized Log Protein Expression') +
-  ggtitle('U5_oORF_cds_inframe (uORF_inframe > 0)') +
+  ggtitle('U5_oORF_cds_inframe (uORF_inframe > 0)', text) +
   geom_hline(yintercept = 0, alpha = 0.2) +
   geom_vline(xintercept = 0, alpha = 0.2) +
+  ylim(-5,5) +
   geom_smooth(color = 'red', linetype = 'dashed', formula = y ~ x) +
   theme_bw() 
 
-ggplot(dt[dt$u5_oORF_outframe > 1], aes(x=rna_std, y = prt_std, color = u5_oORF_outframe)) +
+text = paste0(sum(complexity$u5_oORF_outframe > 0),'/',nrow(complexity),' genes')
+ggplot(dt[dt$u5_oORF_outframe > 0], aes(x=rna_std, y = prt_std, color = u5_oORF_outframe)) +
   geom_point() +
   facet_wrap(~tissue) +
   xlab('Normalized Log RNA expression') +
   ylab('Normalized Log Protein Expression') +
-  ggtitle('U5_oORF_cds_outframe (uORF_outframe > 1)') +
+  ggtitle('U5_oORF_cds_outframe (uORF_outframe > 0)', text) +
   geom_hline(yintercept = 0, alpha = 0.2) +
   geom_vline(xintercept = 0, alpha = 0.2) +
   geom_smooth(color = 'red', linetype = 'dashed', formula = y ~ x) +
   theme_bw()
 
-ggplot(dt[u5_AUG > 2], aes(x=rna_std, y = prt_std, color = log2(u5_AUG))) +
+text = paste0(sum(complexity$u5_oORF_altered_cds > 0),'/',nrow(complexity),' genes')
+ggplot(dt[dt$u5_oORF_altered_cds > 0], aes(x=rna_std, y = prt_std, color = u5_oORF_outframe)) +
+  geom_point() +
+  facet_wrap(~tissue) +
+  xlab('Normalized Log RNA expression') +
+  ylab('Normalized Log Protein Expression') +
+  ggtitle('u5_oORF_altered_cds i.e. truncations/elongation of CDS (u5_oORF_altered_cds > 0)', text) +
+  geom_hline(yintercept = 0, alpha = 0.2) +
+  geom_vline(xintercept = 0, alpha = 0.2) +
+  geom_smooth(color = 'red', linetype = 'dashed', formula = y ~ x) +
+  theme_bw()
+
+text = paste0(sum(complexity$u5_oORF_kozak > 0),'/',nrow(complexity),' genes')
+ggplot(dt[dt$u5_oORF_kozak != 0], aes(x=rna_std, y = prt_std, color = u5_oORF_kozak)) +
+  geom_point(data = dt[dt$u5_oORF_kozak %in% c(1)], alpha = 0.9) +
+  geom_point(data = dt[dt$u5_oORF_kozak %in% c(2)], alpha = 0.9) +
+  geom_point(data = dt[dt$u5_oORF_kozak %in% c(3)], alpha = 0.9) +
+  facet_wrap(~tissue) +
+  xlab('Normalized Log RNA expression') +
+  ylab('Normalized Log Protein Expression') +
+  ggtitle('u5_oORF_kozak i.e. kozak strength truncations/elongation of CDS (u5_oORF_kozak > 0) (3=strong, 2=moderate, 1=weak)', text) +
+  geom_hline(yintercept = 0, alpha = 0.2) +
+  geom_vline(xintercept = 0, alpha = 0.2) +
+  geom_smooth(color = 'red', linetype = 'dashed', formula = y ~ x) +
+  theme_bw()
+
+text = paste0(sum(complexity$u5_AUG > 0),'/',nrow(complexity),' genes')
+ggplot(dt[u5_AUG > 0], aes(x=rna_std, y = prt_std, color = log2(u5_AUG))) +
   geom_point() +
   facet_wrap(~tissue) +
   xlab('Normalized Log RNA expression') +
   ylab('Normalized Log Protein Expression') +
   geom_hline(yintercept = 0, alpha = 0.2) +
   geom_vline(xintercept = 0, alpha = 0.2) +
-  ggtitle('U5_AUG (U5_AUG > 2)') +
+  ggtitle('U5_AUG (U5_AUG > 0)', text) +
   theme_bw() 
 
 graphics.off()
