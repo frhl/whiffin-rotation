@@ -29,8 +29,7 @@ d2$five_prime_UTR <- NULL
 d2$three_prime_UTR <- NULL
 d2$CDS <- NULL
 
-# helper function for evaluating kozak strength
-# for any specific oorf
+# helper function for evaluating kozak strengthåfor any specific oorf
 oorf_kozak <- function(i){
   combined <- paste0(d1$five_prime_UTR[i], d1$CDS[i])
   oorf_start <- extract_starts(get_oorf(d1$five_prime_UTR[i], d1$CDS[i]))
