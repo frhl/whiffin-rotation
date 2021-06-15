@@ -17,6 +17,15 @@ dt <- merge(complexity, expression, by.x = 'ensgid',by.y = 'gene.id')
 dt$rna_std <- (dt$rna - mean(dt$rna, na.rm = T))/sd(dt$rna, na.rm = T)
 dt$prt_std <- (dt$prt - mean(dt$prt, na.rm = T))/sd(dt$prt, na.rm = T)
 dt$ddg2p <- as.factor(ifelse(dt$gene_symbol %in% g2p$gene_symbol, 'Y','N'))
+dt$prt_rna <- dt$prt - dt$rna
+
+# 0) 
+
+ggplot(dt, aes(x = prt_rna, y =u5_oORF_all)) +
+  geom_point() +
+  geom_vline(xintercept = 0, linetype = 'dashed') +
+  facet_wrap(~tissue)
+
 
 # 1) Do they have a higher brain expression compared to all genes?
 brain_tissue <- c('Brain_Cortex','Brain_Cerebellum')
@@ -129,6 +138,7 @@ dt_prt <- dt_binary[dt_binary$value %in% c("concordance",'discordance_prt_high')
 mat_prt <- as.matrix(table(dt_prt$u5_reg_oORF, dt_prt$value))
 chisq.test(mat_prt, correct = F) # 0.2384
 
-  
+
+
 #Do these have de novo variants in GEL NDD patients?
 
