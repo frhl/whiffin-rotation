@@ -1,7 +1,7 @@
 Package: utrsRus
 Type: Package
 Title: UTR analysis using R
-Version: 0.1.2
+Version: 0.1.3
 Author: FL
 Maintainer: FL <flassen@well.ox.ac.uk>
 Description: A package to aid MS work in the Oxford Kessler Lab. 
@@ -24,7 +24,9 @@ Collate:
     'get_altered_cds.R'
     'get_orf.R'
     'get_kozak_strength.R'
+    'get_orf_kozak.R'
     'get_oorf_kozak.R'
+    'gg_scatter_dens.R'
     'kmer.R'
     'null_omit.R'
     'find_codon.R'	

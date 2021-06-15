@@ -20,11 +20,10 @@ dt$ddg2p <- as.factor(ifelse(dt$gene_symbol %in% g2p$gene_symbol, 'Y','N'))
 dt$prt_rna <- dt$prt - dt$rna
 
 # 0) 
-
-ggplot(dt, aes(x = prt_rna, y =u5_oORF_all)) +
-  geom_point() +
-  geom_vline(xintercept = 0, linetype = 'dashed') +
-  facet_wrap(~tissue)
+#ggplot(dt, aes(x = prt_rna, y =u5_oORF_all)) +
+#  geom_point() +
+#  geom_vline(xintercept = 0, linetype = 'dashed') +
+#  facet_wrap(~tissue)
 
 
 # 1) Do they have a higher brain expression compared to all genes?

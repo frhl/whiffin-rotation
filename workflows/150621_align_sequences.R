@@ -70,6 +70,7 @@ fwrite(mat, file = 'derived/tables/210615_G2P-confirmedprobable_five_prime_utr_a
 # iterate through sequences and get alignment
 compared <- c()
 count <- 0
+esnsgid <- ensgid[1:10]
 mat <- lapply(ensgid, function(g1){
   count <<- count + 1
   progress <- paste0(count, '/', nrows)

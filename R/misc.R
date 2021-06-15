@@ -20,10 +20,15 @@ extract_stops <- function(x) {
 }
 
 
-#' @title log
-# listen in terminal at: nc -l 4000
-# rember to set log.socket <- make.socket(port=4000)
-
+#' @title print to port
+#' @description log output to port
+#'
+#' @details 
+#' In the following order do:
+#' * listen in terminal at: nc -l 4000
+#' * set log.socket <- make.socket(port=4000)
+#' * start script
+#' @export
 
 pprint <- function(text, ...) {
   msg <- sprintf(paste0(as.character(Sys.time()), ": ", text, "\n"), ...)

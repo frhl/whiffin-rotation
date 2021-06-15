@@ -47,6 +47,11 @@ test_that("basic usage multiple ORFs", {
   expect_equal(result[[2]], "ATGxATGxTAGxTAG")
   expect_equal(result[[3]], "ATGxTAGxTAGxTAG")
   
+  # Multiple in-frame ORFs
+  x = 'ATGxxxATGxxxTAG'
+  result <- get_orf(x)
+  expect_equal(names(result),c('3_15','9_15'))
+  
 
 })
 
