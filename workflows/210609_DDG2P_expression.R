@@ -3,17 +3,21 @@
 
 library(ggsignif)
 library(gridExtra)
+library(plotly)
 
 # load DDG2P data
 g2p <- fread('extdata/DDG2P_4_6_2021.csv')
 g2p <- g2p[g2p$`DDD category` %in% c('confirmed','probable')]
 colnames(g2p) <- gsub(' ','_',colnames(g2p))
 
+# load constraint data
+constraint <- fread('~/Projects/08_genesets/genesets/data/gnomad/karczewski2020/supplementary_dataset_11_full_constraint_metrics.tsv')
+
 # load expression and UTR complexity data
 expression <- fread('derived/tables/210609_prt_rna_numerical.txt', sep = '\t')
-complexity <- fread('derived/tables/210611_MANE.v0.93.UTR_features.txt', sep = '\t')
-expression$bottom.percetile <- NULL
+complexity <- fread('derived/tables/210615_MANE.v0.93.UTR_features.txt', sep = '\t')
 dt <- merge(complexity, expression, by.x = 'ensgid',by.y = 'gene.id')
+dt$transcript <- unlist(lapply(strsplit(dt$enstid_version, split = '\\.'), function(x) x[1]))
 dt$rna_std <- (dt$rna - mean(dt$rna, na.rm = T))/sd(dt$rna, na.rm = T)
 dt$prt_std <- (dt$prt - mean(dt$prt, na.rm = T))/sd(dt$prt, na.rm = T)
 dt$ddg2p <- as.factor(ifelse(dt$gene_symbol %in% g2p$gene_symbol, 'Y','N'))
@@ -61,18 +65,14 @@ ggplot(melted_expression[melted_expression$tissue %in% 'Brain_Cerebellum',], aes
 
 # 2) Are there any with surprisingly low RNA/Protein expression?
 dt <- merge(dt, g2p, by = 'gene_symbol')
+#dt <- merge(dt, constraint, by = 'transcript') 
 dt <- dt[grepl("Brain/Cognition", dt$organ_specificity_list),]
-
-
-
-
-
 
 
 cur_tissue <- 'Brain_Cortex'
 cur_tissue <- 'Brain_Cerebellum'
 #cur_tissue <- "Artery_Aorta"
-
+#cur_tissue <- "Breast"
 
 # What is the difference of RNA/Protein distribution of mono-allelic versus bi-allelic genes? 
 title = 'allelic requirement versus standardized log RNA/Protein expression'
@@ -95,7 +95,7 @@ data3 = dt[dt$tissue %in% cur_tissue,]
 mapping3 = aes(x=rna_std, y = prt_std, color = u5_reg, label = gene_symbol)
 mapping_dens3 = aes(x=rna_std, fill = u5_reg)
 plt <- gg_scatter_dens(data3, mapping3, mapping_dens3, title3, cur_tissue)
-#ggplotly(plt)
+ggplotly(plt)
 
 # chisq test to compare
 expression_binary <- fread('derived/tables/210609_prt_rna_binary_concordance.txt', sep = '\t')
@@ -128,18 +128,38 @@ chisq.test(mat_prt, correct = F) # 0.2384
 ## what about for oORFs stratified by Kozak?
 
 # RNA first
-dt_rna <- dt_binary[dt_binary$value %in% c("concordance",'discordance_rna_high')]
+dt_rna <- dt_binary[dt_binary$value %in% c("concordance",'discordance_rna_high') ]
 mat_rna <- as.matrix(table(dt_rna$u5_oORF_kozak, dt_rna$value))
 chisq.test(mat_rna, correct = F) # 0.6481
 
-dt_prt <- dt_binary[dt_binary$value %in% c("concordance",'discordance_prt_high')]
+dt_prt <- dt_binary[dt_binary$value %in% c("concordance",'discordance_prt_high') ]
 mat_prt <- as.matrix(table(dt_prt$u5_oORF_kozak, dt_prt$value))
 chisq.test(mat_prt, correct = F) # 0.2384
 
-# 
+## what about for uORFs stratified by Kozak?
 
-dt[dt$u5_oORF_kozak != 0 ]
+# RNA first 5' UTR (armitage trend test)
+dt_rna <- dt_binary[dt_binary$value %in% c("concordance",'discordance_rna_high') ]
+mat_rna <- t(as.matrix(table(dt_rna$u5_ORF_kozak, dt_rna$value)))
+DescTools::CochranArmitageTest(mat_rna, 'increasing')
+#chisq.test(mat_rna, correct = F) # 0.00038 ***
 
+dt_prt <- dt_binary[dt_binary$value %in% c("concordance",'discordance_prt_high') ]
+mat_prt <- t(as.matrix(table(dt_prt$u5_ORF_kozak, dt_prt$value)))
+DescTools::CochranArmitageTest(mat_prt, 'increasing')
+#chisq.test(mat_prt, correct = F) # 0.01555 *
+
+
+# RNA first 3' UTR (armitage trend test)
+dt_rna <- dt_binary[dt_binary$value %in% c("concordance",'discordance_rna_high')] #& dt$u3_ORF_kozak %in% c(0,3)]
+mat_rna <- t(as.matrix(table(dt_rna$u3_ORF_kozak, dt_rna$value)))
+DescTools::CochranArmitageTest(mat_rna, 'increasing')
+#hisq.test(mat_rna, correct = F) # 0.00038 ***
+
+dt_prt <- dt_binary[dt_binary$value %in% c("concordance",'discordance_prt_high') ]
+mat_prt <- t(as.matrix(table(dt_prt$u5_ORF_kozak, dt_prt$value)))
+DescTools::CochranArmitageTest(mat_prt, 'increasing')
+#chisq.test(mat_prt, correct = F) # 0.01555 *
 
 
 #Do these have de novo variants in GEL NDD patients?

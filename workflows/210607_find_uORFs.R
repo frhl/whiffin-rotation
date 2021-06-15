@@ -29,7 +29,6 @@ d2$five_prime_UTR <- NULL
 d2$three_prime_UTR <- NULL
 d2$CDS <- NULL
 
-
 # 5' UTR
 d2$u5_len <- unlist(lapply(d1$five_prime_UTR, function(x) nchar(x)))
 d2$u5_AUG <- unlist(lapply(d1$five_prime_UTR, count_codon))
@@ -40,18 +39,19 @@ d2$u5_oORF_outframe <-  unlist(lapply(1:nrow(d2), function(i) length(get_oorf(d1
 d2$u5_oORF_altered_cds <-  unlist(lapply(1:nrow(d2), function(i) length(get_altered_cds(d1$five_prime_UTR[i], d1$CDS[i]))))
 d2$u5_oORF_kozak <-  unlist(lapply(1:nrow(d2), function(i) max(unlist(get_oorf_kozak(d1$five_prime_UTR[i], d1$CDS[i])))))
 d2$u5_oORF_kozak[d2$u5_oORF_kozak == -Inf] <- 0 # the max on list operation returns warnings. fix here.
-d2$u5_oORF_kozak <-  unlist(lapply(1:nrow(d2), function(i) max(unlist(get_oorf_kozak(d1$five_prime_UTR[i], d1$CDS[i])))))
+d2$u5_ORF_kozak <-  unlist(lapply(1:nrow(d2), function(i) max(unlist(get_orf_kozak(d1$five_prime_UTR[i])))))
+d2$u5_ORF_kozak[d2$u5_ORF_kozak == -Inf] <- 0 # the max on list operation returns warnings. fix here.
 d2$u5_GC <- unlist(lapply(d1$five_prime_UTR, get_gc))
-
 
 # 3' UTR
 d2$u3_len <- unlist(lapply(d1$three_prime_UTR, function(x) nchar(x)))
 d2$u3_AUG <- unlist(lapply(d1$three_prime_UTR, count_codon))
 d2$u3_ORF <- unlist(lapply(d1$three_prime_UTR, function(x) length(get_orf(x))))
-d2$u3_max_kozak <- unlist(lapply(d1$three_prime_UTR, function(x) max(unlist(get_utr_kozak_strength(x)))))
+d2$u3_ORF_kozak <-  unlist(lapply(1:nrow(d2), function(i) max(unlist(get_orf_kozak(d1$five_prime_UTR[i])))))
+d2$u3_ORF_kozak[d2$u3_ORF_kozak == -Inf] <- 0 # the max on list operation returns warnings. fix here.
 d2$u3_GC <- unlist(lapply(d1$three_prime_UTR, get_gc))
 
 # write out table with UTR complexity features
 d2 <- d2[!duplicated(d2),]
-fwrite(d2, 'derived/tables/210611_MANE.v0.93.UTR_features.txt', sep = '\t')
+fwrite(d2, 'derived/tables/210615_MANE.v0.93.UTR_features.txt', sep = '\t')
 
