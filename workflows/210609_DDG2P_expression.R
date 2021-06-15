@@ -127,16 +127,19 @@ chisq.test(mat_prt, correct = F) # 0.2384
 
 
 ## what about for oORFs stratified by Kozak?
-dt_binary$u5_reg_oORF <- factor(ifelse(as.logical(dt_binary$u5_oORF_inframe | dt_binary$u5_oORF_altered_cds | dt_binary$u5_oORF_all), "5-UTR Regulatory oORF", "N/A"))
 
 # RNA first
 dt_rna <- dt_binary[dt_binary$value %in% c("concordance",'discordance_rna_high')]
-mat_rna <- as.matrix(table(dt_rna$u5_reg_oORF, dt_rna$value))
+mat_rna <- as.matrix(table(dt_rna$u5_oORF_kozak, dt_rna$value))
 chisq.test(mat_rna, correct = F) # 0.6481
 
 dt_prt <- dt_binary[dt_binary$value %in% c("concordance",'discordance_prt_high')]
-mat_prt <- as.matrix(table(dt_prt$u5_reg_oORF, dt_prt$value))
+mat_prt <- as.matrix(table(dt_prt$u5_oORF_kozak, dt_prt$value))
 chisq.test(mat_prt, correct = F) # 0.2384
+
+# 
+
+dt[dt$u5_oORF_kozak != 0 ]
 
 
 
