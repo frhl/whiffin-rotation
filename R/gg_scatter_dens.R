@@ -1,8 +1,10 @@
 
 
 
-gg_scatter_dens <- function(data, mapping, mapping.dens, title = '', subtitle = '', xlab = 'Normalized Log RNA expression', ylab = 'Normalized Log Protein Expression') {
+gg_scatter_dens <- function(data, mapping, mapping.dens, title = '', subtitle = '', xlab = 'Normalized Log RNA expression', ylab = 'Normalized Log Protein Expression', debug  = F) {
 
+  if (debug) browser()
+  
   empty <- ggplot()+geom_point(aes(1,1), colour="white")+
     theme(axis.ticks=element_blank(), 
           panel.background=element_blank(), 

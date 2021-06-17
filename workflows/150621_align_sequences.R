@@ -4,8 +4,8 @@ setwd('~/Projects/09_whiffin_rotation/whiffin-rotation/')
 library(reticulate)
 path <- virtualenv_python(envname = 'sandbox')
 use_virtualenv(path)
-#os <- import("os")
-#os$listdir(".")
+os <- import("os")
+os$listdir(".")
 #use_virtualenv('sandbox')
 source_python('python/align.py')
 
@@ -22,7 +22,7 @@ colnames(g2p) <- gsub(' ','_',colnames(g2p))
 
 # only go over DDG2P sequences
 sequences <- sequences[sequences$gene_symbol %in% g2p$gene_symbol]
-#sequences <- head(sequences, n = 30)
+sequences <- head(sequences, n = 10)
 ensgid <- unique(sequences$ensgid)
 
 # parallize it
@@ -32,27 +32,22 @@ cores <- detectCores()-1
 registerDoParallel(cores)
 nrows <- nrow(sequences)
 
-log.socket <- make.socket(port=4001)
+log.socket <- make.socket(port=4002)
+on.exit(close.socket(log.socket))
 pprint('starting..')
 
 mat <- (foreach (i=1:nrows, .combine=cbind) %dopar% {
 
   g1 <- ensgid[i]
   pprint(i)
-  
   rows <- lapply(ensgid, function(g2){
-    
-    #comparison <- paste0(sort(c(g1, g2)), collapse = '-')
-    #if (!comparison %in% compared & g1 != g2) {
     if (g1 != g2) {
-      entry1 <- sequences[sequences$ensgid == g1,]
-      entry2 <- sequences[sequences$ensgid == g2,]
+      entry1 <- sequences[sequences$ensgid == g1,][1,]
+      entry2 <- sequences[sequences$ensgid == g2,][1,]
       alignment <- align(entry1$seq, entry2$seq)
       alignment <- paste0(alignment, collapse = ':')
-      #compared <<- c(compared, comparison)
       return(alignment)
     } else return('')
-    
   })
   
   rows <- do.call(rbind, rows)
@@ -70,8 +65,8 @@ fwrite(mat, file = 'derived/tables/210615_G2P-confirmedprobable_five_prime_utr_a
 # iterate through sequences and get alignment
 compared <- c()
 count <- 0
-esnsgid <- ensgid[1:10]
-mat <- lapply(ensgid, function(g1){
+esnsgid <- ensgid[1:200]
+mat <- lapply(ensgid[295], function(g1){
   count <<- count + 1
   progress <- paste0(count, '/', nrows)
   #progress <- paste0(round(round(100*(count/nrows)),4),collapse = '%')
@@ -83,8 +78,8 @@ mat <- lapply(ensgid, function(g1){
     
     comparison <- paste0(sort(c(g1, g2)), collapse = '-')
     if (!comparison %in% compared & g1 != g2) {
-      entry1 <- sequences[sequences$ensgid == g1,]
-      entry2 <- sequences[sequences$ensgid == g2,]
+      entry1 <- sequences[sequences$ensgid == g1,][1,]
+      entry2 <- sequences[sequences$ensgid == g2,][1,]
       alignment <- align(entry1$seq, entry2$seq)
       alignment <- paste0(alignment, collapse = ':')
       compared <<- c(compared, comparison)
@@ -96,6 +91,7 @@ mat <- lapply(ensgid, function(g1){
   colnames(rows) <- ensgid
   return(rows)
 })
+
 mat <- (as.data.table(do.call(rbind, cols)))
 colnames(mat) <- ensgid
 rownames(mat) <- ensgid

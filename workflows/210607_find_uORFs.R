@@ -47,7 +47,7 @@ d2$u5_GC <- unlist(lapply(d1$five_prime_UTR, get_gc))
 d2$u3_len <- unlist(lapply(d1$three_prime_UTR, function(x) nchar(x)))
 d2$u3_AUG <- unlist(lapply(d1$three_prime_UTR, count_codon))
 d2$u3_ORF <- unlist(lapply(d1$three_prime_UTR, function(x) length(get_orf(x))))
-d2$u3_ORF_kozak <-  unlist(lapply(1:nrow(d2), function(i) max(unlist(get_orf_kozak(d1$five_prime_UTR[i])))))
+d2$u3_ORF_kozak <-  unlist(lapply(1:nrow(d2), function(i) max(unlist(get_orf_kozak(d1$three_prime_UTR[i])))))
 d2$u3_ORF_kozak[d2$u3_ORF_kozak == -Inf] <- 0 # the max on list operation returns warnings. fix here.
 d2$u3_GC <- unlist(lapply(d1$three_prime_UTR, get_gc))
 

@@ -11,7 +11,7 @@ g2p <- g2p[g2p$`DDD category` %in% c('confirmed','probable')]
 colnames(g2p) <- gsub(' ','_',colnames(g2p))
 
 # load constraint data
-constraint <- fread('~/Projects/08_genesets/genesets/data/gnomad/karczewski2020/supplementary_dataset_11_full_constraint_metrics.tsv')
+#constraint <- fread('~/Projects/08_genesets/genesets/data/gnomad/karczewski2020/supplementary_dataset_11_full_constraint_metrics.tsv')
 
 # load expression and UTR complexity data
 expression <- fread('derived/tables/210609_prt_rna_numerical.txt', sep = '\t')
@@ -39,7 +39,10 @@ sci <- function(x, n = 2) formatC(x, format = "e", digits = n)
 cortex <- melted_expression[melted_expression$tissue == 'Brain_Cortex',]
 p.values.cortex <- sci(sapply(split(cortex, cortex$variable), function(x){wilcox.test(value~ddg2p, x)$p.value}))
 cerebellum <- melted_expression[melted_expression$tissue == 'Brain_Cerebellum',]
-p.values.cerebellum <- sci(sapply(split(cerebellum, cortex$variable), function(x){wilcox.test(value~ddg2p, x)$p.value}))
+p.values.cerebellum <- sci(sapply(split(cerebellum, cerebellum$variable), function(x){wilcox.test(value~ddg2p, x)$p.value}))
+intestine <- melted_expression[melted_expression$tissue == 'Small_Intestine',]
+p.values.intestine <- sci(sapply(split(intestine, intestine$variable), function(x){wilcox.test(value~ddg2p, x)$p.value}))
+
 
 ## Brain Cortex
 ggplot(melted_expression[melted_expression$tissue %in% 'Brain_Cortex',], aes(x = variable, y = value, fill = ddg2p)) +
@@ -64,6 +67,23 @@ ggplot(melted_expression[melted_expression$tissue %in% 'Brain_Cerebellum',], aes
 # slightly higher expression of DDG2P genes in the brain compared to other genes
 
 # 2) Are there any with surprisingly low RNA/Protein expression?
+ggplot(dt[dt$tissue %in% brain_tissue,], aes(x = rna_std, y = prt_std, color = ddg2p)) +
+  geom_point(data = dt[dt$tissue %in% brain_tissue & dt$ddg2p == 'N',]) +
+  geom_point(data = dt[dt$tissue %in% brain_tissue & dt$ddg2p == 'Y',]) +
+  ggtitle('Brain_Cerebellum/Cortex RNA/Protein expression of DDG2P genes') +
+  ylab('Standardized Protein expression') +
+  xlab('Standardized RNA expression') +
+  geom_smooth() +
+  theme_bw() +
+  facet_wrap(~tissue)
+
+data = dt[dt$tissue %in% 'Brain_Cortex',]
+mapping = aes(x=rna_std, y = prt_std, color = ddg2p, label = gene_symbol)
+mapping_dens = aes(x=rna_std, fill = ddg2p)
+gg_scatter_dens(data, mapping, mapping_dens, title, cur_tissue)
+
+
+
 dt <- merge(dt, g2p, by = 'gene_symbol')
 #dt <- merge(dt, constraint, by = 'transcript') 
 dt <- dt[grepl("Brain/Cognition", dt$organ_specificity_list),]
@@ -74,6 +94,7 @@ cur_tissue <- 'Brain_Cerebellum'
 #cur_tissue <- "Artery_Aorta"
 #cur_tissue <- "Breast"
 
+pdf('derived/plots/210617_scatter_density_g2p_versus_rna-prt_expression.pdf', width = 10, height = 12)
 # What is the difference of RNA/Protein distribution of mono-allelic versus bi-allelic genes? 
 title = 'allelic requirement versus standardized log RNA/Protein expression'
 data = dt[dt$tissue %in% cur_tissue & dt$allelic_requirement  %in% c('monoallelic','biallelic'),]
@@ -96,6 +117,7 @@ mapping3 = aes(x=rna_std, y = prt_std, color = u5_reg, label = gene_symbol)
 mapping_dens3 = aes(x=rna_std, fill = u5_reg)
 plt <- gg_scatter_dens(data3, mapping3, mapping_dens3, title3, cur_tissue)
 ggplotly(plt)
+graphics.off()
 
 # chisq test to compare
 expression_binary <- fread('derived/tables/210609_prt_rna_binary_concordance.txt', sep = '\t')
@@ -131,9 +153,12 @@ chisq.test(mat_prt, correct = F) # 0.2384
 dt_rna <- dt_binary[dt_binary$value %in% c("concordance",'discordance_rna_high') ]
 mat_rna <- as.matrix(table(dt_rna$u5_oORF_kozak, dt_rna$value))
 chisq.test(mat_rna, correct = F) # 0.6481
+DescTools::CochranArmitageTest(t(mat_rna), 'increasing')
+DescTools::Desc(t(mat_rna))
 
 dt_prt <- dt_binary[dt_binary$value %in% c("concordance",'discordance_prt_high') ]
 mat_prt <- as.matrix(table(dt_prt$u5_oORF_kozak, dt_prt$value))
+DescTools::CochranArmitageTest(t(mat_prt), 'increasing')
 chisq.test(mat_prt, correct = F) # 0.2384
 
 ## what about for uORFs stratified by Kozak?
@@ -141,6 +166,7 @@ chisq.test(mat_prt, correct = F) # 0.2384
 # RNA first 5' UTR (armitage trend test)
 dt_rna <- dt_binary[dt_binary$value %in% c("concordance",'discordance_rna_high') ]
 mat_rna <- t(as.matrix(table(dt_rna$u5_ORF_kozak, dt_rna$value)))
+mat_rna[1,]/colSums(mat_rna)
 DescTools::CochranArmitageTest(mat_rna, 'increasing')
 #chisq.test(mat_rna, correct = F) # 0.00038 ***
 
@@ -149,18 +175,31 @@ mat_prt <- t(as.matrix(table(dt_prt$u5_ORF_kozak, dt_prt$value)))
 DescTools::CochranArmitageTest(mat_prt, 'increasing')
 #chisq.test(mat_prt, correct = F) # 0.01555 *
 
-
 # RNA first 3' UTR (armitage trend test)
-dt_rna <- dt_binary[dt_binary$value %in% c("concordance",'discordance_rna_high')] #& dt$u3_ORF_kozak %in% c(0,3)]
-mat_rna <- t(as.matrix(table(dt_rna$u3_ORF_kozak, dt_rna$value)))
-DescTools::CochranArmitageTest(mat_rna, 'increasing')
+#dt_rna <- dt_binary[dt_binary$value %in% c("concordance",'discordance_rna_high')] #& dt$u3_ORF_kozak %in% c(0,3)]
+#mat_rna <- t(as.matrix(table(dt_rna$u3_ORF_kozak, dt_rna$value)))
+#DescTools::CochranArmitageTest(mat_rna, 'increasing')
+#DescTools::Desc(mat_rna)
 #hisq.test(mat_rna, correct = F) # 0.00038 ***
 
-dt_prt <- dt_binary[dt_binary$value %in% c("concordance",'discordance_prt_high') ]
-mat_prt <- t(as.matrix(table(dt_prt$u5_ORF_kozak, dt_prt$value)))
-DescTools::CochranArmitageTest(mat_prt, 'increasing')
+#dt_prt <- dt_binary[dt_binary$value %in% c("concordance",'discordance_prt_high') ]
+#mat_prt <- t(as.matrix(table(dt_prt$u3_ORF_kozak, dt_prt$value)))
+#DescTools::CochranArmitageTest(mat_prt, 'increasing')
+#DescTools::Desc(mat_prt)
 #chisq.test(mat_prt, correct = F) # 0.01555 *
 
 
 #Do these have de novo variants in GEL NDD patients?
+
+
+
+
+Desc(mat)
+
+
+
+
+
+
+#Can organ involvement be predicted by expression? If so, is RNA or protein better for this? (would be neat to show that this is better with protein for e.g.)
 
