@@ -3,11 +3,14 @@
 #' @param x a string
 #' @param start what start codon should be used
 #' @param stop what stop codons should be used
+#' @param share_stops boolean. If true (default), then ALL open reading frames are returned. However,
+#' if false, when multiple start codons have the same stop codon, only the first one is retained, and
+#' rest will be discarded.
 #' @note This function will use the first stoped codon matching a start codon.
 #' The rest of the stop codons (in-frame) will not be considered for the corresponding start codon.
 #' @export
 
-get_orf <- function(x, start = 'ATG', stop = '(TAG)|(TAA)|(TGA)'){
+get_orf <- function(x, start = 'ATG', stop = '(TAG)|(TAA)|(TGA)', share_stops = T){
   
   # Check for in-frame codons
   start_pos <- find_codon(x, start)
@@ -15,10 +18,16 @@ get_orf <- function(x, start = 'ATG', stop = '(TAG)|(TAA)|(TGA)'){
   outlist <- list()
   if (!is.null(start_pos) & !is.null(stop_pos)){
     
+    # get data.frame of starts->stops
     mat <- expand.grid(start_pos, stop_pos)
     mat <- mat[mat$Var2 > mat$Var1,]
     mat <- mat[(mat$Var2 - mat$Var1) %% 3 == 0, ] # keep in frame
     mat <- mat[!duplicated(mat$Var1),] # remove many matching stop codons
+    
+    # remove shared stops
+    if (!share_stops){
+      mat <- mat[!duplicated(mat$Var2),]
+    }
     
     # return sequences if open reading frame exists
     if (nrow(mat) > 0){

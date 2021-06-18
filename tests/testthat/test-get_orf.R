@@ -63,6 +63,24 @@ test_that("ORF stops after first stop codon", {
   
 })
 
+test_that("shared stops", {
+  
+  # two shared/overlapping ORFs
+  x = 'ATGXXXATGXXXTAG'
+  result <- get_orf(x, share_stops = T)
+  expect_equal(length(result), 2)
+  result <- get_orf(x, share_stops = F)
+  expect_equal(length(result), 1)
+  
+  # four shared/overlapping ORFs
+  x = 'ATGATGATGATGTAG'
+  result <- get_orf(x, share_stops = T)
+  expect_equal(length(result), 4)
+  result <- get_orf(x, share_stops = F)
+  expect_equal(length(result), 1)
+  
+})
+
 test_that("expected no ORF", {
   
   # nothing

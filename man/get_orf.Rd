@@ -4,7 +4,7 @@
 \alias{get_orf}
 \title{find open reading frames}
 \usage{
-get_orf(x, start = "ATG", stop = "(TAG)|(TAA)|(TGA)")
+get_orf(x, start = "ATG", stop = "(TAG)|(TAA)|(TGA)", share_stops = T)
 }
 \arguments{
 \item{x}{a string}
@@ -12,6 +12,10 @@ get_orf(x, start = "ATG", stop = "(TAG)|(TAA)|(TGA)")
 \item{start}{what start codon should be used}
 
 \item{stop}{what stop codons should be used}
+
+\item{share_stops}{boolean. If true (default), then ALL open reading frames are returned. However,
+if false, when multiple start codons have the same stop codon, only the first one is retained, and
+rest will be discarded.}
 }
 \description{
 takes in a string and finds open reading frames (ORFs)

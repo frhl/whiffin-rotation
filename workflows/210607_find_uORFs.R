@@ -57,6 +57,6 @@ fwrite(d2, 'derived/tables/210615_MANE.v0.93.UTR_features.txt', sep = '\t')
 
 
 
-b <- get_orf(d[d$gene_symbol == 'BIRC3',]$seq[1])
+
 
 

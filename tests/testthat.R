@@ -1,4 +1,4 @@
 library(testthat)
-library(whiffin-rotation)
+library(utrsRus)
 
-test_check("whiffin-rotation")
+test_check("utrsRus")
