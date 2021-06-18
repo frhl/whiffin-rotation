@@ -80,7 +80,7 @@ ggplot(dt[dt$tissue %in% brain_tissue,], aes(x = rna_std, y = prt_std, color = d
 data = dt[dt$tissue %in% 'Brain_Cortex',]
 mapping = aes(x=rna_std, y = prt_std, color = ddg2p, label = gene_symbol)
 mapping_dens = aes(x=rna_std, fill = ddg2p)
-gg_scatter_dens(data, mapping, mapping_dens, title, cur_tissue)
+gg_scatter_dens(data, mapping, mapping_dens, title, cur_tissue, debug = T)
 
 
 

@@ -55,3 +55,8 @@ d2$u3_GC <- unlist(lapply(d1$three_prime_UTR, get_gc))
 d2 <- d2[!duplicated(d2),]
 fwrite(d2, 'derived/tables/210615_MANE.v0.93.UTR_features.txt', sep = '\t')
 
+
+
+b <- get_orf(d[d$gene_symbol == 'BIRC3',]$seq[1])
+
+

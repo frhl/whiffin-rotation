@@ -27,6 +27,7 @@ Collate:
     'get_orf_kozak.R'
     'get_oorf_kozak.R'
     'gg_scatter_dens.R'
+    'gg_bar.R'
     'kmer.R'
     'null_omit.R'
     'find_codon.R'	

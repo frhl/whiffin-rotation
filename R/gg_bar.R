@@ -8,7 +8,7 @@
 #' @family plotting
 #' @export
 
-ggbarplot <- function(df, bonf, colors = c("firebrick2","tomato1","black")){
+gg_bar <- function(df, bonf, colors = c("firebrick2","tomato1","black")){
   
   stopifnot(c('list_name','pvalue') %in% colnames(df))
   

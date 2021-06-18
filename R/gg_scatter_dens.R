@@ -1,4 +1,6 @@
-
+#' @title ggplot density and scatter
+#' @description ggplot for plotting scatter plot and density map 
+#' for single scat
 
 
 gg_scatter_dens <- function(data, mapping, mapping.dens, title = '', subtitle = '', xlab = 'Normalized Log RNA expression', ylab = 'Normalized Log Protein Expression', debug  = F) {
