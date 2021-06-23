@@ -21,6 +21,9 @@ dt_binary2 <- fread('derived/tables/210609_prt_rna_binary_concordance.txt', sep 
 dt_binary2 <- merge(dt_binary2, g2p, by.x = 'hgnc_symbol', by.y = 'gene_symbol')
 dt_organ <- merge(dt_binary2, organ, by.x = 'hgnc_symbol', by.y = 'gene_symbol')
 dt_organ <- dt_organ[!duplicated(dt_organ),]
+str(dt_organ)
+
+
 
 # Are genes with other organ involvement less likely to be brain specific in expression? 
 tissues <- unique(dt_organ$tissue)
@@ -69,9 +72,17 @@ chisq.test(mat_prt, correct = F); mat_prt # p-value = 0.7613 <- this value is ve
 mat_rna <- as.matrix(table(dt_organ$value, dt_organ$organ_perc90))[-2,]
 chisq.test(mat_rna, correct = F); mat_rna # p-value = 0.01638
 
+
 # Can organ involvement be predicted by expression? 
 # If so, is RNA or protein better for this? (would be neat to show that 
 # this is better with protein for e.g.)
+
+
+
+
+
+
+
 
 
 

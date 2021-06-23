@@ -168,10 +168,6 @@ for (how in hows){ #hows, function(how){
 
 
 
-
-hist(dt$delta)
-hist(dt$rna)
-
 # initial peaking
 graphics.off()
 

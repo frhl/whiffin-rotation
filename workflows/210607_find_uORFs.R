@@ -41,6 +41,7 @@ d2$u5_oORF_kozak <-  unlist(lapply(1:nrow(d2), function(i) max(unlist(get_oorf_k
 d2$u5_oORF_kozak[d2$u5_oORF_kozak == -Inf] <- 0 # the max on list operation returns warnings. fix here.
 d2$u5_ORF_kozak <-  unlist(lapply(1:nrow(d2), function(i) max(unlist(get_orf_kozak(d1$five_prime_UTR[i])))))
 d2$u5_ORF_kozak[d2$u5_ORF_kozak == -Inf] <- 0 # the max on list operation returns warnings. fix here.
+d2$u5_ORF_cap_to_start <-  unlist(lapply(1:nrow(d2), function(i) get_cap_to_start_len(d1$five_prime_UTR[i])))
 d2$u5_GC <- unlist(lapply(d1$five_prime_UTR, get_gc))
 
 # 3' UTR
@@ -53,7 +54,7 @@ d2$u3_GC <- unlist(lapply(d1$three_prime_UTR, get_gc))
 
 # write out table with UTR complexity features
 d2 <- d2[!duplicated(d2),]
-fwrite(d2, 'derived/tables/210615_MANE.v0.93.UTR_features.txt', sep = '\t')
+fwrite(d2, 'derived/tables/210623_MANE.v0.93.UTR_features.txt', sep = '\t')
 
 
 
