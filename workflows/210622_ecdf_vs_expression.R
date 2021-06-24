@@ -136,14 +136,18 @@ myColors <- c('grey','red')
 names(myColors) <- levels(df$how)
 colScale <- scale_colour_manual(name = "how",values = myColors)
 
+myColors <- c('grey','lightblue')
+names(myColors) <- levels(df$how)
+colScale_blue <- scale_colour_manual(name = "how",values = myColors)
+
 # uorf protein expression
-pdf('derived/plots/220623_ecdf_tissues.pdf', width = 8, height = 3)
+pdf('derived/plots/220624_ecdf_uorf_rna_prt_tissues.pdf', width = 8, height = 3)
 ggplot_ecdf_protein(d_liver) + colScale + ggtitle('Liver (Protein)','') + xlab('Median Protein expression (Log2)')
-ggplot_ecdf_protein(d_liver_rna) + colScale + ggtitle('Liver (RNA)','') + xlab('Median RNA expression (Log2)')
+ggplot_ecdf_protein(d_liver_rna) + colScale_blue + ggtitle('Liver (RNA)','') + xlab('Median RNA expression (Log2)')
 ggplot_ecdf_protein(d_cerebellum) + colScale + ggtitle('Cerebellum (Protein)','') + xlab('Median Protein expression (Log2)')
-ggplot_ecdf_protein(d_cerebellum_rna) + colScale + ggtitle('Cerebellum (RNA)','') + xlab('Median RNA expression (Log2)')
+ggplot_ecdf_protein(d_cerebellum_rna) + colScale_blue + ggtitle('Cerebellum (RNA)','') + xlab('Median RNA expression (Log2)')
 ggplot_ecdf_protein(d_cortex) + colScale + ggtitle('Cortex (Protein)','') +xlab('Median Protein expression (Log2)')
-ggplot_ecdf_protein(d_cortex_rna) + colScale + ggtitle('Cortex (RNA)','') + xlab('Median RNA expression (Log2)')
+ggplot_ecdf_protein(d_cortex_rna) + colScale_blue + ggtitle('Cortex (RNA)','') + xlab('Median RNA expression (Log2)')
 graphics.off()
 
 #pdf('derived/plots/220623_ecdf_uorf_all_tissues.pdf', width = 8, height = 3)

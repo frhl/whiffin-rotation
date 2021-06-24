@@ -23,7 +23,12 @@ colnames(g2p) <- gsub(' ','_',colnames(g2p))
 
 # only go over DDG2P sequences
 sequences <- sequences[sequences$gene_symbol %in% g2p$gene_symbol]
-sequences <- head(sequences, n = 1000)
+
+#sequences <- head(sequences, n = 1000)
+# sample 500 random sequences
+set.seed(1337)
+indicies <- sample(1:nrow(sequences), size = 500)
+sequences <- sequences[indicies]
 ensgid <- unique(sequences$ensgid)
 
 
@@ -76,6 +81,6 @@ mat <- (foreach (i=1:nrows, .combine=cbind) %dopar% {
 tmat <- as.data.table(mat)
 colnames(tmat) <- ensgid
 rownames(tmat) <- ensgid
-fwrite(tmat, file = 'derived/tables/210623_1000_G2P-confirmedprobable_five_prime_utr_alignment_NW.txt', sep = '\t', row.names = T, col.names = T)
+fwrite(tmat, file = 'derived/tables/210623_500_s1337_G2P-confirmedprobable_five_prime_utr_alignment_NW.txt', sep = '\t', row.names = T, col.names = T)
 
 
