@@ -5,7 +5,7 @@
 devtools::load_all()
 
 # data that contains 5' UTRs, CDS and 3' UTRs
-d <- fread('~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.combined-table.txt', sep = '\t')
+d <- fread('~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
 d$enstid <- unlist(lapply(strsplit(d$enstid_version, split = '\\.'), function(x) x[1]))
 
 # get some UTRs stats
@@ -54,7 +54,7 @@ d2$u3_GC <- unlist(lapply(d1$three_prime_UTR, get_gc))
 
 # write out table with UTR complexity features
 d2 <- d2[!duplicated(d2),]
-fwrite(d2, 'derived/tables/210623_MANE.v0.93.UTR_features.txt', sep = '\t')
+fwrite(d2, 'derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t')
 
 
 

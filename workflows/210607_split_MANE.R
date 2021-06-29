@@ -3,9 +3,9 @@
 library(data.table)
 
 # load in data
-rna <- fread('~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.select_ensembl_rna_matrix.txt', sep = '\t')
-utr <- fread('~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.select_ensembl_genomic_matrix_UTRs.txt', sep = '\t')
-cds <- fread('~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.select_ensembl_genomic_matrix_cds.txt', sep = '\t')
+rna <- fread('~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.select_ensembl_rna_matrix.txt', sep = '\t')
+utr <- fread('~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.select_ensembl_genomic_matrix_UTRs.txt', sep = '\t')
+cds <- fread('~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.select_ensembl_genomic_matrix_cds.txt', sep = '\t')
 
 # combine rna (tranccript data with utr data)
 utr <- rbind(utr, cds)
@@ -83,8 +83,8 @@ sequences <- lapply(enstids, function(enstid){
 seq_df <- do.call(rbind, sequences)
 seq_df <- seq_df[,as.logical(!duplicated(t(seq_df))), with = F]
 colnames(seq_df) <- gsub('utr\\.','',colnames(seq_df))
-fwrite(seq_df, '~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.5-3_all_exon_seqs.txt', sep = '\t')
-seq_df <- fread('~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.5-3_all_exon_seqs.txt', sep = '\t')
+fwrite(seq_df, '~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
+seq_df <- fread('~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
 # subset data
 
 
@@ -115,4 +115,4 @@ sequences_combined <- do.call(rbind, lapply(enstids, function(enstid){
   
 }))
 
-fwrite(sequences_combined, '~/Projects/08_genesets/genesets/data/MANE/210607_MANE.GRCh38.v0.93.combined-table.txt', sep = '\t')
+fwrite(sequences_combined, '~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
