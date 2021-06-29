@@ -1,8 +1,11 @@
 # 21-06-28: are protein/rna ratios concordant across tissues?
 
+devtools::load_all()
+library(readxl)
+
 # get protein / RNA 
 expression <- fread('derived/tables/210609_prt_rna_numerical.txt', sep = '\t')
-complexity <- fread('derived/tables/210609_MANE.v0.93.UTR_features.txt', sep = '\t')
+complexity <- fread('derived/tables/210615_MANE.v0.93.UTR_features.txt', sep = '\t')
 dt <- merge(complexity, expression, by.x = 'ensgid',by.y = 'gene.id')
 dt <- dt[dt$prt != 0, ]
 dt$prt_rna_ratio <-  dt$prt-dt$rna
@@ -30,19 +33,68 @@ sim_prt_rna <- function(gene_symbols, reps, n, verbose = T){
   return(as.numeric(na.omit(unlist(emp))))
 }
 
-
-sim_samples <- function(x, k = 1000, f = function(x) sd(x, na.rm = T), replace = T, probs = c(0.025,0.975)){
-  simsamples <- replicate(k, sample(dt$prt_rna_ratio, replace = replace))
-  simmedians <- apply(simsamples, 2, f)
-  quantile(simmedians, probs)
+# simulate samples
+sim_samples <- function(x, k = 1000, func = function(x) sd(x, na.rm = T), probs = c(0.025,0.5,0.975)){
+  simsamples <- replicate(k, sample(x, replace = T))
+  simmedians <- apply(simsamples, 2, func)
+  outdf <- t(as.data.frame(quantile(simmedians, probs = probs)))
+  rownames(outdf) <- NULL
+  return(outdf)
 }
+
+# is there a discrepancy of gene/rna ratio across tissues?
+run_mean_conf <- function(dt, func, k = 100){
+  tissues <- unique(dt$tissue)
+  result <- lapply(tissues, function(cur_tissue) sim_samples(dt$prt_rna_ratio[dt$tissue %in% cur_tissue], k = k, func = func))
+  mat <- data.frame(do.call(rbind, result))
+  colnames(mat) <- c('lower','median','upper')
+  mat$tissue <- tissues
+  return(mat)
+}
+
+sets <- list(
+  all = dt,
+  g2p = dt[dt$gene_symbol %in% g2p_genes_dosage],
+  u5_no_orf = dt[dt$u5_ORF == 0],
+  u5_orf = dt[dt$u5_ORF > 0],
+  u5_oorf = dt[dt$u5_oORF_altered_cds > 0]
+)
+
+g <- function(x) mean(x, na.rm = T)
+f <- function(x) sd(x, na.rm = T)
+
+
+# why is there a higher ratio of protein to mRNA for u5_orf
+# means
+res_mean <- lapply(names(sets), function(s) data.frame(run_mean_conf(sets[[s]], g, k = 20), how = s))
+res_mean1 <- do.call(rbind, res_mean)
+
+ggplot(res_mean1, aes(x=median, xmin=lower, xmax=upper, y = reorder(tissue, median), color = how, group = how)) +
+  geom_errorbar() +
+  geom_point() +
+  xlab('Mean (Protein/RNA)') +
+  ylab('Tissues')
+
+# standard deviations
+res_sds <- lapply(names(sets), function(s) data.frame(run_mean_conf(sets[[s]], f, k = 100), how = s))
+res_sds1 <- do.call(rbind, res_sds)
+res_sds1
+sd(dt$prt_rna_ratio[dt$tissue %in% 'Brain_Cortex'], na.rm = T)
+
+ggplot(res_sds1, aes(x=median, xmin=lower, xmax=upper, y = reorder(tissue, median), color = how, group = how)) +
+  geom_errorbar(position = 'dodge') +
+  #geom_point(position = 'dodge') +
+  xlab('Standard Deviation (Protein/RNA)') +
+  ylab('Tissues')
+
+
+
+
+
+
 
 
 ## are g2p dosage genes more variable in protein/rna ratio compared to other genes? 
-mean_sd <- sim_samples(dt$prt_rna_ratio, 10, function(x) sd(x, na.rm = T))
-
-
-
 
 
 # plot time series of selected genes

@@ -15,13 +15,17 @@ colnames(utr) <- paste0('utr.',colnames(utr))
 mrg <- merge(utr[utr$utr.type %in% c('CDS',"exon","three_prime_UTR","five_prime_UTR"),], rna, by.x = 'utr.enstid_version', by.y = 'enstid_version')
 
 
-#tbl <- table(mrg$gene_symbol, mrg$utr.type) # there can be more than one five prime UTR for the same gene
-#mrg <- mrg[mrg$gene_symbol == "ACAN", ]#'DDX1',]
-#mrg <- mrg[mrg$gene_symbol == 'M6PR', ]
-#mrg <- mrg[mrg$gene_symbol == 'DDX1',]
-#mrg$seq <- NULL
+# look at alternative spliced UTRs
+info <- aggregate(utr.type ~ enstid, data = mrg, FUN = function(x) sum(x=='five_prime_UTR'))
+
+# transcripts per gene / genes per transcript
+info <- aggregate(ensgid ~ enstid, data = mrg, FUN = function(x) length(unique(x)))
+table(info$ensgid == 1) # all tanscripts have one gene
+info <- aggregate(enstid ~ ensgid, data = mrg, FUN = function(x) length(unique(x)))
+table(info$enstid == 1) # 55 genes that have more than one transcript
 
 
+# Prep for writing out the data
 enstids <- unique(mrg$utr.enstid_version)
 enstid <- enstids 
 
