@@ -4,10 +4,10 @@ setwd('~/Projects/09_whiffin_rotation/whiffin-rotation/')
 library(reticulate)
 path <- virtualenv_python(envname = 'sandbox')
 use_virtualenv(path)
-use_virtualenv('sandbox')
-source_python('python/align.py')
 os <- import("os")
 os$listdir(".")
+use_virtualenv('sandbox')
+source_python('python/align.py')
 
 
 # load sequences
