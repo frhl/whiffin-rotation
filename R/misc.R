@@ -35,3 +35,17 @@ pprint <- function(text, ...) {
   cat(msg)
   write.socket(log.socket, msg)
 }
+
+
+
+#' @title generate codons
+#' @export
+
+generate_codons <- function(x=c('A','T','C','G')){
+  codons <- c()
+  for (i in x) for (j in x) for (l in x) codons <- c(codons, (paste0(i,j,l)))
+  return(codons)
+}
+
+
+
