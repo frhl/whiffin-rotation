@@ -15,7 +15,7 @@ ushuffle <- reticulate::import('ushuffle')
 source_python('python/shuffle_utrs.py')
 
 # constraints
-constraints <- fread('~/Projects/08_genesets/genesets/data/gnomad/karczewski2020/supplementary_dataset_11_full_constraint_metrics.tsv') #transcript-level 
+#constraints <- fread('~/Projects/08_genesets/genesets/data/gnomad/karczewski2020/supplementary_dataset_11_full_constraint_metrics.tsv') #transcript-level 
 
 
 # simulate 
@@ -34,7 +34,7 @@ all_codons <- generate_codons()
 # test
 
 # get all observed codons
-codons <- all_codons
+codons <- c('ATG','TAG', 'TAA', 'TGA', 'CGC','TAT')#all_codons
 
 # count observed codons
 res_obs <- lapply(d$seq, function(seq){
@@ -47,7 +47,7 @@ colnames(res_mat_obs) <- paste0('obs.',codons)
 res_mat_obs$ensgid_version <- d$ensgid
 res_mat_obs$enstid_version <- d$enstid_version
 res_mat_obs$enstid <- wo_version(res_mat_obs$enstid_version)
-fwrite(res_mat_obs, 'derived/210630_MANE.GRCh38.v0.95_codons_obs.csv', sep = ',')
+fwrite(res_mat_obs, 'derived/210701_MANE.GRCh38.v0.95_codons_obs.csv', sep = ',')
 
 # simulate expected codons given sequence context
 interval = TRUE
@@ -57,12 +57,12 @@ colnames(res_mat_expt) <- paste0('expt.',codons)
 res_mat_expt$ensgid <- d$ensgid[interval]
 res_mat_expt$enstid_version <- d$enstid_version[interval]
 res_mat_expt$enstid <- wo_version(res_mat_expt$enstid_version)
-fwrite(res_mat_expt, 'derived/210630_MANE.GRCh38.v0.95_codons_expt_ci.csv', sep = ',')
+fwrite(res_mat_expt, 'derived/210701_MANE.GRCh38.v0.95_codons_expt_ci.csv', sep = ',')
 mat_split_expt <- as.data.frame(matrixsplit(res_mat_expt, ';', as.numeric, 3))
 mat_split_expt$ensgid <- d$ensgid[interval]
 mat_split_expt$enstid_version <- d$enstid_version[interval]
 mat_split_expt$enstid <- wo_version(mat_split_expt$enstid_version)
-fwrite(mat_split_expt, 'derived/210630_MANE.GRCh38.v0.95_codons_expt.csv', sep = ',')
+fwrite(mat_split_expt, 'derived/210701_MANE.GRCh38.v0.95_codons_expt.csv', sep = ',')
 
 # plot all 
 res_prob <- sim_prob_codons(d$seq[interval], k = 2, iter = 1000, codons = codons)
@@ -71,7 +71,7 @@ colnames(res_mat_prob) <- paste0('prob.',codons)
 res_mat_prob$ensgid <- d$ensgid[interval]
 res_mat_prob$enstid_version <- d$enstid_version[interval]
 res_mat_prob$enstid <- wo_version(res_mat_prob$enstid_version)
-fwrite(res_mat_prob, 'derived/210630_MANE.GRCh38.v0.95_codons_probs.csv', sep = ',')
+fwrite(res_mat_prob, 'derived/210701_MANE.GRCh38.v0.95_codons_probs.csv', sep = ',')
 
 
 #res_mat <- merge(res_mat , features)

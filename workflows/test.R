@@ -18,8 +18,45 @@ source_python('python/shuffle_utrs.py')
 sim_expected_codons
 
 
+mrg <- merge(res_mat_obs, mat_split_expt)
+mrg$ensgid_version <- NULL
+mrg$ensgid <- NULL
 
-count <- 0
+obs <- mrg[,3:8] 
+expt <- mrg[,9:14] 
+
+sum(obs$obs.ATG) / sum(expt$expt.ATG)
+sum(obs$obs.TAG) / sum(expt$expt.TAG)
+
+
+d <- as.data.frame(colSums(obs) / colSums(expt))
+colnames(d) <- 'oe'
+d$codon <- unlist(lapply(strsplit(rownames(d), split = '\\.'), function(x) x[2]))
+
+ggplot(d, aes(x=codon, y = oe)) +
+  geom_point() +
+  geom_hline(yintercept = 1, linetype = 'dashed') +
+  ggtitle('Observed versus Expected 5" UTR codons') +
+  ylab('Observed / Expected')
+
+
+oe_mat <- obs / expt
+
+
+oe_mat[is.na(oe_mat)] <- 0
+oe_mat$enstid <- mrg$enstid
+
+
+library(reshape2)
+
+melted <- melt(oe_mat)
+ggplot(melted, aes(x=variable, y = value)) +
+  geom_violin() +
+  ylim(0,3)
+
+
+mrg
+
 
 
 
