@@ -78,10 +78,10 @@ ggplot(compare, aes(x=decile_loeuf, y=log(triplets))) +
   ggtitle('LOEUF vs Triplet Count') 
 
 # compare the resulting scores
-ggplot(compare, aes(x=decile_len, y = decile_loeuf, fill = decile)) +
+ggplot(compare, aes(x=decile_len, y = decile, fill = loeuf)) +
   geom_tile() +
-  xlab('Depletion score (Decile)') +
-  ylab('gnomAD LOEUF') +
+  xlab('Triplets (Percentile)') +
+  ylab('Score (Percentile)') +
   ggtitle('Depletion Score versus gnomAD')
 
 
@@ -91,12 +91,94 @@ ggplot(compare, aes(x=decile, y = loeuf)) +
 
 ggplot(compare, aes(x=score, y = loeuf)) +
   geom_point() +
-  geom_smooth(method = 'lm')
+  geom_smooth(method = 'lm') + 
+  xlab('Depletion score') + 
+  ylab('gnomAD LOEUF')
 
-
+# prove significane after adjusting for length
 summary(lm(loeuf ~ triplets, data = compare))
 summary(lm(loeuf ~ score, data = compare))
 summary(lm(loeuf ~ score + triplets, data = compare)) # significant after conditioning on triplets
+
+# compare with some genesets (olfactory versus haploinsufficient)
+haplo <- fread('~/Projects/08_genesets/genesets/data/clingen-haplo/Clingen-Dosage-Sensitivity-2021-02-28.csv', skip = 3, sep = ',')
+colnames(haplo) <- tolower(gsub(' ','_',as.character(haplo[1,])))
+haplo <- haplo[-c(1,2),]
+table(haplo$haploinsufficiency)
+compare$hi <- compare$gene %in% haplo$gene_symbol[haplo$haploinsufficiency %in% 'Sufficient Evidence for Haploinsufficiency']
+compare$recessive <- compare$gene %in% haplo$gene_symbol[haplo$haploinsufficiency %in% 'Gene Associated with Autosomal Recessive Phenotype']
+
+
+# haploinsuffucient
+d_hi <- as.data.frame(table(compare$hi, compare$decile))
+colnames(d_hi) <- c('geneset','decile','count')
+d_hi$type <- 'Haploinsufficiency'
+d_hi <- d_hi[d_hi$decile != 100,]
+
+
+ggplot(d_hi[d_hi$geneset == TRUE,], aes(y=count, decile, fill = type)) +
+  geom_point() +
+  geom_bar(stat='identity', position = 'dodge') +
+  xlab('depletion score') + 
+  ylab('Count')
+
+
+# recessive
+d_rec <- as.data.frame(table(compare$recessive, compare$decile))
+colnames(d_rec) <- c('geneset','decile','count')
+d_rec$type <- 'Autosomal Recessive'
+d_rec <- d_rec[d_rec$decile != 100,]
+
+d_com <- rbind(d_hi, d_rec)
+
+
+
+pdf('derived/plots/210703_depletion_score_vs_mcarthur.pdf', width = 6, height = 5)
+files <- list.files('~/Projects/10_mcarthur_genelists/gene_lists/lists/', full.names = T)
+for (f in files){
+  print(basename(f))
+  d1 <- fread(f, header = F)
+  
+  
+  
+  compare$genelist <- compare$gene %in% d1$V1
+  
+  
+  d_test <- as.data.frame(table(compare$genelist, compare$decile))
+  colnames(d_test) <- c('geneset','decile','count')
+  d_test$type <- basename(f)
+  d_test <- d_test[d_test$decile != 100,]
+  
+  p <- ggplot(d_test[d_test$geneset == TRUE,], aes(y=count, decile, fill = type)) +
+    geom_point() +
+    geom_bar(stat='identity', position = 'dodge') +
+    xlab('depletion score') + 
+    ylab('Count') +
+    ggtitle(basename(f))
+  print(p)
+  #Sys.sleep(5)
+  
+  # $ interesting genesets
+  list(
+    "all_ar.tsv",
+    "berg_ar.tsv",
+    "blekhman_ar.tsv",
+    "CEGv2_subset_universe.tsv",
+    "clingen_level3_genes_2015_02_27.tsv",
+    "clingen_level3_genes_2018_09_13.tsv",
+    "clinvar_path_likelypath.tsv",
+    "core_essentials_hart.tsv",
+    "drug_targets_nelson.tsv",
+    "fmrp_list_gencode.tsv",
+    "gpcr_guide.tsv"
+  )
+  
+  #$ all ar / ar
+  
+  #core essentials
+}
+graphics.off()
+
 
 #ggplot(compare, aes(x=score/triplets, y = loeuf)) +
 #  geom_point() +
