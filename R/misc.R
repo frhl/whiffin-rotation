@@ -57,3 +57,7 @@ get <- function(w,x) return( (1:ncol(x))[grepl(w,colnames(x))])
 #' @export
 indexsplit <- function(x, i, split = '\\.') unlist(lapply(x, function(y) unlist(strsplit(y, split = split))[i] ))
 
+#' @title remove version
+#' @export
+wo_version <- function(x) unlist(lapply(strsplit(x, split = '\\.'), function(x) x[1]))
+

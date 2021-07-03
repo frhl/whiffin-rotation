@@ -81,3 +81,5 @@ fwrite(res_mat_prob, 'derived/210701_MANE.GRCh38.v0.95_codons_probs.csv', sep = 
 #mrg <- mrg[mrg$delta != 0,]
 #plot(mrg$delta, mrg$pLI)
 
+
+
