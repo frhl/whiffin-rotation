@@ -48,4 +48,12 @@ generate_codons <- function(x=c('A','T','C','G')){
 }
 
 
+#' @title get by colname
+#' @export
+get <- function(w,x) return( (1:ncol(x))[grepl(w,colnames(x))])
+
+
+#' @title index specific sub-strings in vectors
+#' @export
+indexsplit <- function(x, i, split = '\\.') unlist(lapply(x, function(y) unlist(strsplit(y, split = split))[i] ))
 

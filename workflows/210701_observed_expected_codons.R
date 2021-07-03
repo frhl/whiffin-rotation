@@ -21,6 +21,7 @@ expt <- mrg[,index_expt, with = F]
 d <- as.data.frame(colSums(obs) / colSums(expt))
 colnames(d) <- 'oe'
 d$codon <- unlist(lapply(strsplit(rownames(d), split = '\\.'), function(x) x[2]))
+depletion_order <- d$codon[order(d$oe)]
 ggplot(d, aes(x=reorder(codon, oe), y = oe)) +
   geom_point() +
   geom_hline(yintercept = 1, linetype = 'dashed') +
@@ -176,18 +177,71 @@ ggplot(d_allelic, aes(x=reorder(codon, oe), y = oe, group = requirement, color =
 ######################################################
 
 # get protein / RNA 
+quantilef <- function(x) paste0(quantile(x, probs = c(0.025,0.5,0.975), na.rm = T), collapse = '|')
+
 expression <- fread('derived/tables/210609_prt_rna_numerical.txt', sep = '\t')
-aggr_rna <- aggregate(rna ~ gene.id, data = expression, FUN = function(x) sd(x, na.rm = T))
-seq_quantile <- seq(0,1, by = 0.05)
+#aggr_rna <- aggregate(rna ~ gene.id, data = expression, FUN = function(x) quantilef(x))
+aggr_rna <- aggregate(prt ~ gene.id, data = expression, FUN = function(x) max(x, na.rm = T))
+colnames(aggr_rna) <- c("gene.id","rna")
+seq_quantile <- seq(0,1, by = 0.1)
 quantile_rna <- quantile(aggr_rna$rna, probs = seq_quantile)
 aggr_rna$percentile <- cut(aggr_rna$rna, quantile_rna)
 levels(aggr_rna$percentile) <- seq_quantile*100
 
+mrg <- merge(d_expt, d_obs)
+aggr_mrg <- merge(mrg, aggr_rna, by.x = 'ensgid', by.y = 'gene.id')
+aggr_mrg$ensgid_version <- NULL
 
-merge(aggr_rna, )
+obs_aggr <- aggr_mrg[,get('(enstid)|(obs)|(perc)',aggr_mrg), with = F]
+expt_aggr <- aggr_mrg[,get('(enstid)|(expt)|(perc)',aggr_mrg), with = F]
 
-obs <- mrg[,index_obs, with = F] 
-expt <- mrg[,index_expt, with = F] 
+expr1 <- do.call(rbind, lapply(seq_quantile*100, function(perc){
+  
+  selected_obs <- obs_aggr[obs_aggr$percentile == perc, get('obs',obs_aggr), with = F]
+  selected_expt <- expt_aggr[expt_aggr$percentile == perc, get('expt',expt_aggr), with = F]
+  d_out <- data.frame(perc = perc, obs = colSums(selected_obs), expt = colSums(selected_expt))  
+  d_out$codon <- indexsplit(rownames(d_out), 2)
+  rownames(d_out) <- NULL
+  d_out$oe <- d_out$obs / d_out$expt
+  return(d_out)
+  
+}))
+
+
+expr1$codon <- factor(expr1$codon, levels = depletion_order)
+ggplot(expr1, aes(x=codon, y = oe, group = perc, color = perc)) +
+  geom_point(size = 1) +
+  geom_line() +
+  labs(color = 'Percentile (Max Protein expression across 32 tissues)') +
+  geom_hline(yintercept = 1, linetype = 'dashed') +
+  ggtitle('Observed versus Expected 5" UTR codons',
+          '1000 simulations preservering di-nt frequency for each sequnce') +
+  ylab('Observed / Expected') +
+  xlab('Codon') +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = 'bottom')
+
+
+fit <- lm(oe ~ perc , )
+summary(fit)
+
+
+do.call(rbind, lapply(depletion_order[1:5], function(codon){
+  d_cur = expr1[expr1$codon %in% codon,]
+  stats = cor.test(d_cur$perc, d_cur$oe, method = 'pearson')
+  data.frame(codon = codon, estimate = stats$estimate, pvalue = stats$p.value)
+}))
+
+
+ggplot(expr1[expr1$codon %in% depletion_order[1:5],], aes(x=perc, y = oe, group = codon, color = codon)) +
+  geom_smooth(method = 'lm', se = T, linetype = 'dashed') +
+  geom_point(size = 2) +
+  geom_hline(yintercept = 1, linetype = 'dashed') +
+  ggtitle('Comparison of codon depletion versus tissue expression',
+          '1000 simulations preservering di-nt frequency for each sequnce') +
+  ylab('Observed / Expected') +
+  xlab('Percentile (Max Protein expression across 32 tissues)') +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
 
 
 
