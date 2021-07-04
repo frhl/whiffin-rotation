@@ -1,9 +1,11 @@
-setwd('~/Projects/09_whiffin_rotation/whiffin-rotation/')
+#setwd('~/Projects/09_whiffin_rotation/whiffin-rotation/')
 devtools::load_all()
 
 # import 5' or 3' UTR data
 library(data.table)
-d <- fread('~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
+
+d <- fread('data/MANE/210629_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
+#d <- fread('~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
 #d <- d[d$type == 'five_prime_UTR']
 d <- d[d$type == 'three_prime_UTR']
 features <- fread('derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t')
