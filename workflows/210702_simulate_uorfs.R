@@ -33,6 +33,7 @@ colnames(res_mat_obs) <- paste0('obs.',codons)
 res_mat_obs$ensgid_version <- d_mat$ensgid
 res_mat_obs$enstid_version <- d_mat$enstid_version
 res_mat_obs$enstid <- wo_version(res_mat_obs$enstid_version)
+res_mat_obs$ensgid <- wo_version(as.character(res_mat_obs$ensgid_version))
 fwrite(res_mat_obs, 'derived/210702_MANE.GRCh38.v0.95_u5orf_codons_obs.csv', sep = ',')
 
 # simulate expected codons given sequence context
@@ -40,12 +41,12 @@ interval = TRUE
 res_expt <- sim_expected_codons(d_mat$seq[interval], k = 2, iter = 1000, codons = codons)
 res_mat_expt <- as.data.frame(do.call(rbind, res_expt))
 colnames(res_mat_expt) <- paste0('expt.',codons)
-res_mat_expt$ensgid <- d_mat$ensgid[interval]
+res_mat_expt$ensgid_version <- d_mat$ensgid_version[interval]
 res_mat_expt$enstid_version <- d_mat$enstid_version[interval]
 res_mat_expt$enstid <- wo_version(res_mat_expt$enstid_version)
-fwrite(res_mat_expt, 'derived/210701_MANE.GRCh38.v0.95_u5orf_codons_expt_ci.csv', sep = ',')
+fwrite(res_mat_expt, 'derived/210702_MANE.GRCh38.v0.95_u5orf_codons_expt_ci.csv', sep = ',')
 mat_split_expt <- as.data.frame(matrixsplit(res_mat_expt, ';', as.numeric, 3))
 mat_split_expt$ensgid <- d_mat$ensgid[interval]
 mat_split_expt$enstid_version <- d_mat$enstid_version[interval]
 mat_split_expt$enstid <- wo_version(mat_split_expt$enstid_version)
-fwrite(mat_split_expt, 'derived/210701_MANE.GRCh38.v0.95_u5orf_codons_expt.csv', sep = ',')
+fwrite(mat_split_expt, 'derived/210702_MANE.GRCh38.v0.95_u5orf_codons_expt.csv', sep = ',')
