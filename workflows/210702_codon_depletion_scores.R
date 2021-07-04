@@ -23,8 +23,8 @@ colnames(d) <- 'oe'
 
 # setup score
 triplets <- rowSums(obs)
-score <- colSums(apply(obs, 1, function(x) x * d$oe)) #/ sqrt(triplets)
-ds <- data.frame(ensgid = wo_version(d_obs$ensgid_version), transcript = wo_version(d_obs$enstid_version), score = log(score), triplets = triplets)
+score <- colSums(apply(obs, 1, function(x) x * d$oe)) / exp(triplets)
+ds <- data.frame(ensgid = wo_version(d_obs$ensgid_version), transcript = wo_version(d_obs$enstid_version), score = (score), triplets = triplets)
 
 # deciles for score
 deciles_seq <- seq(0,1,by = 0.1)
@@ -85,9 +85,9 @@ ggplot(compare, aes(x=decile_len, y = decile, fill = loeuf)) +
   ggtitle('Depletion Score versus gnomAD')
 
 
-# compare the resulting scores (boxplot)
 ggplot(compare, aes(x=decile, y = loeuf)) +
   geom_boxplot()
+
 
 ggplot(compare, aes(x=score, y = loeuf)) +
   geom_point() +
@@ -133,7 +133,7 @@ d_com <- rbind(d_hi, d_rec)
 
 
 
-pdf('derived/plots/210703_depletion_score_vs_mcarthur.pdf', width = 6, height = 5)
+pdf('derived/plots/210703_log2_triplet_depletion_score_vs_mcarthur.pdf', width = 6, height = 5)
 files <- list.files('~/Projects/10_mcarthur_genelists/gene_lists/lists/', full.names = T)
 for (f in files){
   print(basename(f))
