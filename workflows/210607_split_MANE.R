@@ -83,8 +83,8 @@ sequences <- lapply(enstids, function(enstid){
 seq_df <- do.call(rbind, sequences)
 seq_df <- seq_df[,as.logical(!duplicated(t(seq_df))), with = F]
 colnames(seq_df) <- gsub('utr\\.','',colnames(seq_df))
-fwrite(seq_df, '~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
-seq_df <- fread('~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
+fwrite(seq_df, '~/Projects/08_genesets/genesets/data/MANE/210705_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
+seq_df <- fread('~/Projects/08_genesets/genesets/data/MANE/210705_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
 # subset data
 
 
@@ -100,19 +100,26 @@ sequences_combined <- do.call(rbind, lapply(enstids, function(enstid){
     df <- df[nrow(df):1]
   }
   
-  
+  # get RNA sequence
   UTR_5 <- paste0(df$newseq[df$type == 'five_prime_UTR'], collapse = '')
   CDS <- paste0(df$newseq[df$type == 'CDS'], collapse = '')
   UTR_3 <- paste0(df$newseq[df$type == 'three_prime_UTR'], collapse = '')
   
+  # and keep positions
+  UTR_5_bp <- paste0(df$bp_start[df$type == 'five_prime_UTR'], '-',df$bp_end[df$type == 'five_prime_UTR'], collapse = ';')
+  CDS_bp <- paste0(df$bp_start[df$type == 'CDS'], '-',df$bp_end[df$type == 'CDS'], collapse = ';')
+  UTR_3_bp <- paste0(df$bp_start[df$type == 'three_prime_UTR'], '-',df$bp_end[df$type == 'three_prime_UTR'], collapse = ';')  
+  chrom = unique(df$chr)
+  stopifnot(length(chrom) == 1)
+  
   row <- df[1,c(10,11,16, 1, 12)]
-  r1 <- data.frame(row, type = 'five_prime_UTR', seq = UTR_5)
-  r2 <- data.frame(row, type = 'three_prime_UTR', seq = UTR_3)
-  r3 <- data.frame(row, type = 'CDS', seq = CDS)
+  r1 <- data.frame(row, type = 'five_prime_UTR', chr = chrom, bp = UTR_5_bp, seq = UTR_5)
+  r2 <- data.frame(row, type = 'three_prime_UTR', chr = chrom, bp = CDS_bp, seq = UTR_3)
+  r3 <- data.frame(row, type = 'CDS', chr = chrom, bp = UTR_3_bp, seq = CDS)
   
   res <- rbind(r1, r2, r3)
   return(res)
   
 }))
 
-fwrite(sequences_combined, '~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
+fwrite(sequences_combined, '~/Projects/08_genesets/genesets/data/MANE/210705_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
