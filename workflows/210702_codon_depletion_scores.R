@@ -23,17 +23,20 @@ colnames(d) <- 'oe'
 
 # setup score
 triplets <- rowSums(obs)
-score <- colSums(apply(obs, 1, function(x) x * d$oe)) / exp(triplets)
+oe_weights <- d$oe-median(d$oe)
+#score <- colSums(apply(obs, 1, function(x) x * oe_weights)) / (triplets)
+score <- log10(triplets)
 ds <- data.frame(ensgid = wo_version(d_obs$ensgid_version), transcript = wo_version(d_obs$enstid_version), score = (score), triplets = triplets)
+#plot(triplets, triplets**0.5)
 
 # deciles for score
-deciles_seq <- seq(0,1,by = 0.1)
+deciles_seq <- seq(0,1,by = 0.2)
 deciles <- quantile(ds$score, probs = deciles_seq, na.rm = T)
 ds$decile <- cut(ds$score, deciles)
 levels(ds$decile) <- deciles_seq*100
 
 # decile for triplets
-deciles_len_seq <- seq(0,1,by = 0.05)
+deciles_len_seq <- seq(0,1,by = 0.2)
 deciles_len <- quantile(ds$triplets, probs = deciles_len_seq, na.rm = T)
 ds$decile_len <- cut(ds$triplets, deciles_len)
 levels(ds$decile_len) <- deciles_len_seq*100
@@ -47,7 +50,7 @@ compare <- merge(ds, constraints)
 
 
 # decile for loeuf
-deciles_loeuf_seq <- seq(0,1,by = 0.1)
+deciles_loeuf_seq <- seq(0,1,by = 0.2)
 deciles_loeuf <- quantile(compare$loeuf, probs = deciles_loeuf_seq, na.rm = T)
 compare$decile_loeuf <- cut(compare$loeuf, deciles_loeuf)
 levels(compare$decile_loeuf) <- deciles_loeuf_seq*100
@@ -70,6 +73,7 @@ ggplot(compare, aes(x=decile, y=triplets)) +
   ylab('Triplets') +
   ggtitle('LOEUF vs Triplet Count') 
 
+
 # triplets versus loeuf (i.e. it's not a gene length score)
 ggplot(compare, aes(x=decile_loeuf, y=log(triplets))) +
   geom_boxplot() +
@@ -85,6 +89,9 @@ ggplot(compare, aes(x=decile_len, y = decile, fill = loeuf)) +
   ggtitle('Depletion Score versus gnomAD')
 
 
+
+
+
 ggplot(compare, aes(x=decile, y = loeuf)) +
   geom_boxplot()
 
@@ -96,9 +103,9 @@ ggplot(compare, aes(x=score, y = loeuf)) +
   ylab('gnomAD LOEUF')
 
 # prove significane after adjusting for length
-summary(lm(loeuf ~ triplets, data = compare))
+summary(lm(loeuf ~ triplets, data = compare))$coeffecient
 summary(lm(loeuf ~ score, data = compare))
-summary(lm(loeuf ~ score + triplets, data = compare)) # significant after conditioning on triplets
+summary(lm(loeuf ~ score + triplets, data = compare)) # significant after conditioning on triplets (score on log scale)
 
 # compare with some genesets (olfactory versus haploinsufficient)
 haplo <- fread('~/Projects/08_genesets/genesets/data/clingen-haplo/Clingen-Dosage-Sensitivity-2021-02-28.csv', skip = 3, sep = ',')
@@ -107,15 +114,24 @@ haplo <- haplo[-c(1,2),]
 table(haplo$haploinsufficiency)
 compare$hi <- compare$gene %in% haplo$gene_symbol[haplo$haploinsufficiency %in% 'Sufficient Evidence for Haploinsufficiency']
 compare$recessive <- compare$gene %in% haplo$gene_symbol[haplo$haploinsufficiency %in% 'Gene Associated with Autosomal Recessive Phenotype']
+compare$olfac = compare$gene %in% fread('~/Projects/10_mcarthur_genelists/gene_lists/lists/olfactory_receptors.tsv', header = F)$V1
+
+
+
+# 
+olfactory <- load_mcarthur_list('olfactory_receptors.tsv','olfactory receptors (McArthur)')
+mgi <- load_mcarthur_list('mgi_essential.tsv','MGI essential genes (McArthur)')
+fmrp <- load_mcarthur_list('fmrp_list_gencode.tsv','FMRP interactors (McArthur)')
+
 
 
 # haploinsuffucient
 d_hi <- as.data.frame(table(compare$hi, compare$decile))
 colnames(d_hi) <- c('geneset','decile','count')
-d_hi$type <- 'Haploinsufficiency'
+d_hi$type <- 'Haploinsufficiency (Clingen)'
 d_hi <- d_hi[d_hi$decile != 100,]
 
-
+# plot haplounsufficinet genes
 ggplot(d_hi[d_hi$geneset == TRUE,], aes(y=count, decile, fill = type)) +
   geom_point() +
   geom_bar(stat='identity', position = 'dodge') +
@@ -126,16 +142,27 @@ ggplot(d_hi[d_hi$geneset == TRUE,], aes(y=count, decile, fill = type)) +
 # recessive
 d_rec <- as.data.frame(table(compare$recessive, compare$decile))
 colnames(d_rec) <- c('geneset','decile','count')
-d_rec$type <- 'Autosomal Recessive'
+d_rec$type <- 'Autosomal Recessive (Clingen)'
 d_rec <- d_rec[d_rec$decile != 100,]
 
-d_com <- rbind(d_hi, d_rec)
+d_com <- rbind(d_hi, d_rec, d_ol)
+# plot haplounsufficinet genes
+ggplot(d_com[d_com$geneset == TRUE,], aes(y=count, decile, fill = type)) +
+  geom_bar(stat='identity', position = 'dodge') +
+  xlab('depletion score') + 
+  ylab('Count') +
+  ggtitle('Dividing score by UTR length')
 
 
 
-pdf('derived/plots/210703_log2_triplet_depletion_score_vs_mcarthur.pdf', width = 6, height = 5)
+
+if (T){
+  
+pdf('derived/plots/210705_median_loeuf_depletion_score_vs_mcarthur.pdf', width = 6, height = 5)
 files <- list.files('~/Projects/10_mcarthur_genelists/gene_lists/lists/', full.names = T)
 for (f in files){
+  
+  
   print(basename(f))
   d1 <- fread(f, header = F)
   
@@ -148,15 +175,28 @@ for (f in files){
   colnames(d_test) <- c('geneset','decile','count')
   d_test$type <- basename(f)
   d_test <- d_test[d_test$decile != 100,]
+  d_test$how = 'Depletion Score'
   
-  p <- ggplot(d_test[d_test$geneset == TRUE,], aes(y=count, decile, fill = type)) +
-    geom_point() +
+  d_test1 <- as.data.frame(table(compare$genelist, compare$decile_loeuf))
+  colnames(d_test1) <- c('geneset','decile','count')
+  d_test1$type <- basename(f)
+  d_test1 <- d_test1[d_test1$decile != 100,]
+  d_test1$how = 'LOEUF'
+  
+  com <- rbind(d_test, d_test1)
+  
+  p <- ggplot(com[com$geneset == TRUE,], aes(y=count, decile, fill = how)) +
+    #geom_point() +
     geom_bar(stat='identity', position = 'dodge') +
     xlab('depletion score') + 
     ylab('Count') +
     ggtitle(basename(f))
   print(p)
-  #Sys.sleep(5)
+  
+
+  
+
+  #Sys.sleep()
   
   # $ interesting genesets
   list(
@@ -179,6 +219,7 @@ for (f in files){
 }
 graphics.off()
 
+}
 
 #ggplot(compare, aes(x=score/triplets, y = loeuf)) +
 #  geom_point() +
