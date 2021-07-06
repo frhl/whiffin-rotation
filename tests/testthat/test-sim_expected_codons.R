@@ -18,8 +18,26 @@ test_that("Basic cases", {
 test_that("Simulation", {
   
   # 33 % chance of occurrence
-  #seq <- 'ATGTAG'
-  #res <- sim_expected_codons(seq, codons = c('ATG','TAG'), k = 2, iter = 1000)
-  #expect_equal(round(res[[1]][1],1), round(res[[1]][2],1))
+  seq <- 'ATGTAG'
+  res <- sim_expected_codons(seq, codons = c('ATG','TAG'), k = 2, iter = 1000)
+  
+  expect_equal(round(as.numeric(indexsplit(res[[1]][1], 3,';')),1), 
+               round(as.numeric(indexsplit(res[[1]][2], 3,';')),1)
+               )
+  
+  
+})
+
+
+test_that("Parallel simulation", {
+  
+  # 33 % chance of occurrence
+  seq <- data.frame(seq = c('ATGTAG','ATTATAATGAAAAAG'))
+  
+  
+  
+  sim_expected_codons(seq$seq, codons = c('ATG','TAG'), k = 2, iter = 1000, parallel = T)
+  
+  sim_expected_codons(seq$seq, codons = c('ATG','TAG'), k = 2, iter = 1000, parallel = F)
   
 })
