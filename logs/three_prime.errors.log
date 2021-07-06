@@ -1,35 +1,3 @@
-Error in setwd("~/Projects/09_whiffin_rotation/whiffin-rotation/") : 
-  cannot change working directory
-Execution halted
-Loading utrsRus
-Loading required package: ggplot2
-Loading required package: data.table
-Loading required package: reshape2
-
-Attaching package: 'reshape2'
-
-The following objects are masked from 'package:data.table':
-
-    dcast, melt
-
-Loading required package: reticulate
-Adding files missing in collate: create_mane_mapping.R, get_cap_to_start_len.R, load_genelist.R, map_mane.R, matrixsplit.R, melt_tri.R, sim_expected_codons.R, sim_seq.R, som_prob_codons.R
-Error in fread("~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.combined-table.txt",  : 
-  File '~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.combined-table.txt' does not exist or is non-readable. getwd()=='/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation'
-Execution halted
-Loading utrsRus
-Loading required package: ggplot2
-Loading required package: data.table
-Loading required package: reshape2
-
-Attaching package: 'reshape2'
-
-The following objects are masked from 'package:data.table':
-
-    dcast, melt
-
-Loading required package: reticulate
-Adding files missing in collate: create_mane_mapping.R, get_cap_to_start_len.R, load_genelist.R, map_mane.R, matrixsplit.R, melt_tri.R, sim_expected_codons.R, sim_seq.R, som_prob_codons.R
 Loading utrsRus
 Loading required package: ggplot2
 Loading required package: data.table
