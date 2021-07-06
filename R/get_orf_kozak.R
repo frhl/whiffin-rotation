@@ -7,7 +7,7 @@
 #' @export
 
 
-get_orf_kozak <- function(x, f = function(y) get_orf(y)){
+get_orf_kozak <- function(x, f = function(y) get_orf(y, share_stops = T)){
 
   kozak_strength <- list()
   kozak <- get_kozak_strength(x)

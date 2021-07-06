@@ -57,3 +57,14 @@ test_that("expexted to not find anything",{
   
 })
 
+
+test_that("Different kozak contexts in 5' UTR",{
+  
+  # not overlapping (overlapping)
+  x1 <- 'GxxATGGxxXXXxxxATGxxx'
+  x2 <- 'ATGYYYTAG'
+  get_kozak_strength(x1)
+  expect_equal(extract_starts(get_oorf(x1,x2, share_stops = T)), c(6,18))
+  
+})
+

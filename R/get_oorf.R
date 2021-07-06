@@ -2,15 +2,15 @@
 #' @description get overlapping open reading frames
 #' @param utr utr sequence
 #' @param cds cds sequence
+#' @param share_stops should all possible sequences be returned?
 #' @param inframe boolean should the ORFs be in frame with CDS?
 #' @export
 
-get_oorf <- function(utr, cds, inframe = NULL){
+get_oorf <- function(utr, cds, inframe = NULL, share_stops = F){
   
   # check for open reading frames in combined data
   combined <- paste0(utr, cds)
-  orfs <- get_orf(combined)
-  
+  orfs <- get_orf(combined, share_stops = T) # must always share stops!
   if (length(orfs) > 0){
     
     # check overlap
@@ -23,7 +23,6 @@ get_oorf <- function(utr, cds, inframe = NULL){
     
     # in/out of frame to CDS
     if (!is.null(inframe)){
-      
       stopifnot(is.logical(inframe))
       orf_start <- extract_starts(orfs)
       cds_start <- nchar(utr)+3
@@ -31,6 +30,9 @@ get_oorf <- function(utr, cds, inframe = NULL){
       bool <-  inframe_cds & overlap
       return(orfs[unlist(ifelse(inframe, list(bool), list(!bool & overlap)))])
     }
+    
+    # select only strongest kozak
+    #if (!share_stops) overlap <- overlap & (extract_starts(orfs) %in% select_kozak(utr) & duplicated(extract_stops(orfs)))
     return(orfs[overlap])
   }
   return(NULL)
