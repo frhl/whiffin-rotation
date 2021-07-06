@@ -16,7 +16,7 @@ features <- fread('derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t
 
 
 # paramters to evaluate
-replicates = 10
+replicates = 50
 iterations = 200
 interval = TRUE
 all_codons <- generate_codons()
