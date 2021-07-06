@@ -1,18 +1,30 @@
 # constraint modelling in 5' UTR
 
 library(data.table)
+
+
+# did you assume a 3 BP frame?
 d_obs_ci <- fread('derived/210702_MANE.GRCh38.v0.95_u5orf_codons_expt_ci.csv', sep = ',')
 d_expt <- fread('derived/210702_MANE.GRCh38.v0.95_u5orf_codons_expt.csv', sep = ',')
 d_obs <- fread('derived/210702_MANE.GRCh38.v0.95_u5orf_codons_obs.csv', sep = ',')
 
-colnames(d_obs)[colnames(d_obs) %in% colnames(d_expt)]
+
+all(d_expt$enstid_version == d_obs$enstid_version)
+all(d_expt$enstid == d_obs$enstid)
+all(d_expt$ensgid == d_obs$ensgid)
+(overlap <- colnames(d_obs)[colnames(d_obs) %in% colnames(d_expt)])
+
 
 # merge observed / expected
-mrg <- merge(d_expt, d_obs, by = c('ensgid_version', 'enstid_version', 'enstid', 'ensgid'))
+d_expt$ensgid_version <- NULL
+d_expt$ensgid <- NULL
+d_expt$enstid <- NULL
+d_expt$enstid_version <- NULL
+
+mrg <- cbind(d_expt, d_obs)
+#mrg <- merge(d_expt, d_obs, by = 'enstid_version')
 mrg$ensgid_version <- NULL
 mrg$ensgid <- NULL
-
-
 
 obs <- mrg[,get('obs',mrg), with = F] 
 expt <- mrg[,get('expt',mrg), with = F] 
@@ -21,12 +33,14 @@ expt <- mrg[,get('expt',mrg), with = F]
 d <- as.data.frame(colSums(obs) / colSums(expt))
 colnames(d) <- 'oe'
 d$codon <- unlist(lapply(strsplit(rownames(d), split = '\\.'), function(x) x[2]))
+codons_remove <- c( 'TAG', 'TAA', 'TGA', 'ATG') # since we created the uORF using specific start stop codons / we remove them
+d <- d[!d$codon %in% codons_remove,]
 depletion_order <- d$codon[order(d$oe)]
 ggplot(d, aes(x=reorder(codon, oe), y = oe)) +
   geom_point() +
   geom_hline(yintercept = 1, linetype = 'dashed') +
-  ggtitle('Observed versus Expected 5" UTR codons',
-          '1000 simulations preservering di-nt frequency for each sequnce') +
+  ggtitle("Observed versus Expected 5' uORF codons (Removed canonical start/stop)",
+          '1000 simulations preservering di-nt frequency for each sequence') +
   ylab('Observed / Expected') +
   xlab('Codon') +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))

@@ -1,7 +1,7 @@
 Package: utrsRus
 Type: Package
 Title: UTR analysis using R
-Version: 0.1.4
+Version: 0.1.5
 Author: FL
 Maintainer: FL <flassen@well.ox.ac.uk>
 Description: A package to aid MS work in the Oxford Kessler Lab. 
@@ -13,6 +13,7 @@ Depends:
     ggplot2,
     data.table,
     reshape2,
+    reticulate
 Suggests:
     devtools,
     testthat (>= 2.1.0)

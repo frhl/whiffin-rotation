@@ -23,7 +23,7 @@ colnames(d) <- 'oe'
 # setup score
 triplets <- rowSums(obs)
 oe_weights <- d$oe-median(d$oe)
-score <- colSums(apply(obs, 1, function(x) x * oe_weights)) # /  sqrt(triplets) #**0.1
+score <- colSums(apply(obs, 1, function(x) x / oe_weights)) # /  sqrt(triplets) #**0.1
 ds <- data.frame(ensgid = wo_version(d_obs$ensgid_version), transcript = wo_version(d_obs$enstid_version), score = score, triplets = triplets)
 plot(ds$triplets, (ds$score), xlab = 'Triplets (Frame = 1)', ylab = 'Depletion score')
 
@@ -56,7 +56,7 @@ levels(compare$decile_loeuf) <- deciles_loeuf_seq*100
 ## plotting
 compare <- compare[!is.na(compare$score) & !is.na(compare$decile) & !is.na(compare$decile_loeuf),]
 
-pdf('derived/plots/210705_depletion_median_no_division_score_summary.pdf', width = 8, height = 5)
+pdf('derived/plots/210705_depletion_division_score_summary.pdf', width = 8, height = 5)
 
 annotate_codon <- function(oe_df, codon){
   x <- geom_vline(xintercept = oe_df$oe[oe_df$codon == codon], linetype = 'dashed') +
