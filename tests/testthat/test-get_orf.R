@@ -26,14 +26,14 @@ test_that("basic usage multiple ORFs", {
   
   # Two start codons
   x = 'XATGATGTAG'
-  result <- get_orf(x)
+  result <- get_orf(x, share_stops = T)
   expect_equal(names(result),c('4_10','7_10'))
   expect_equal(result[[1]], 'ATGATGTAG')
   expect_equal(result[[2]], 'ATGTAG')
   
   # multiple ORFs 
   x = 'ATGTAGATGTAG'
-  result <- get_orf(x)
+  result <- get_orf(x, share_stops = T)
   expect_equal(names(result),c('3_6','9_12'))
   expect_equal(result[[1]], "ATGTAG")
   #expect_equal(result[[2]], "ATGTAGATGTAG")
@@ -41,7 +41,7 @@ test_that("basic usage multiple ORFs", {
   
   # multiple ORFs (overlapping)
   x = 'ATGxATGxATGxTAGxTAGxTAG'
-  result <- get_orf(x)
+  result <- get_orf(x, share_stops = T)
   expect_equal(names(result),c('3_15','7_19','11_23'))
   expect_equal(result[[1]], "ATGxATGxATGxTAG")
   expect_equal(result[[2]], "ATGxATGxTAGxTAG")
@@ -49,7 +49,7 @@ test_that("basic usage multiple ORFs", {
   
   # Multiple in-frame ORFs
   x = 'ATGxxxATGxxxTAG'
-  result <- get_orf(x)
+  result <- get_orf(x, share_stops = T)
   expect_equal(names(result),c('3_15','9_15'))
   
 
@@ -63,7 +63,7 @@ test_that("ORF stops after first stop codon", {
   
 })
 
-test_that("shared stops", {
+test_that("shared stops (different kozak contexts)", {
   
   # two shared/overlapping ORFs
   x = 'ATGXXXATGXXXTAG'
@@ -78,6 +78,21 @@ test_that("shared stops", {
   expect_equal(length(result), 4)
   result <- get_orf(x, share_stops = F)
   expect_equal(length(result), 1)
+  
+  # One shared stuff weak and strong kozak
+  x = 'AGGATGGXXxxxATGxxxTAG'
+  expect_equal(as.numeric(unlist(get_kozak_strength(x))),c(3,1))
+  result <- get_orf(x, share_stops = F)
+  expect_equal(length(result), 1)
+  result <- get_orf(x, share_stops = T)
+  expect_equal(length(result), 2)
+  
+  # Two moderate kozaks result in the first being returned
+  x = 'xxxATGGXXxxxATGGxxTAG'
+  expect_equal(as.numeric(unlist(get_kozak_strength(x))),c(2,2))
+  result <- get_orf(x, share_stops = F)
+  expect_equal(length(result), 1)
+  expect_equal(result[[1]], 'ATGGXXxxxATGGxxTAG')
   
 })
 

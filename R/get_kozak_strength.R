@@ -4,10 +4,7 @@
 #' @note currently this only check for kozaks in open reading frames.
 #' @export
 
-
 get_kozak_strength <- function(x, only_orf = F){
-  
-  # THIS IS AN OLD FUNCTION. REDO!
   
   # strengths
   kozaks <- list(

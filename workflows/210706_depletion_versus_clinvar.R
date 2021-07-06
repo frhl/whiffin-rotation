@@ -49,14 +49,22 @@ features <- fread('derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t
 features <- features[,c('gene_symbol','ensgid_version','enstid_version')] # for mapping
 utr <- fread('../../08_genesets/genesets/data/MANE/210705_MANE.GRCh38.v0.95.combined-table.txt')
 aug <- fread('extdata/uAUG-creating_all_possible_annotated.txt')
+aug$found <- !is.na(aug$gnomAD_AC) & aug$gnomAD_AC > 0
+
+
+#aug <- aug[!is.na(aug$gnomAD_AC) & aug$gnomAD_AC != 0,]
 #aug <- aug[aug$effect == 'uORF_created',]
 
 # split clinvar codons to see what they were before
-table_aug <- as.data.frame(table(aug$ref, aug$alt))
-colnames(table_aug) <- c('ref','alt','freq')
+table_aug <- as.data.frame(table(aug$ref, aug$alt, aug$found))
+colnames(table_aug) <- c('ref','alt','gnomad','freq')
+bool <- duplicated(table_aug[,c('ref','alt')])
+stopifnot(sum(colSums(table_aug[bool,] == table_aug[!bool,])) == 36)
+table_aug <- cbind(table_aug[!bool,], data.frame(gnomad_freq = table_aug[bool,]$freq))
 table_aug$ref_alt <- paste0(table_aug$ref,'>',table_aug$alt)
 table_aug <- table_aug[table_aug$freq != 0,]
-ggplot(table_aug, aes(x=reorder(ref_alt, freq), y=freq)) +
+table_aug$fraction <- table_aug$gnomad_freq/table_aug$freq
+ggplot(table_aug, aes(x=reorder(ref_alt, fraction), y=fraction)) +
   geom_bar(stat='identity', color = 'black', fill = 'firebrick3') + 
   ggtitle('Frequency of uAUG creating variants','uAUG-creating_all_possible_annotated.txt') + 
   xlab('Reference & Alternate allele') +
@@ -64,7 +72,7 @@ ggplot(table_aug, aes(x=reorder(ref_alt, freq), y=freq)) +
 
 
 res <- merge(d, table_aug, by.x = 'mut', by.y = 'ref_alt')
-ggplot(res, aes(x=oe, y=freq, label = label)) +
+ggplot(res, aes(x=oe, y=fraction, label = label)) +
   geom_point(size=3) +
   #geom_bar(stat='identity', color = 'black', fill = 'firebrick3') + 
   ggtitle('5UTR pre-AUG variants versus O/E ratio','uAUG-creating_all_possible_annotated.txt') + 
