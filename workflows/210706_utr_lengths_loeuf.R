@@ -1,9 +1,11 @@
 
 
 library(data.table)
-d_obs_ci <- fread('derived/210701_MANE.GRCh38.v0.95_codons_expt_ci.csv', sep = ',')
-d_expt <- fread('derived/210701_MANE.GRCh38.v0.95_codons_expt.csv', sep = ',')
-d_obs <- fread('derived/210701_MANE.GRCh38.v0.95_codons_obs.csv', sep = ',')
+#d_obs_ci <- fread('derived/210701_MANE.GRCh38.v0.95_codons_expt_ci.csv', sep = ',')
+#d_expt <- fread('derived/210701_MANE.GRCh38.v0.95_codons_expt.csv', sep = ',')
+#d_obs <- fread('derived/210701_MANE.GRCh38.v0.95_codons_obs.csv', sep = ',')
+
+df <- fread('derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t')
 
 # merge observed / expected
 mrg <- merge(d_expt, d_obs)
@@ -18,15 +20,16 @@ index_expt <- 67:(67+63)
 obs <- mrg[,index_expt, with = F] 
 expt <- mrg[,index_obs, with = F] 
 
+
+d <- data.frame(features)
 d <- (as.data.frame(colSums(obs) / colSums(expt)))
 colnames(d) <- 'oe'
 
-# setup score
-triplets <- rowSums(obs)
-oe_weights <- d$oe-median(d$oe)
-score <- colSums(apply(obs, 1, function(x) x * oe_weights)) /  sqrt(triplets) #**0.1
-ds <- data.frame(ensgid = wo_version(d_obs$ensgid_version), transcript = wo_version(d_obs$enstid_version), score = score, triplets = triplets)
-plot(ds$triplets, (ds$score), xlab = 'Triplets (Frame = 1)', ylab = 'Depletion score')
+
+ds <- data.frame(ensgid = wo_version(df$ensgid_version), transcript = wo_version(df$enstid_version), score = df$u5_len, triplets = df$u5_len)
+
+
+#plot(ds$triplets, (ds$score), xlab = 'Triplets (Frame = 1)', ylab = 'Depletion score')
 
 # deciles for score
 deciles_seq <- seq(0,1,by = 0.1)
@@ -35,10 +38,10 @@ ds$decile <- cut(ds$score, deciles)
 levels(ds$decile) <- deciles_seq*100
 
 # decile for triplets
-deciles_len_seq <- seq(0,1,by = 0.1)
-deciles_len <- quantile(ds$triplets, probs = deciles_len_seq, na.rm = T)
-ds$decile_len <- cut(ds$triplets, deciles_len)
-levels(ds$decile_len) <- deciles_len_seq*100
+#deciles_len_seq <- seq(0,1,by = 0.1)
+#deciles_len <- quantile(ds$triplets, probs = deciles_len_seq, na.rm = T)
+#ds$decile_len <- cut(ds$triplets, deciles_len)
+#levels(ds$decile_len) <- deciles_len_seq*100
 
 # compare with LOEUF
 constraints <- fread('~/Projects/08_genesets/genesets/data/gnomad/karczewski2020/supplementary_dataset_11_full_constraint_metrics.tsv') #transcript-level 
@@ -57,11 +60,11 @@ levels(compare$decile_loeuf) <- deciles_loeuf_seq*100
 ## plotting
 compare <- compare[!is.na(compare$score) & !is.na(compare$decile) & !is.na(compare$decile_loeuf),]
 
-pdf('derived/plots/210706_sqrt_score_summary.pdf', width = 8, height = 5)
+pdf('derived/plots/210706_LENGTH_ONLY_score_summary.pdf', width = 8, height = 5)
 
 annotate_codon <- function(oe_df, codon){
   x <- geom_vline(xintercept = oe_df$oe[oe_df$codon == codon], linetype = 'dashed') +
-  annotate(geom = 'text', x = oe_df$oe[oe_df$codon == codon]+0.02, y = 3, label = codon)
+    annotate(geom = 'text', x = oe_df$oe[oe_df$codon == codon]+0.02, y = 3, label = codon)
   return(x)
 }
 

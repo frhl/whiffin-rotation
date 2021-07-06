@@ -61,3 +61,8 @@ indexsplit <- function(x, i, split = '\\.') unlist(lapply(x, function(y) unlist(
 #' @export
 wo_version <- function(x) unlist(lapply(strsplit(x, split = '\\.'), function(x) x[1]))
 
+get_time <- function(){
+  Sys.time()
+}
+
+
