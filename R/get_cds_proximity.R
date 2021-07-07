@@ -1,4 +1,6 @@
 #' @title get proximity to CDS
+#' @param x sequence
+#' @param fun what function should be appliedd
 #' @description finds the distance to the CDS (assuming that it will be the end of x)
 #' @export
 
@@ -8,6 +10,8 @@ get_cds_proximity <- function(x, fun = function(x) get_orf(x, share_stops = F)){
 }
 
 #' @title get proximity to leader/cap
+#' @param x sequence
+#' @param fun what function should be appliedd
 #' @export
 
 get_leader_proximity <- function(x, fun = function(x) get_orf(x, share_stops = F)){

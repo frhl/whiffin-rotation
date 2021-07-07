@@ -6,6 +6,9 @@
 \usage{
 wo_version(x)
 }
+\arguments{
+\item{x}{vector of strings}
+}
 \description{
 remove version
 }

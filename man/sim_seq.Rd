@@ -11,6 +11,8 @@ sim_seq(seq, f, k = 2, iter = 1000, verbose = T)
 
 \item{f}{what function should be applied to simulate sequences? e.g. find_codon()}
 
+\item{k}{what kmer-frequency should be preserved?}
+
 \item{iter}{how many itereations}
 
 \item{verbose}{printn status}

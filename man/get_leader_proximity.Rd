@@ -6,6 +6,11 @@
 \usage{
 get_leader_proximity(x, fun = function(x) get_orf(x, share_stops = F))
 }
+\arguments{
+\item{x}{sequence}
+
+\item{fun}{what function should be appliedd}
+}
 \description{
 get proximity to leader/cap
 }

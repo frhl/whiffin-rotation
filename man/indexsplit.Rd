@@ -6,6 +6,13 @@
 \usage{
 indexsplit(x, i, split = "\\\\.")
 }
+\arguments{
+\item{x}{vector of strings}
+
+\item{i}{index}
+
+\item{split}{split on what?}
+}
 \description{
 index specific sub-strings in vectors
 }

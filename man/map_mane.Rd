@@ -7,6 +7,8 @@
 map_mane(coords, bp, adjust_pos = -2)
 }
 \arguments{
+\item{coords}{coordinates}
+
 \item{df}{a data.frame with the column \code{bp}.}
 }
 \description{

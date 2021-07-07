@@ -22,6 +22,8 @@ extract_stops <- function(x) {
 
 #' @title print to port
 #' @description log output to port
+#' @param text what text should be printed
+#' @param ... extra text
 #'
 #' @details 
 #' In the following order do:
@@ -39,6 +41,7 @@ pprint <- function(text, ...) {
 
 
 #' @title generate codons
+#' @param x letters available
 #' @export
 
 generate_codons <- function(x=c('A','T','C','G')){
@@ -49,15 +52,21 @@ generate_codons <- function(x=c('A','T','C','G')){
 
 
 #' @title get by colname
+#' @param w what data.frame?
+#' @param x what colnames
 #' @export
 get <- function(w,x) return( (1:ncol(x))[grepl(w,colnames(x))])
 
 
 #' @title index specific sub-strings in vectors
+#' @param x vector of strings
+#' @param i index
+#' @param split split on what?
 #' @export
 indexsplit <- function(x, i, split = '\\.') unlist(lapply(x, function(y) unlist(strsplit(y, split = split))[i] ))
 
 #' @title remove version
+#' @param x vector of strings
 #' @export
 wo_version <- function(x) unlist(lapply(strsplit(x, split = '\\.'), function(x) x[1]))
 

@@ -1,7 +1,19 @@
 #' @title get kozak strength
 #' @description get kozak strength (Assumes AUG as start codon)
 #' @param x sequence
+#' @param only_orf Boolean. only return open reading frames.
 #' @note currently this only check for kozaks in open reading frames.
+#' @details The kozak sequence hierarchy has been used (Strong to weak):
+#'  
+#' \itemize{
+#'  \item \code{strong_1 = '(A|G)..ATGG'}
+#'  \item \code{moderate_1 =   '(A|G)..ATG.'} 
+#'  \item \code{moderate_2 =   '...ATGG'} 
+#'  \item \code{weak_1 =   '...ATG.'} 
+#'  \item \code{weak_2 = 'ATG'}
+#' }
+#' 
+#' @references Whiffin et al, 2020
 #' @export
 
 get_kozak_strength <- function(x, only_orf = F){

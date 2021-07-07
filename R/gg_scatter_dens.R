@@ -1,4 +1,6 @@
 #' @title ggplot density and scatter
+#' @param data data
+#' @param mapping what mapping should be used
 #' @description ggplot for plotting scatter plot and density map 
 #' for single scat
 

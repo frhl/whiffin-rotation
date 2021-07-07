@@ -6,6 +6,9 @@
 \usage{
 generate_codons(x = c("A", "T", "C", "G"))
 }
+\arguments{
+\item{x}{letters available}
+}
 \description{
 generate codons
 }

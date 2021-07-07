@@ -1,7 +1,9 @@
 #
 
 # get protein / RNA 
-d <- fread('derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t')
+#d <- fread('derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t')
+d <- fread('derived/tables/210706_MANE.v0.95.UTR_features.txt', sep = '\t')
+
 
 # non parametric bootstrap
 bootstrap_mean_ci <- function(x, k = 100, func = function(x) sd(x, na.rm = T), probs = c(0.025,0.5,0.975)){
@@ -16,7 +18,6 @@ pasteci <- function(x, digits = 2){
   x <- round(x, digits = digits)
   paste0(x[2],' [',x[1],';',x[3],']')
 } 
-
 
 eval_u5_features <- function(k = 100, f){
   data.frame(
@@ -54,8 +55,7 @@ rownames(outmat) <- c('Means','SDs')
 count_to_pct(count_u5_features())
 
 
-
-
+#
 
 
 

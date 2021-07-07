@@ -15,6 +15,11 @@ gg_scatter_dens(
   debug = F
 )
 }
+\arguments{
+\item{data}{data}
+
+\item{mapping}{what mapping should be used}
+}
 \description{
 ggplot for plotting scatter plot and density map 
 for single scat

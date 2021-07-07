@@ -6,6 +6,11 @@
 \usage{
 get(w, x)
 }
+\arguments{
+\item{w}{what data.frame?}
+
+\item{x}{what colnames}
+}
 \description{
 get by colname
 }
