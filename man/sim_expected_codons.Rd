@@ -17,6 +17,16 @@ sim_expected_codons(
 \arguments{
 \item{seqs}{vector of sequences}
 
+\item{k}{what k-mer frequency should be preserved?}
+
+\item{iter}{how many simulations?}
+
+\item{verbose}{print status?}
+
+\item{parallel}{run parallel}
+
+\item{cores}{how many cores should be used when in parallel?}
+
 \item{codon}{what codon should be determined}
 }
 \description{

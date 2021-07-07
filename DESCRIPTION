@@ -1,7 +1,7 @@
 Package: utrsRus
 Type: Package
 Title: UTR analysis using R
-Version: 0.1.6
+Version: 0.1.7
 Author: FL
 Maintainer: FL <flassen@well.ox.ac.uk>
 Description: A package to aid MS work in the Oxford Kessler Lab. 
@@ -39,6 +39,7 @@ Collate:
     'get_truncating_augs.R'
     'get_gc.R'		
     'get_oorf.R'
+    'load_genelist.R'
     'map_mane.R'
     'matrixsplit.R'
     'melt_tri.R'		

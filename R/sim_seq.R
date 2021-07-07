@@ -1,12 +1,11 @@
-
-
-
-
 #' @title simulate codon frequency
 #' @description simulates codon frequency
-#' @param seqs vector of sequences
-#' @param codon what codon should be determined
-#' @param export
+#' @param seq vector of sequences
+#' @param f what function should be applied to simulate sequences? e.g. find_codon()
+#' @param k what kmer-frequency should be preserved?
+#' @param iter how many itereations
+#' @param verbose printn status
+#' @export
 
 sim_seq <- function(seq, f, k = 2, iter = 1000, verbose = T){
 

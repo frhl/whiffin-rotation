@@ -1,8 +1,13 @@
 #' @title simulate codon frequency
 #' @description simulates codon frequency
 #' @param seqs vector of sequences
-#' @param codon what codon should be determined
-#' @param export
+#' @param codons what codon should be determined
+#' @param k what k-mer frequency should be preserved?
+#' @param iter how many simulations?
+#' @param verbose print status?
+#' @param parallel run parallel
+#' @param cores how many cores should be used when in parallel?
+#' @export
 
 sim_expected_codons <- function(seqs, codons = 'ATG', k = 2, iter = 1000, verbose = T, parallel = F, cores = detectCores()){
   

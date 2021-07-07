@@ -7,9 +7,13 @@
 sim_seq(seq, f, k = 2, iter = 1000, verbose = T)
 }
 \arguments{
-\item{seqs}{vector of sequences}
+\item{seq}{vector of sequences}
 
-\item{codon}{what codon should be determined}
+\item{f}{what function should be applied to simulate sequences? e.g. find_codon()}
+
+\item{iter}{how many itereations}
+
+\item{verbose}{printn status}
 }
 \description{
 simulates codon frequency
