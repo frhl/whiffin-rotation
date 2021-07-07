@@ -93,6 +93,8 @@ test_that("shared stops (different kozak contexts)", {
   result <- get_orf(x, share_stops = F)
   expect_equal(length(result), 1)
   expect_equal(result[[1]], 'ATGGXXxxxATGGxxTAG')
+  result <- get_orf(x, share_stops = T)
+  expect_equal(length(result), 2)
   
 })
 

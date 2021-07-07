@@ -41,6 +41,24 @@ test_that("in/out of frame with CDS", {
   expect_equal(get_oorf(x1, x2, inframe = F)[[1]], "ATG..ATG.TAG")
   expect_equal(length(get_oorf(x1,x2, inframe = T)), 0)
   
+  # two out of frame
+  x1 <- 'ATGxxxXATGxxXX'
+  x2 <- 'ATGxxxTAGxxTAGxxTAG'
+  expect_equal(extract_stops(get_oorf(x1, x2, inframe = F)),c(28,33))
+  expect_true(length(get_oorf(x1, x2, inframe = T)) == 0)
+  
+  
+})
+
+test_that("Shared stops", {
+  
+  # two out of frame
+  #x1 <- 'ATGxxxXATGxxXX'
+  #x2 <- 'ATGxxxTAGxxTAGxxTAG'
+  #expect_equal(extract_stops(get_oorf(x1, x2, inframe = F)),c(28,33))
+  #expect_true(length(get_oorf(x1, x2, inframe = T)) == 0)
+  
+  
 })
 
 test_that("expexted to not find anything",{
@@ -65,6 +83,9 @@ test_that("Different kozak contexts in 5' UTR",{
   x2 <- 'ATGYYYTAG'
   get_kozak_strength(x1)
   expect_equal(extract_starts(get_oorf(x1,x2, share_stops = T)), c(6,18))
+
+  # Non-shared stops returns only the one with strongest kozak
+  expect_equal(extract_starts(get_oorf(x1,x2, share_stops = F)), c(6,18))
   
 })
 

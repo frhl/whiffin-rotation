@@ -4,7 +4,7 @@
 \alias{get_oorf}
 \title{get overlapping open reading frames}
 \usage{
-get_oorf(utr, cds, inframe = NULL)
+get_oorf(utr, cds, inframe = NULL, share_stops = F)
 }
 \arguments{
 \item{utr}{utr sequence}
@@ -12,6 +12,8 @@ get_oorf(utr, cds, inframe = NULL)
 \item{cds}{cds sequence}
 
 \item{inframe}{boolean should the ORFs be in frame with CDS?}
+
+\item{share_stops}{should all possible sequences be returned?}
 }
 \description{
 get overlapping open reading frames

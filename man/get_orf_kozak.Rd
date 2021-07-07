@@ -4,7 +4,7 @@
 \alias{get_orf_kozak}
 \title{get open reading frames kozak strength}
 \usage{
-get_orf_kozak(x, f = function(y) get_orf(y))
+get_orf_kozak(x, f = function(y) get_orf(y, share_stops = T))
 }
 \arguments{
 \item{x}{string. UTR sequence.}

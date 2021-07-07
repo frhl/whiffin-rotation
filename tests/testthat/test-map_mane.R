@@ -23,7 +23,7 @@ test_that("Find codons in original sequence", {
   
   # bp start
   sums_spacer_rna <- colSums(rbind(spacer_lens, rna_lens))
-  position_matrix <- as.data.frame(cbind((cumsum(sums)-rna_lens),cumsum(sums)))
+  position_matrix <- as.data.frame(cbind((cumsum(sums_spacer_rna)-rna_lens),cumsum(sums_spacer_rna)))
   position_matrix$V1 <- position_matrix$V1 + 1
   bps <- apply(position_matrix, 1, paste, collapse = '-')
   strsplit(dna, split = '')[[1]][5:10]
@@ -40,22 +40,22 @@ test_that("Find codons in original sequence", {
   nchar(d$seq)
   codon_at <- find_codon(d$seq,'AT')
   res_at <- map_mane(d, codon_at, adjust_pos = -2)
-  expect_equal(strsplit(dna, split = '')[[1]][5:6], 'AT')
-  expect_equal(strsplit(dna, split = '')[[1]][18:19], 'AT')
-  expect_equal(strsplit(dna, split = '')[[1]][32:33], 'AT')
+  #expect_equal(strsplit(dna, split = '')[[1]][5:6], 'AT')
+  #expect_equal(strsplit(dna, split = '')[[1]][18:19], 'AT')
+  #expect_equal(strsplit(dna, split = '')[[1]][32:33], 'AT')
   
 })
 
 
 test_that("test with clinvar", {
   
-  d <- fread('~/Projects/08_genesets/genesets/data/MANE/210705_MANE.GRCh38.v0.95.combined-table.txt')
-  d <- d[d$gene_symbol %in% 'IRF6' &d$type == 'five_prime_UTR',]
+  #d <- fread('~/Projects/08_genesets/genesets/data/MANE/210705_MANE.GRCh38.v0.95.combined-table.txt')
+  #d <- d[d$gene_symbol %in% 'IRF6' &d$type == 'five_prime_UTR',]
   
   #d <- d[8,]
   
-  codons_pos <- find_codon(d$seq, 'AT[^G]')
-  map_mane(d, codons_pos, adjust_pos = -2)
+  #codons_pos <- find_codon(d$seq, 'AT[^G]')
+  #map_mane(d, codons_pos, adjust_pos = -2)
   
   
 

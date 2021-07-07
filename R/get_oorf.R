@@ -31,9 +31,7 @@ get_oorf <- function(utr, cds, inframe = NULL, share_stops = F){
       return(orfs[unlist(ifelse(inframe, list(bool), list(!bool & overlap)))])
     }
     
-    # select only strongest kozak
-    #if (!share_stops) overlap <- overlap & (extract_starts(orfs) %in% select_kozak(utr) & duplicated(extract_stops(orfs)))
-    return(orfs[overlap])
+       return(orfs[overlap])
   }
   return(NULL)
 }
