@@ -42,7 +42,7 @@ get_oorf <- function(utr, cds, inframe = NULL, share_stops = T){
     oorfs <- orfs[overlap]
   
     # deal with shared stops
-    if (!share_stops){
+    if (!share_stops & length(oorfs) > 1){
       mat_oorf <- as.data.frame(do.call(rbind, strsplit(names(oorfs), split = '_')))
       mat_oorf$V1 <- as.numeric(mat_oorf$V1)
       mat_oorf$V2 <- as.numeric(mat_oorf$V2)

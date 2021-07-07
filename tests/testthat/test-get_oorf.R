@@ -107,6 +107,7 @@ test_that("expexted to not find anything",{
   x1 <- 'ATGXXXTAG'
   x2 <- 'ATGYYYTAG'
   expect_equal(length(get_oorf(x1,x2)), 0)
+  expect_equal(length(get_oorf(x1,x2, share_stops = F)), 0)
   
 })
 

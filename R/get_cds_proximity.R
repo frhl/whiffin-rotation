@@ -5,8 +5,8 @@
 #' @export
 
 get_cds_proximity <- function(x, fun = function(x) get_orf(x, share_stops = F)){
-  stops <- extract_stops(fun(x))
-  return(nchar(x)-stops)
+  fun_res <- fun(x)
+  if (length(fun_res) > 0) return(nchar(x)-extract_stops(fun_res)) else return(NA)
 }
 
 #' @title get proximity to leader/cap
@@ -15,6 +15,8 @@ get_cds_proximity <- function(x, fun = function(x) get_orf(x, share_stops = F)){
 #' @export
 
 get_leader_proximity <- function(x, fun = function(x) get_orf(x, share_stops = F)){
-  starts <- extract_starts(fun(x))
-  return(starts-3)
+  fun_res <- fun(x)
+  if (length(fun_res) > 0) return(extract_starts(fun_res)-3) else return(NA)
+  #starts <- extract_starts(fun(x))
+  #if (length(starts) > 0)  return(starts-3) else return(NA)
 }
