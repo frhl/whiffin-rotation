@@ -47,7 +47,7 @@ get_oorf <- function(utr, cds, inframe = NULL, share_stops = T){
       mat_oorf$V1 <- as.numeric(mat_oorf$V1)
       mat_oorf$V2 <- as.numeric(mat_oorf$V2)
       shared_stops <- mat_oorf$V2[duplicated(mat_oorf$V2)]
-      index <- select_shared_stops(x, mat_oorf, shared_stops)
+      index <- select_shared_stops(combined, mat_oorf, shared_stops)
       oorfs <- oorfs[index]
     }
     
