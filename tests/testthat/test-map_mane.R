@@ -40,6 +40,8 @@ test_that("Find codons in original sequence", {
   nchar(d$seq)
   codon_at <- find_codon(d$seq,'AT')
   res_at <- map_mane(d, codon_at, adjust_pos = -2)
+  
+  
   #expect_equal(strsplit(dna, split = '')[[1]][5:6], 'AT')
   #expect_equal(strsplit(dna, split = '')[[1]][18:19], 'AT')
   #expect_equal(strsplit(dna, split = '')[[1]][32:33], 'AT')
