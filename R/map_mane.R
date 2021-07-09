@@ -1,5 +1,6 @@
 #' @title map geneomic coordiantes from RNA to DNA
 #' @param df a data.frame with the column \code{bp}.
+#' @param coords coordinates
 
 
 map_mane <- function(coords, bp, adjust_pos = -2){

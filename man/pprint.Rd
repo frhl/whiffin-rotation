@@ -6,6 +6,11 @@
 \usage{
 pprint(text, ...)
 }
+\arguments{
+\item{text}{what text should be printed}
+
+\item{...}{extra text}
+}
 \description{
 log output to port
 }

@@ -14,6 +14,8 @@ utr <- rbind(utr, cds)
 colnames(utr) <- paste0('utr.',colnames(utr))
 mrg <- merge(utr[utr$utr.type %in% c('CDS',"exon","three_prime_UTR","five_prime_UTR"),], rna, by.x = 'utr.enstid_version', by.y = 'enstid_version')
 
+#x <- mrg[mrg$utr.enstid_version == 'ENST00000375915.4' & mrg$utr.type =='five_prime_UTR', ]
+#nchar(x$seq)
 
 # look at alternative spliced UTRs
 info <- aggregate(utr.type ~ enstid, data = mrg, FUN = function(x) sum(x=='five_prime_UTR'))
@@ -79,14 +81,15 @@ sequences <- lapply(enstids, function(enstid){
   
 })
 
-# combne data
+# combine data
 seq_df <- do.call(rbind, sequences)
 seq_df <- seq_df[,as.logical(!duplicated(t(seq_df))), with = F]
+colnames(seq_df) <- gsub('utr\\.bp_','exon\\.bp_',colnames(seq_df))
 colnames(seq_df) <- gsub('utr\\.','',colnames(seq_df))
-fwrite(seq_df, '~/Projects/08_genesets/genesets/data/MANE/210705_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
-seq_df <- fread('~/Projects/08_genesets/genesets/data/MANE/210705_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
+#fwrite(seq_df, '~/Projects/08_genesets/genesets/data/MANE/210705_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
+#seq_df <- fread('~/Projects/08_genesets/genesets/data/MANE/210705_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
 # subset data
-
+#seq_df[,grepl('bp_start',colnames(seq_df))]
 
 
 
@@ -96,6 +99,7 @@ sequences_combined <- do.call(rbind, lapply(enstids, function(enstid){
   bool_transcript <- seq_df$enstid_version == enstid
   df <- seq_df[bool_transcript, ]
   direction <- unique(df$direction)
+  stopifnot(length(direction) == 1)
   if (direction == '-'){
     df <- df[nrow(df):1]
   }
@@ -106,20 +110,20 @@ sequences_combined <- do.call(rbind, lapply(enstids, function(enstid){
   UTR_3 <- paste0(df$newseq[df$type == 'three_prime_UTR'], collapse = '')
   
   # and keep positions
-  UTR_5_bp <- paste0(df$bp_start[df$type == 'five_prime_UTR'], '-',df$bp_end[df$type == 'five_prime_UTR'], collapse = ';')
-  CDS_bp <- paste0(df$bp_start[df$type == 'CDS'], '-',df$bp_end[df$type == 'CDS'], collapse = ';')
-  UTR_3_bp <- paste0(df$bp_start[df$type == 'three_prime_UTR'], '-',df$bp_end[df$type == 'three_prime_UTR'], collapse = ';')  
+  UTR_5_bp <- paste0(df$exon.bp_start[df$type == 'five_prime_UTR'], '-',df$exon.bp_end[df$type == 'five_prime_UTR'], collapse = ';')
+  CDS_bp <- paste0(df$exon.bp_start[df$type == 'CDS'], '-',df$exon.bp_end[df$type == 'CDS'], collapse = ';')
+  UTR_3_bp <- paste0(df$exon.bp_start[df$type == 'three_prime_UTR'], '-',df$exon.bp_end[df$type == 'three_prime_UTR'], collapse = ';')  
   chrom = unique(df$chr)
   stopifnot(length(chrom) == 1)
   
   row <- df[1,c(10,11,16, 1, 12)]
-  r1 <- data.frame(row, type = 'five_prime_UTR', chr = chrom, bp = UTR_5_bp, seq = UTR_5)
-  r2 <- data.frame(row, type = 'three_prime_UTR', chr = chrom, bp = CDS_bp, seq = UTR_3)
-  r3 <- data.frame(row, type = 'CDS', chr = chrom, bp = UTR_3_bp, seq = CDS)
+  r1 <- data.frame(row, type = 'five_prime_UTR', chr = chrom, bp = UTR_5_bp, strand = direction, seq = UTR_5)
+  r2 <- data.frame(row, type = 'three_prime_UTR', chr = chrom, bp = CDS_bp,  strand = direction, seq = UTR_3)
+  r3 <- data.frame(row, type = 'CDS', chr = chrom, bp = UTR_3_bp, strand = direction, seq = CDS)
   
   res <- rbind(r1, r2, r3)
   return(res)
   
 }))
 
-fwrite(sequences_combined, '~/Projects/08_genesets/genesets/data/MANE/210705_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
+fwrite(sequences_combined, '~/Projects/08_genesets/genesets/data/MANE/210708_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')

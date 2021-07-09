@@ -1,7 +1,9 @@
 #
 
 # get protein / RNA 
-d <- fread('derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t')
+#d <- fread('derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t')
+#d <- fread('derived/tables/210706_MANE.v0.95.UTR_features.txt', sep = '\t')
+d <- fread('derived/tables/210708_MANE.v0.95.UTR_features.txt', sep = '\t')
 
 # non parametric bootstrap
 bootstrap_mean_ci <- function(x, k = 100, func = function(x) sd(x, na.rm = T), probs = c(0.025,0.5,0.975)){
@@ -17,7 +19,6 @@ pasteci <- function(x, digits = 2){
   paste0(x[2],' [',x[1],';',x[3],']')
 } 
 
-
 eval_u5_features <- function(k = 100, f){
   data.frame(
     transcripts = length(unique(d$ensgid_version)),
@@ -25,8 +26,8 @@ eval_u5_features <- function(k = 100, f){
     augs = pasteci(bootstrap_mean_ci(d$u5_AUG, k, f)),
     start_to_cap = pasteci(bootstrap_mean_ci(d$u5_ORF_cap_to_start, k, f)),
     uorf = pasteci(bootstrap_mean_ci(d$u5_ORF, k, f)),
-    oorf =  pasteci(bootstrap_mean_ci(d$u5_oORF_altered_cds, k, f)),
-    oorf =  pasteci(bootstrap_mean_ci(d$u5_oORF_inframe, k, f)),
+    oorf = pasteci(bootstrap_mean_ci(d$u5_oORF, k, f)),
+    nte =  pasteci(bootstrap_mean_ci(d$u5_NTE, k, f)),
     gc =  pasteci(bootstrap_mean_ci(d$u5_GC, k, f))
   )
 }
@@ -36,8 +37,8 @@ count_u5_features <- function(){
     transcripts = length(unique(d$ensgid_version)),
     augs = sum(d$u5_AUG > 0),
     uorf = sum(d$u5_ORF > 0),
-    oorf =  sum(d$u5_oORF_altered_cds > 0),
-    oorf_inframe =  sum(d$u5_oORF_inframe > 0),
+    oorf =  sum(d$u5_oORF > 0),
+    nte =  sum(d$u5_NTE > 0),
     kozak_strong = sum(d$u5_oORF_kozak == 3),
     kozak_moderate = sum(d$u5_oORF_kozak == 2),
     kozak_weak = sum(d$u5_oORF_kozak == 1)
@@ -54,8 +55,7 @@ rownames(outmat) <- c('Means','SDs')
 count_to_pct(count_u5_features())
 
 
-
-
+#
 
 
 

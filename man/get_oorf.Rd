@@ -4,15 +4,25 @@
 \alias{get_oorf}
 \title{get overlapping open reading frames}
 \usage{
-get_oorf(utr, cds, inframe = NULL)
+get_oorf(utr, cds, inframe = NULL, share_stops = T)
 }
 \arguments{
 \item{utr}{utr sequence}
 
 \item{cds}{cds sequence}
 
-\item{inframe}{boolean should the ORFs be in frame with CDS?}
+\item{inframe}{boolean should the ORFs be in frame with CDS? Null means that both inframe/out of frame oorfs are returned.}
+
+\item{share_stops}{should all possible sequences be returned? If false, then if two sequences share the same stop,
+only the one with the strongest kozak will be returned (see \code{?get_kozak_strength()}. If both sequences have the same kozak strength, only the first
+(5'->3') will be kept.}
 }
 \description{
 get overlapping open reading frames
+}
+\details{
+Some parameteres that could be useful: 
+
+* Out of frame overlapping ORFs (oORFs) - \code{inframe = F} and \code{share_stops = F}
+* N-terminal extensions (NTE) - \code{inframe = T} and \code{share_stops = F}
 }
