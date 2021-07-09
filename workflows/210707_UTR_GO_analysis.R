@@ -43,7 +43,7 @@ for (db_name in names(dbs)){
   result_go$successInSampleGenes <- NULL
   outpath <- file.path(outdir,outname)
   write(paste0('writing ',outpath,'...'), stdout())
-  #write.csv(result_go, outpath, sep = '\t',row.names = F)
+  write.csv(result_go, outpath, sep = '\t',row.names = F)
   
 }
 
