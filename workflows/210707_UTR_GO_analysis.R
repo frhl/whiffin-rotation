@@ -1,184 +1,56 @@
 # Do a GO enrichment analysis
 devtools::load_all()
-library(genoppi)
-library(cowplot)
+devtools::load_all('../../Genoppi')
+
+# parallelize the workflow
+library(data.table)
+library(parallel)
+library(doParallel)
+cores <- detectCores()
+registerDoParallel(cores)
+
 d <- fread('derived/tables/210708_MANE.v0.95.UTR_features.txt', sep = '\t')
+outdir = 'derived'
 
-gtex_cats <- fread('~/Projects/08_genesets/genesets/data/gtex/GTEX.tstat.categories.genoppi.csv')
+# setup analysis
+dbs <- list(
+  go_mf = goa_mf_table[c(1,3)],
+  go_bp = goa_bp_table[c(1,3)],
+  go_cc = goa_cc_table[c(1,3)]
+)
+dbs <- lapply(dbs, function(x){colnames(x) <- c('gene','pathway'); return(head(x))})
 
 
-### helper starts
-
-format_tissue_enrichment <- function(res){
+# without uORF and with uORF
+for (db_name in names(dbs)){ 
   
-  # pre data
-  mat_res <- cbind(as.character(res[[1]][,1]), do.call(cbind, lapply(res, function(x) x[,2])))
-  mat_res <- cbind(as.data.frame(mat_res[,1]), as.data.frame(apply(mat_res[,-1], 2, as.numeric)))
-  colnames(mat_res) <- c('Tissue.genoppi',paste0(1:length(res)))
-  mat_res <- melt(mat_res)
+  write(paste0('# running ',db_name,' (doParallel)'), stdout())
+  result_go <- (foreach (i=0:4, .combine=rbind) %dopar% {
   
-  # prettify
-  mat_res$significant <- mat_res$value < 0.05
-  mat_res$bonfsig <- mat_res$value < 0.05/53
-  mat_res$label <- ifelse(mat_res$bonfsig, '**', ifelse(mat_res$significant, '*',''))
-  mat_res <- merge(mat_res, gtex_cats)
+    write(paste0('checking uORF = ',i), stdout())
+    db<- dbs[[db_name]]
+    db$significant <- TRUE
+    outname <- paste0('210709_hypergeom_',db_name,'_uORF_',i,'_analysis.txt')
+    d_analysis <- data.frame(gene=d$gene_symbol, significant = d$u5_ORF == i)
+    d_result <- lapply_calc_hyper(d_analysis, db, col.by = 'pathway', intersectN = F)
+    d_result$u5_ORF <- i
+    d_result$dataset <- db_name
+    return(d_result)
+    
+  })
   
-  # set order
-  mat_res$order <- order(mat_res$Tissue.category.for.display)
-  mat_res$Tissue <- factor(mat_res$Tissue, levels = unique(mat_res$Tissue[mat_res$order]))
+  result_go <- as.data.frame(result_go)
+  result_go$successInSampleGenes <- NULL
+  outpath <- file.path(outdir,outname)
+  write(paste0('writing ',outpath,'...'), stdout())
+  #write.csv(result_go, outpath, sep = '\t',row.names = F)
   
-  #mat_res$Tissue.category.for.display <- factor(mat_res$Tissue.category.for.display)
-  tmp <- mat_res
-  tmp <- tmp[,c('Tissue','Tissue.category.for.display')]
-  tmp <- tmp[!duplicated(tmp$Tissue),]
-  tmp$order <- order(tmp$Tissue.category.for.display)
-  hlines <- cumsum(unlist(lapply(unique(tmp$Tissue.category.for.display), function(x){
-    nrow(tmp[tmp$Tissue.category.for.display %in% x,])
-  }))) 
-  
-  # manually add tissue category
-  mat_res$test <- paste0(mat_res$Tissue, ' (',mat_res$Tissue.category.for.display,')')
-  mat_res$test <- factor(mat_res$test, levels =  unique(mat_res$test[mat_res$order]))
-  return(mat_res)
 }
 
+write("Done.", stdout())
 
 
 
-
-### helper end
-
-
-
-#########
-# uORFS #
-########
-
-# calc tissue enrichment 
-res <- lapply(0:5, function(i){
-  print(i)
-  uorfs <- data.frame(gene = d$gene_symbol, significant = d$u5_ORF == i)
-  print(sum(uorfs$significant))
-  result <- genoppi::lapply_calc_hyper(uorfs, gtex_rna, col.by = 'tissue', intersectN = F)
-  return(result[,c('list_name','pvalue')])
-})
-
-
-# What tissue is enriched?
-mat_wo_uorf <- format_tissue_enrichment(res[1:2])
-mat_wo_uorf <- mat_wo_uorf[mat_wo_uorf$variable == 1,]
-mat_wo_uorf$variable <- factor(0)
-mat_uorf <- format_tissue_enrichment(res[2:9])
-mat_uorf <- format_tissue_enrichment(res[2:3])
-
-
-p1 <- ggplot(mat_uorf, aes(x=variable, y = test,fill = log10(value), label = label)) +
-  geom_tile(show.legend = F) +
-  geom_text() +
-  scale_fill_gradient(low='red',high='white') +
-  xlab('N uORFs in gene') +
-  ylab('GTEx (RNA expression)') +
-  geom_hline(yintercept = c(2.5, 10.5, 23.5, 30.5, 34.5), linetype = 'dashed', color = 'black') +
-  theme_bw()
-
-p2 <- ggplot(mat_wo_uorf, aes(x=variable, y = test,fill = log10(value), label = label)) +
-  geom_tile(show.legend = F) +
-  geom_text() +
-  scale_fill_gradient(low='blue',high='white') +
-  xlab('') +
-  ylab('GTEx (RNA expression)') +
-  geom_hline(yintercept = c(2.5, 10.5, 23.5, 30.5, 34.5), linetype = 'dashed', color = 'black') +
-  theme_bw() +
-  theme(axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank())
-  
-
-cowplot::plot_grid(plotlist = list(p1, p2),rel_widths = c(0.9,0.1))
-
-
-
-# calc tissue enrichment 
-res <- lapply(0:2, function(i){
-  print(i)
-  uorfs <- data.frame(gene = d$gene_symbol, significant = d$u5_oORF == i)
-  print(sum(uorfs$significant))
-  result <- genoppi::lapply_calc_hyper(uorfs, gtex_rna, col.by = 'tissue', intersectN = F)
-  return(result[,c('list_name','pvalue')])
-})
-
-
-# What tissue is enriched?
-mat_wo_oorfs <- format_tissue_enrichment(res[1:2])
-mat_wo_oorfs <- mat_wo_oorfs[mat_wo_oorfs$variable == 1,]
-mat_wo_oorfs$variable <- factor(0)
-mat_oorf <- format_tissue_enrichment(res[2:3])
-
-p1 <- ggplot(mat_oorf, aes(x=variable, y = test,fill = log10(value), label = label)) +
-  geom_tile(show.legend = F) +
-  geom_text() +
-  scale_fill_gradient(low='red',high='white') +
-  xlab('oORFs (n)') +
-  ylab('GTEx (RNA expression)') +
-  geom_hline(yintercept = c(2.5, 10.5, 23.5, 30.5, 34.5), linetype = 'dashed', color = 'black') +
-  theme_bw()
-
-p2 <- ggplot(mat_wo_oorf, aes(x=variable, y = test,fill = log10(value), label = label)) +
-  geom_tile(show.legend = F) +
-  geom_text() +
-  scale_fill_gradient(low='blue',high='white') +
-  xlab('') +
-  ylab('GTEx (RNA expression)') +
-  geom_hline(yintercept = c(2.5, 10.5, 23.5, 30.5, 34.5), linetype = 'dashed', color = 'black') +
-  theme_bw() +
-  theme(axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank())
-
-
-cowplot::plot_grid(plotlist = list(p1, p2),rel_widths = c(0.9,0.1))
-
-
-
-# calc tissue enrichment 
-res <- lapply(0:5, function(i){
-  print(i)
-  uorfs <- data.frame(gene = d$gene_symbol, significant = d$u5_NTE == i)
-  print(sum(uorfs$significant))
-  result <- genoppi::lapply_calc_hyper(uorfs, gtex_rna, col.by = 'tissue', intersectN = F)
-  return(result[,c('list_name','pvalue')])
-})
-
-
-# What tissue is enriched?
-mat_wo_nte <- format_tissue_enrichment(res[1:2])
-mat_wo_nte <- mat_wo_nte[mat_wo_nte$variable == 1,]
-mat_wo_nte$variable <- factor(0)
-mat_nte <- format_tissue_enrichment(res[2:6])
-
-p1 <- ggplot(mat_nte, aes(x=variable, y = test,fill = log10(value), label = label)) +
-  geom_tile(show.legend = F) +
-  geom_text() +
-  scale_fill_gradient(low='red',high='white') +
-  xlab('NTEs (n)') +
-  ylab('GTEx (RNA expression)') +
-  geom_hline(yintercept = c(2.5, 10.5, 23.5, 30.5, 34.5), linetype = 'dashed', color = 'black') +
-  theme_bw()
-
-p2 <- ggplot(mat_wo_nte, aes(x=variable, y = test,fill = log10(value), label = label)) +
-  geom_tile(show.legend = F) +
-  geom_text() +
-  scale_fill_gradient(low='blue',high='white') +
-  xlab('NTEs (n) ') +
-  ylab('GTEx (RNA expression)') +
-  geom_hline(yintercept = c(2.5, 10.5, 23.5, 30.5, 34.5), linetype = 'dashed', color = 'black') +
-  theme_bw() +
-  theme(axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank())
-
-
-cowplot::plot_grid(plotlist = list(p1, p2),rel_widths = c(0.9,0.1))
 
 
 

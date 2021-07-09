@@ -2,163 +2,204 @@
 devtools::load_all()
 
 
-d1 <- fread('~/Projects/08_genesets/genesets/data/MANE/210705_MANE.GRCh38.v0.95.combined-table.txt')
+d1 <- fread('~/Projects/08_genesets/genesets/data/MANE/210708_MANE.GRCh38.v0.95.combined-table.txt')
+d1$bp[d1$bp == '-'] <- NA
 d1 <- d1[d1$type == 'five_prime_UTR']
 d2 <- fread('derived/tables/210708_MANE.v0.95.UTR_features.txt', sep = '\t')
 mrg <- merge(d1, d2)
-mrg1 <- mrg[mrg$u5_len > 50 & mrg$u5_AUG > 3 & mrg$enstid_version %in% plus,]
-s <- mrg1[22,]
-
+mrg1 <- mrg[mrg$chr == 1,]
+#mrg1 <- mrg[mrg$u5_len > 50 & mrg$u5_AUG > 1 & mrg$enstid_version %in% minus,]
+s <- mrg1[4,]
+ss <- mrg1[mrg1$gene_symbol %in% 'ABCC2']
 # bcftools query -f '%CHROM %POS %REF %ALT\n' clinvar_20210626.vcf.gz | awk '$1==16 && $2>2340573 && $2<2340728' 
 s
 
+variants <- fread('extdata/clinvar/clinvar_20210626_chr1.txt')
+colnames(variants) <- c('chr','bp','ref','alt')
+
+result <- do.call(rbind, lapply(1:nrow(mrg1), function(i){
+  row <- mrg1[i]
+  if (!is.na(row$bp)){
+    bps <- as.data.frame(do.call(rbind, lapply(unlist(strsplit(row$bp, split = ';')), function(x) unlist(strsplit(x, split = '-')))))
+    res <- do.call(rbind, lapply(1:nrow(bps), function(j){
+      selected <- as.numeric(unlist(bps[j,]))
+      vars <- variants[variants$bp > min(selected) & variants$bp < max(selected)]
+      if (nrow(vars) == 0) return(NULL)
+      if (row$bp == '-') return(NULL)
+      vars$enstid <- row$enstid_version
+      vars$interval <- row$bp
+      vars$strand <- row$strand
+      vars$bp_start <- min(selected)
+      vars$bp_end <- max(selected)
+      vars$count <- j
+      
+      return(vars)
+    }))
+    return(res)
+  }
+
+}))
 
 
+
+
+
+
+
+
+
+mrg1[grepl('80654490', mrg1$bp)]
+
+
+
+## WORKS FOR DIRECTION = +1
 
 # this matches!!
-create_rna_seq <- function(x, bpin){
-  len <- nchar(x$seq)
-  data.frame(index = (len):1,
-             bp = bpin:(bpin-len+1),
-             ref = rev(unlist(strsplit(x$seq, split = '')))
-             )
+setup_mapping <- function(x, reference){
+  sequence_len <- nchar(x)
+  mapping_structure = data.frame(
+    index = sequence_len:1,
+    bp = reference:(reference-sequence_len+1),
+    ref = rev(unlist(strsplit(x, split = '')))
+  )
+  return(mapping_structure)
   
 }
 
-q <- create_rna_seq(s, 109621175)
+
+setup_mapping_minus <- function(x, reference){
+  sequence_len <- nchar(x)
+  mapping_structure = data.frame(
+    index = rev(1:sequence_len),
+    bp = rev(reference:(reference-sequence_len+1)),
+    ref = rev(unlist(strsplit(x, split = '')))
+  )
+  return(mapping_structure)
+  
+}
+
+
+# mrg1[mrg1$enstid_version %in% 'ENST00000370225.4']
+res <- result[!is.na(result$bp),]
+res <- res[nchar(res$ref) == 1]
+res <- res[res$strand== '-',]
+
+
+
+bool <- unlist(lapply(1:nrow(res), function(i){
+  
+  row <- res[i,]
+  s <- mrg1[mrg1$enstid_version %in% row$enstid]
+  q <- setup_mapping(s$seq, row$bp_end)
+  ret <- q[q$bp == row$bp,]$ref %in% row$ref
+  
+  
+  row <- res[i,]
+  s <- mrg1[mrg1$enstid_version %in% row$enstid]
+  q <- setup_mapping_minus((s$seq), row$bp_end)
+  
+  ret <- q[q$bp == row$bp,]$ref %in% row$ref
+  
+  
+  
+
+  q
+  row
+  q[q$bp == row$bp,]
+  q[q$bp == row$bp-1,]
+  
+  #q[q$bp == row$bp,]
+  
+  return(ret)
+  
+}))
+
+# index 59 + 1 when jumping interval
+
+x <- "GTCAGTCAGTCACCCCACAGTCTCCTCTCTCTTCTTTTCTACTGTGCTATCCTAGAATCAAGGATTTCAGCAACA"
+
+sum(bool)/length(bool)
+
+res[!bool,]
+index <- (1:nrow(res))[!bool]
+
+# mrg1[mrg1$gene_symbol %in% 'AMPD2']
+s <- mrg1[mrg1$gene_symbol %in% 'AMPD2']
+q <- setup_mapping(s$seq, 109621175)
 q[q$bp == 109621025,]
 q[q$bp == 109621064,]
 q[q$bp == 109621101,]
 q[q$bp == 109621109,]
 q[q$bp == 109621124,]
 
+# mrg1[mrg1$gene_symbol %in% 'ABCC2']
+s <- mrg1[mrg1$gene_symbol %in% 'ABCC2']
+q <- setup_mapping(s$seq, 99782844)
+q[q$bp == 99782756,]
+q[q$bp == 99782802,]
+q[q$bp == 99782805,]
+q[q$bp == 99782821,]
+q[q$bp == 99782822,]
 
 
-# helpers
-create_seq <- function(w){
+## let's check direction = -1
+#s <- mrg1[grepl('107163510', mrg1$bp)]
+s <- mrg1[grepl('107867496', mrg1$bp)]
+q <- setup_mapping(s$seq,  107866597) #80654490) # 80654983
+
+
+
+
+q[q$bp == 108207452,]
+
+q[q$bp == 108207498,]  # 13 113671563 A G
+q[q$bp == 113671594,]  # 13 113671594 T C
+
+q[q$bp == 114326121,] # 13 114326121 A G
+q[q$bp == 114326176,] # 13 114326176 A G
+
+
+
+
+
+q[q$bp == 80654863,] # G
+q[q$bp == 80654723,] # G
+
+
+
+
+q[q$bp == 80654728,] #A# match
+q[q$bp == 80654729,] #T# not match
+q[q$bp == 80654732,] #C# not match
+
+q[q$bp == 80654737,]  # C
+
+
+q[q$bp == 80654741,] # A
+q[q$bp == 80654742,] # G
+q[q$bp == 80654743,] # C
+
+q[q$bp == 80654746,] # G
+q[q$bp == 80654747,] # C
+q[q$bp == 80654748,] # G
+q[q$bp == 80654749,] # T
+
+# this matches!!
+setup_mapping_rev <- function(x, reference){
   
-  sequence <- seq(1,length(w)-4, by = 4)
-  m <- as.data.frame(do.call(rbind, lapply(sequence, function(i)w[i:(i+3)])))
+  sequence_len <- nchar(x)
+  mapping_structure = data.frame(
+    index = 1:sequence_len,
+    #bp = rev((reference):(reference+sequence_len-1)),
+    bp = ((reference):(reference+sequence_len-1)),
+    ref = (unlist(strsplit(x, split = '')))
+  )
+  print(mapping_structure[c(1,nrow(mapping_structure)),])
   
-  colnames(m) <- c('chr','bp','ref','alt')
-  m$bp <- as.numeric(m$bp)
-  bpseq <- min(m$bp):max(m$bp)
-  outseq <- unlist(lapply(bpseq, function(i){
-    cur <- m$ref[m$bp == i]
-    if (length(unique(cur)) > 1) stop('!!')
-    if (length(cur) > 0) return(cur[1]) else return('.')
-  }))
+  return(mapping_structure)
   
-  #if (rev) return(paste0(rev(outseq), collapse = ''))
-  return(paste0(outseq, collapse = ''))
 }
 
-
-
-#seq <- s$seq
-seq <- s$seq
-seqrev <- paste0(rev(unlist(strsplit(s$seq, split = ''))), collapse = '')
-
-
-99782756 - 99782640
-find_codon(s$seq, )
-
-
-
-start <-  99782640 
-99782756 - start + 1
-unlist(strsplit(s$seq, split = ''))[117]
-
-99782822 - start + 1
-unlist(strsplit(s$seq, split = ''))[183]
-
-99782805 - start + 1
-unlist(strsplit(s$seq, split = ''))[166]
-
-99782821 - start + 1
-unlist(strsplit(s$seq, split = ''))[182]
-
-99782822 - start + 1
-unlist(strsplit(s$seq, split = ''))[183]
-
-
-
-
-
-
-s_AMPD2 <- s
-## stop this time???
-109621064 - 109621175 - 1
-unlist(strsplit(s_AMPD2$seq, split = ''))[112] # match
-
-109621124 - 109621175 - 1
-unlist(strsplit(s_AMPD2$seq, split = ''))[52] # match
-
-109621025 - 109621175 - 1
-unlist(strsplit(s_AMPD2$seq, split = ''))[151] # match
-
-109621109 - 109621175 - 1
-unlist(strsplit(s_AMPD2$seq, split = ''))[67] # match alternate
-
-109621101 - 109621175 - 1
-unlist(strsplit(s_AMPD2$seq, split = ''))[75] # match alternate
-
-unlist(strsplit(s_AMPD2$seq, split = ''))[1945]
-
-str_locate(s$seq, create_seq(w2))
-
-
-
-
-99782802 - start
-99782805 - start
-
-
-
-
-# veryify lengths
-
-
-
-extra = 427 - (80654728-80654490)
-
-start <- 80654490
-  
-
-find_codon(s$seq, create_seq(w2))
-
-find_codon(s$seq, create_seq(w3))
-
-find_codon(s$seq, create_seq(w5))
-
-unlist(strsplit(s$seq, split = ''))[80654974 - start + extra]
-
-80654939 - start
-
-
-create_seq()
-
-(80654815 - 80654490) - extra
-
-
-unlist(strsplit(s$seq, split = ''))[137]
-
-regex <- 'AT..C.CG.C'
-find_codon(s$seq, regex) # looks like the position is shifted
-regex <- 'AT..C'
-find_codon(s$seq, regex) # looks like the position is shifted
-
-
-regex <- 'GGTTC.G'
-find_codon(s$seq, regex) # looks like the position is shifted
-
-
-extra <- 429 - (80654728-80654490) - nchar(regex)
-
-
-22 == 2340595-2340573
-
-30 == 2340603 - 2340573
 
 
 
