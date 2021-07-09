@@ -24,13 +24,17 @@ dbs <- lapply(dbs, function(x){colnames(x) <- c('gene','pathway'); return(x)})
 for (db_name in names(dbs)){ 
   
   write(paste0('# running ',db_name,' (doParallel)'), stdout())
-  result_go <- (foreach (i=0:4, .combine=rbind) %dopar% {
+  result_go <- (foreach (i=0:1, .combine=rbind) %dopar% {
   
     write(paste0('checking uORF = ',i), stdout())
     db<- dbs[[db_name]]
     db$significant <- TRUE
     
-    d_analysis <- data.frame(gene=d$gene_symbol, significant = d$u5_ORF == i)
+    sig = NA
+    if (i == 0) sig = d$u5_ORF == 1
+    if (i == 1) sig = d$u5_ORF > 0
+    
+    d_analysis <- data.frame(gene=d$gene_symbol, significant = sig)
     d_result <- lapply_calc_hyper(d_analysis, db, col.by = 'pathway', intersectN = F)
     d_result$u5_ORF <- i
     d_result$dataset <- db_name
@@ -38,7 +42,7 @@ for (db_name in names(dbs)){
     
   })
   
-  outname <- paste0('210709_hypergeom_',db_name,'_uORF_analysis.txt')
+  outname <- paste0('210709_hypergeom_',db_name,'_uORF_gt_analysis.txt')
   result_go <- as.data.frame(result_go)
   result_go$successInSampleGenes <- NULL
   outpath <- file.path(outdir,outname)
