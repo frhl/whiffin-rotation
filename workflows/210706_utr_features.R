@@ -8,6 +8,11 @@ library(scales)
 
 d <- fread('derived/tables/210708_MANE.v0.95.UTR_features.txt', sep = '\t')
 dseq <- fread('~/Projects/08_genesets/genesets/data/MANE/210708_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
+expr <- fread('extdata/210709_table_s3_s2_combined.csv')
+
+####################
+# overall features #
+####################
 
 # " do UTRs have introns, and if so, how many"?
 dseq$introns <- unlist(lapply(strsplit(dseq$bp, split = ';'), length))
@@ -75,6 +80,61 @@ ggplot(dcollins, aes(x=u5_len, y = pTS, group = u5_len)) +
   geom_hline(yintercept = pHI_threshold, linetype = 'dashed') +
   xlab('Number of uORFs') +
   ylab('Probability of haploinsufficiency (Collins 2021)') +
+  theme_bw() 
+
+
+# "DO gwas loci tend to fall in the UTR"? pie-chart
+
+
+
+#################
+# GO features  #
+################
+
+# GO MF enrichment
+go_mf <- fread('download/210709_hpc_derived/210709_hypergeom_go_mf_uORF_analysis.txt')
+go_mf_wo_orf <- go_mf[go_mf$u5_ORF == 0]
+go_mf_wo_orf <- go_mf_wo_orf[go_mf_wo_orf$pvalue < 0.0005]
+go_mf_w_orf <- go_mf[go_mf$u5_ORF == 1]
+go_mf_w_orf <- go_mf_w_orf[go_mf_w_orf$pvalue < 0.0005]
+bonf <- 0.05 / length(unique(go_mf$list_name))
+
+p0 <- gg_bar(go_mf_wo_orf, bonf = bonf)
+p1 <- gg_bar(go_mf_w_orf, bonf = bonf)
+
+
+
+
+####################
+# expression wide  #
+####################
+
+# "Does multiple uORFs correspond to lowered expression?"
+dexpr <- merge(d, expr)
+dexpr$how <- as.factor(ifelse(grepl('RNA',dexpr$variable), 'RNA','PRT'))
+dexpr$variable <- gsub('(RNA\\.)|(PRT\\.)','',dexpr$variable)
+dexpr$variable <- as.factor(dexpr$variable)
+dexpr <- dexpr[dexpr$u5_ORF < 5]
+dexpr$u5_ORF <- factor(dexpr$u5_ORF)
+
+ggplot(dexpr[dexpr$how == 'PRT'], aes(x=u5_ORF, y = value, group = u5_ORF)) +
+  #geom_jitter(alpha = 0.05) +
+  geom_boxplot(fill = 'lightblue') +
+  geom_signif(comparisons = list(c("0", "1"), c("2","3")), test = 't.test') +
+  xlab('Number of uORFs') +
+  ylab('Standardized Protein expression (Log2 intensity)') +
+  coord_flip() +
+  #ggtitle('') +
+  theme_bw() 
+
+ggplot(dexpr[dexpr$how == 'RNA'], aes(x=u5_ORF, y = value, group = u5_ORF)) +
+  #geom_jitter(alpha = 0.05) +
+  geom_boxplot(fill = 'lightgreen') +
+  geom_signif(comparisons = list(c("0", "1"), c("2","3")), test = 't.test') +
+  xlab('Number of uORFs') +
+  ylab('Standardized RNA expression (Log2 intensity)') +
+  coord_flip() +
+  #ggtitle('') +
   theme_bw() 
 
 

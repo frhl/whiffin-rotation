@@ -9,9 +9,11 @@ library(ggrepel)
 library(cowplot)
 library(ggpubr)
 library(biomaRt)
+library(readxl)
 
 # load package scripts
 source('R/read_workbook.R')
+
 
 # get UTR lengths
 utr <- fread('extdata/biomart-5prime-utr-canonical-protein_coding.txt')
@@ -34,6 +36,10 @@ colnames(table_rna)[-1] <- paste0('RNA.', unlist(lapply(strsplit(colnames(table_
 colnames(table_prt)[-1] <- paste0('PRT.', unlist(lapply(strsplit(colnames(table_prt)[-1], split = ' '), function(x) paste0(x,collapse = '_'))))
 df <- merge(table_rna, table_prt, all = T)
 long <- melt(setDT(df), id.vars = 1)
+
+#colnames(long)[1] <- c('ensgid')
+#write.csv(long, 'extdata/210709_table_s3_s2_combined.csv', row.names = F)
+
 
 # pairwise comparisons
 n = 32 
