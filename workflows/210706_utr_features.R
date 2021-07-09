@@ -91,17 +91,54 @@ ggplot(dcollins, aes(x=u5_len, y = pTS, group = u5_len)) +
 # GO features  #
 ################
 
+n = 10
+
 # GO MF enrichment
-go_mf <- fread('download/210709_hpc_derived/210709_hypergeom_go_mf_uORF_analysis.txt')
+go_mf <- fread('download/210709_hpc_derived/210709_hypergeom_go_mf_uORF_gt_analysis.txt')
 go_mf_wo_orf <- go_mf[go_mf$u5_ORF == 0]
-go_mf_wo_orf <- go_mf_wo_orf[go_mf_wo_orf$pvalue < 0.0005]
+go_mf_wo_orf <- head(go_mf_wo_orf[go_mf_wo_orf$pvalue < 0.05], n)
 go_mf_w_orf <- go_mf[go_mf$u5_ORF == 1]
-go_mf_w_orf <- go_mf_w_orf[go_mf_w_orf$pvalue < 0.0005]
+go_mf_w_orf <- head(go_mf_w_orf[go_mf_w_orf$pvalue < 0.05], n)
 bonf <- 0.05 / length(unique(go_mf$list_name))
+combi_mf <- go_mf[go_mf$list_name %in% c(go_mf_w_orf$list_name, go_mf_wo_orf$list_name) & go_mf$u5_ORF < 2]
+combi_mf$u5_ORF <- factor(ifelse(combi_mf$u5_ORF,'1+','0'))
 
 p0 <- gg_bar(go_mf_wo_orf, bonf = bonf)
 p1 <- gg_bar(go_mf_w_orf, bonf = bonf)
 
+gg_hm(combi_mf, bonf, 'u5_ORF') + xlab('uORFs') + ylab("GO MF category")
+
+# GO BP enrichment
+go_bp <- fread('download/210709_hpc_derived/210709_hypergeom_go_bp_uORF_gt_analysis.txt')
+go_bp_wo_orf <- go_bp[go_bp$u5_ORF == 0]
+go_bp_wo_orf <- head(go_bp_wo_orf[go_bp_wo_orf$pvalue < 0.05], n)
+go_bp_w_orf <- go_bp[go_bp$u5_ORF == 1]
+go_bp_w_orf <- head(go_bp_w_orf[go_bp_w_orf$pvalue < 0.05], n)
+bonf <- 0.05 / length(unique(go_bp$list_name))
+combi_bp <- go_bp[go_bp$list_name %in% c(go_bp_w_orf$list_name, go_bp_wo_orf$list_name) & go_bp$u5_ORF < 2]
+combi_bp$u5_ORF <- factor(ifelse(combi_bp$u5_ORF,'1+','0'))
+
+p0 <- gg_bar(go_bp_wo_orf, bonf = bonf)
+p1 <- gg_bar(go_bp_w_orf, bonf = bonf)
+
+gg_hm(combi_bp, bonf, 'u5_ORF') + xlab('uORFs') + ylab("GO BP category")
+
+# GO CC enrichment
+go_cc <- fread('download/210709_hpc_derived/210709_hypergeom_go_cc_uORF_gt_analysis.txt')
+go_cc_wo_orf <- go_cc[go_cc$u5_ORF == 0]
+go_cc_wo_orf <- head(go_cc_wo_orf[go_cc_wo_orf$pvalue < 0.05], n)
+go_cc_w_orf <- go_cc[go_cc$u5_ORF == 1]
+go_cc_w_orf <- head(go_cc_w_orf[go_cc_w_orf$pvalue < 0.05], n)
+bonf <- 0.05 / length(unique(go_cc$list_name))
+combi_mf <- go_mf[go_mf$list_name %in% c(go_mf_w_orf$list_name, go_mf_wo_orf$list_name) & go_mf$u5_ORF < 2]
+combi_mf$u5_ORF <- factor(combi_mf$u5_ORF)
+combi_cc <- go_cc[go_cc$list_name %in% c(go_cc_w_orf$list_name, go_cc_wo_orf$list_name) & go_cc$u5_ORF < 2]
+combi_cc$u5_ORF <- factor(ifelse(combi_cc$u5_ORF,'1+','0'))
+
+p0 <- gg_bar(go_cc_wo_orf, bonf = bonf)
+p1 <- gg_bar(go_cc_w_orf, bonf = bonf)
+
+gg_hm(combi_cc, bonf, 'u5_ORF') + xlab('uORFs') + ylab("GO CC category")
 
 
 

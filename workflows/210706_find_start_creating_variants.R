@@ -2,12 +2,12 @@
 devtools::load_all()
 
 
-d1 <- fread('~/Projects/08_genesets/genesets/data/MANE/210708_MANE.GRCh38.v0.95.combined-table.txt')
+d1 <- fread('~/Projects/08_genesets/genesets/data/MANE/210709_MANE.GRCh38.v0.95.combined-table.txt')
 d1$bp[d1$bp == '-'] <- NA
 d1 <- d1[d1$type == 'five_prime_UTR']
 d2 <- fread('derived/tables/210708_MANE.v0.95.UTR_features.txt', sep = '\t')
 mrg <- merge(d1, d2)
-mrg1 <- mrg[mrg$chr == 1,]
+#mrg1 <- mrg[mrg$chr == 1,]
 #mrg1 <- mrg[mrg$u5_len > 50 & mrg$u5_AUG > 1 & mrg$enstid_version %in% minus,]
 s <- mrg1[4,]
 ss <- mrg1[mrg1$gene_symbol %in% 'ABCC2']
@@ -82,11 +82,11 @@ setup_mapping_minus <- function(x, reference){
 # mrg1[mrg1$enstid_version %in% 'ENST00000370225.4']
 res <- result[!is.na(result$bp),]
 res <- res[nchar(res$ref) == 1]
-res <- res[res$strand== '-',]
+res <- res[res$strand== '+',]
 
 
 
-bool <- unlist(lapply(1:nrow(res), function(i){
+bool <- (lapply(1:nrow(res), function(i){
   
   row <- res[i,]
   s <- mrg1[mrg1$enstid_version %in% row$enstid]
@@ -94,15 +94,25 @@ bool <- unlist(lapply(1:nrow(res), function(i){
   ret <- q[q$bp == row$bp,]$ref %in% row$ref
   
   
-  row <- res[i,]
-  s <- mrg1[mrg1$enstid_version %in% row$enstid]
-  q <- setup_mapping_minus((s$seq), row$bp_end)
-  
-  ret <- q[q$bp == row$bp,]$ref %in% row$ref
+  mapped <- q[q$bp == row$bp,]
+  colnames(mapped)
+  original <- row
   
   
+  colnames(original)[1:4] <- paste0('clinvar.',colnames(original)[1:4])
+  colnames(original)[5:10] <- paste0('MANE.',colnames(original)[5:10])
+  colnames(mapped) <- c('mymapping.cDNA','mymapping.bp','mymapping.ref')
+  mapped$mymapping.correctly_mapped <- ret
+  result <- cbind(mapped,original)
   
-
+  return(result)
+  #row <- res[i,]
+  #s <- mrg1[mrg1$enstid_version %in% row$enstid]
+  #q <- setup_mapping_minus((s$seq), row$bp_end)
+  
+  #ret <- q[q$bp == row$bp,]$ref %in% row$ref
+  
+  
   q
   row
   q[q$bp == row$bp,]
@@ -110,9 +120,12 @@ bool <- unlist(lapply(1:nrow(res), function(i){
   
   #q[q$bp == row$bp,]
   
-  return(ret)
+  #return(ret)
   
 }))
+
+status <- as.data.frame(do.call(rbind, bool))
+#fwrite(status, 'derived/210709_clinvar_mane_mapping_status.txt', sep = '\t')
 
 # index 59 + 1 when jumping interval
 
@@ -143,8 +156,9 @@ q[q$bp == 99782822,]
 
 
 ## let's check direction = -1
-#s <- mrg1[grepl('107163510', mrg1$bp)]
-s <- mrg1[grepl('107867496', mrg1$bp)]
+s <- mrg1[grepl('107163510', mrg$bp)]
+s <- mrg1[grepl('107867496', mrg$bp)]
+make_mapping(s$seq, s$cd)
 q <- setup_mapping(s$seq,  107866597) #80654490) # 80654983
 
 

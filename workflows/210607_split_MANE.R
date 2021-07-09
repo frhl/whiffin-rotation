@@ -34,6 +34,10 @@ enstid <- enstids
 revseq <- function(x) paste0(rev(unlist(strsplit(x, ''))), collapse = '')
 
 
+clinvar <- fread('extdata/clinvar/clinvar_20210626_chr1.txt')
+colnames(clinvar) <- c('chr','bp','ref','alt')
+mymapping <- list()
+
 sequences <- lapply(enstids, function(enstid){
   
   # enstid <- "ENST00000255082.8"
@@ -46,12 +50,12 @@ sequences <- lapply(enstids, function(enstid){
   seq <- ifelse(direction == 1, seq, revseq(seq))
   df$seq <- NULL
   df$newseq <- NA
+  df$cdna <- NA
 
-  
   # setup vars
   df$lens <- df$utr.bp_end - df$utr.bp_start
   
-  # check that things matches up
+  # check that exons + introns matches up to total gene length
   stopifnot(sum(df$utr.bp_end - df$utr.bp_start) == nchar(seq)- nrow(df))
   
   # sequence handling
@@ -60,37 +64,69 @@ sequences <- lapply(enstids, function(enstid){
   lens <- 0
   for (i in 1:nrow(df)){
     
-    # current position with repsect to genomic sequence
+    # current position (cDNA)
     x1 <- df$utr.bp_start[i] - start
+    if (i == 1)stopifnot(x1==0)
     x2 <- df$utr.bp_end[i] - start
     
-    # current position with respect to mRNA
+    # remove introns
     intron_len <- x1-lens
     x1 <- x1 - intron_len
     x2 <- x2 - intron_len
+    
+    # position in gene
+    #stopifnot(length(df$utr.bp_start[i]:df$utr.bp_end[i]) == length(x1:x2))
+    
+    
+    #dq[dq$cDNA == 42,]
+    #dq[dq$bp == 99850389,]
+    
     
     # keep track of interval 
     interval <- (x1:x2)+(i)
     newseq <- paste0(unlist(strsplit(seq,split=''))[interval], collapse = '')
     df$newseq[i] <- ifelse(direction == 1, newseq, revseq(newseq))
+    df$cdna[i] <- paste0(x1+i,'-',x2+i)
     
     lens <- lens + df$lens[i]
+    
+    # mapping 100% correct for both strands
+    #dq <-data.frame(enstid = enstid, cDNA = interval, bp = df$utr.bp_start[i]:df$utr.bp_end[i], seq = unlist(strsplit(df$newseq[i], split = '')))
+    #mapping <- setup_mapping(select$newseq, select$utr.bp_start)
+    #bool_cv <- clinvar$bp %in% dq$bp
+    #if (any(bool_cv)) {
+    #  print(paste0('i=',i))
+    #  variants <- clinvar[bool_cv,]
+    #  mapped <- merge(dq, variants, by = 'bp')
+    #  print(nrow(mapped)/sum(bool_cv))
+    #  #mymapping[[enstid]] <- mapped
+    #}
+    
+    
   }
+  
+
   
   return(df)
   
 })
+
+map_to_reference <- function(interval, bp){
+  
+}
+
+
+
 
 # combine data
 seq_df <- do.call(rbind, sequences)
 seq_df <- seq_df[,as.logical(!duplicated(t(seq_df))), with = F]
 colnames(seq_df) <- gsub('utr\\.bp_','exon\\.bp_',colnames(seq_df))
 colnames(seq_df) <- gsub('utr\\.','',colnames(seq_df))
-#fwrite(seq_df, '~/Projects/08_genesets/genesets/data/MANE/210705_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
-#seq_df <- fread('~/Projects/08_genesets/genesets/data/MANE/210705_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
+fwrite(seq_df, '~/Projects/08_genesets/genesets/data/MANE/210709_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
+seq_df <- fread('~/Projects/08_genesets/genesets/data/MANE/210709_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
 # subset data
 #seq_df[,grepl('bp_start',colnames(seq_df))]
-
 
 
 sequences_combined <- do.call(rbind, lapply(enstids, function(enstid){
@@ -109,7 +145,12 @@ sequences_combined <- do.call(rbind, lapply(enstids, function(enstid){
   CDS <- paste0(df$newseq[df$type == 'CDS'], collapse = '')
   UTR_3 <- paste0(df$newseq[df$type == 'three_prime_UTR'], collapse = '')
   
-  # and keep positions
+  # Keep cDNA positions
+  UTR_5_cdna <- paste0(df$cdna[df$type == 'five_prime_UTR'], collapse = ';')
+  CDS_cdna <- paste0(df$cdna[df$type == 'CDS'], collapse = ';')
+  UTR_3_cdna <- paste0(df$cdna[df$type == 'three_prime_UTR'], collapse = ';')  
+  
+  # Keep Grch38 positions
   UTR_5_bp <- paste0(df$exon.bp_start[df$type == 'five_prime_UTR'], '-',df$exon.bp_end[df$type == 'five_prime_UTR'], collapse = ';')
   CDS_bp <- paste0(df$exon.bp_start[df$type == 'CDS'], '-',df$exon.bp_end[df$type == 'CDS'], collapse = ';')
   UTR_3_bp <- paste0(df$exon.bp_start[df$type == 'three_prime_UTR'], '-',df$exon.bp_end[df$type == 'three_prime_UTR'], collapse = ';')  
@@ -117,13 +158,19 @@ sequences_combined <- do.call(rbind, lapply(enstids, function(enstid){
   stopifnot(length(chrom) == 1)
   
   row <- df[1,c(10,11,16, 1, 12)]
-  r1 <- data.frame(row, type = 'five_prime_UTR', chr = chrom, bp = UTR_5_bp, strand = direction, seq = UTR_5)
-  r2 <- data.frame(row, type = 'three_prime_UTR', chr = chrom, bp = CDS_bp,  strand = direction, seq = UTR_3)
-  r3 <- data.frame(row, type = 'CDS', chr = chrom, bp = UTR_3_bp, strand = direction, seq = CDS)
+  r1 <- data.frame(row, type = 'five_prime_UTR', chr = chrom, bp = UTR_5_bp, bp_cdna = UTR_5_cdna, strand = direction, seq = UTR_5)
+  r2 <- data.frame(row, type = 'three_prime_UTR', chr = chrom, bp = CDS_bp,  bp_cdna = CDS_cdna, strand = direction, seq = UTR_3)
+  r3 <- data.frame(row, type = 'CDS', chr = chrom, bp = UTR_3_bp, bp_cdna = UTR_3_cdna, strand = direction, seq = CDS)
   
   res <- rbind(r1, r2, r3)
   return(res)
   
 }))
 
-fwrite(sequences_combined, '~/Projects/08_genesets/genesets/data/MANE/210708_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
+#test <- sequences_combined
+#test <- test[test$enstid_version == "ENST00000361915.8" & test$type == 'five_prime_UTR',]
+#mapping <- make_mapping(test$seq, test$bp_cdna, test$bp)
+#merge(mapping, clinvar)
+
+
+fwrite(sequences_combined, '~/Projects/08_genesets/genesets/data/MANE/210709_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
