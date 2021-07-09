@@ -17,7 +17,7 @@ dbs <- list(
   go_bp = goa_bp_table[c(1,3)],
   go_cc = goa_cc_table[c(1,3)]
 )
-dbs <- lapply(dbs, function(x){colnames(x) <- c('gene','pathway'); return(head(x))})
+dbs <- lapply(dbs, function(x){colnames(x) <- c('gene','pathway'); return(x)})
 
 
 # without uORF and with uORF
@@ -43,7 +43,7 @@ for (db_name in names(dbs)){
   result_go$successInSampleGenes <- NULL
   outpath <- file.path(outdir,outname)
   write(paste0('writing ',outpath,'...'), stdout())
-  write.csv(result_go, outpath, sep = '\t',row.names = F)
+  write.table(result_go, outpath, sep = '\t',row.names = F)
   
 }
 
