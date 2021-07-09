@@ -1,6 +1,5 @@
 # Do a GO enrichment analysis
 devtools::load_all()
-devtools::load_all('../../Genoppi')
 
 # parallelize the workflow
 library(data.table)
@@ -30,7 +29,7 @@ for (db_name in names(dbs)){
     write(paste0('checking uORF = ',i), stdout())
     db<- dbs[[db_name]]
     db$significant <- TRUE
-    outname <- paste0('210709_hypergeom_',db_name,'_uORF_',i,'_analysis.txt')
+    
     d_analysis <- data.frame(gene=d$gene_symbol, significant = d$u5_ORF == i)
     d_result <- lapply_calc_hyper(d_analysis, db, col.by = 'pathway', intersectN = F)
     d_result$u5_ORF <- i
@@ -39,6 +38,7 @@ for (db_name in names(dbs)){
     
   })
   
+  outname <- paste0('210709_hypergeom_',db_name,'_uORF_analysis.txt')
   result_go <- as.data.frame(result_go)
   result_go$successInSampleGenes <- NULL
   outpath <- file.path(outdir,outname)
