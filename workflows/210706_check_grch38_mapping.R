@@ -7,106 +7,63 @@ d1$bp[d1$bp == '-'] <- NA
 d1 <- d1[d1$type == 'five_prime_UTR']
 d2 <- fread('derived/tables/210708_MANE.v0.95.UTR_features.txt', sep = '\t')
 mrg <- merge(d1, d2)
-#mrg1 <- mrg[mrg$chr == 1,]
-#mrg1 <- mrg[mrg$u5_lenx > 50 & mrg$u5_AUG > 1 & mrg$enstid_version %in% minus,]
-s <- mrg1[4,]
-ss <- mrg1[mrg1$gene_symbol %in% 'ABCC2']
-# bcftools query -f '%CHROM %POS %REF %ALT\n' clinvar_20210626.vcf.gz | awk '$1==16 && $2>2340573 && $2<2340728' 
-s
+mrg1 <- mrg[mrg$chr == 1]
+
 
 variants <- fread('extdata/clinvar/clinvar_20210626_chr1.txt')
 colnames(variants) <- c('chr','bp','ref','alt')
 
-result <- do.call(rbind, lapply(1:nrow(mrg1), function(i){
-  row <- mrg1[i]
+result_list <- lapply(1:nrow(mrg), function(i){
+  row <- mrg[i]
   if (!is.na(row$bp)){
-    bps <- as.data.frame(do.call(rbind, lapply(unlist(strsplit(row$bp, split = ';')), function(x) unlist(strsplit(x, split = '-')))))
-    res <- do.call(rbind, lapply(1:nrow(bps), function(j){
-      selected <- as.numeric(unlist(bps[j,]))
-      vars <- variants[variants$bp > min(selected) & variants$bp < max(selected)]
-      if (nrow(vars) == 0) return(NULL)
-      if (row$bp == '-') return(NULL)
+    
+    mapping <- make_mapping(row$seq, row$bp_cdna, row$bp)
+    vars <- variants[variants$bp %in% mapping$bp]
+    if (nrow(vars) > 0 & row$bp != '-'){
       vars$enstid <- row$enstid_version
       vars$interval <- row$bp
       vars$strand <- row$strand
-      vars$bp_start <- min(selected)
-      vars$bp_end <- max(selected)
-      #vars$bp<- row$bp
-      vars$cdna_bp <- row$bp_cdna
-      
       return(vars)
-    }))
-    return(res)
+    } 
+    return(NULL)
+    
   }
   
-}))
+})
 
 
-
-
-
-
-
-
-
-mrg1[grepl('80654490', mrg1$bp)]
-
-
-
-## WORKS FOR DIRECTION = +1
-
-# this matches!!
-setup_mapping <- function(x, reference){
-  sequence_len <- nchar(x)
-  mapping_structure = data.frame(
-    index = sequence_len:1,
-    bp = reference:(reference-sequence_len+1),
-    ref = rev(unlist(strsplit(x, split = '')))
-  )
-  return(mapping_structure)
-  
-}
-
-
-setup_mapping_minus <- function(x, reference){
-  sequence_len <- nchar(x)
-  mapping_structure = data.frame(
-    index = rev(1:sequence_len),
-    bp = rev(reference:(reference-sequence_len+1)),
-    ref = rev(unlist(strsplit(x, split = '')))
-  )
-  return(mapping_structure)
-  
-}
 
 
 # mrg1[mrg1$enstid_version %in% 'ENST00000370225.4']
+result <- do.call(rbind, result_list)
 res <- result[!is.na(result$bp),]
 res <- res[nchar(res$ref) == 1]
-res <- res[res$strand== '+',]
-
+res <- res[res$strand == '-',]
 
 
 bool <- (lapply(1:nrow(res), function(i){
   
   row <- res[i,]
-  s <- mrg1[mrg1$enstid_version %in% row$enstid]
+  
+  s <- mrg[mrg$enstid_version %in% row$enstid]
+  
+  
   q <- make_mapping(s$seq, s$bp_cdna, s$bp)
   ret <- q[q$bp == row$bp,]$ref %in% row$ref
+  return(ret)
+  
+  #mapped <- q[q$bp == row$bp,]
+  #colnames(mapped)
+  #original <- row
   
   
-  mapped <- q[q$bp == row$bp,]
-  colnames(mapped)
-  original <- row
+  #colnames(original)[1:4] <- paste0('clinvar.',colnames(original)[1:4])
+  #colnames(original)[5:10] <- paste0('MANE.',colnames(original)[5:10])
+  #colnames(mapped) <- c('mymapping.cDNA','mymapping.bp','mymapping.ref')
+  #mapped$mymapping.correctly_mapped <- ret
+  #result <- cbind(mapped,original)
   
-  
-  colnames(original)[1:4] <- paste0('clinvar.',colnames(original)[1:4])
-  colnames(original)[5:10] <- paste0('MANE.',colnames(original)[5:10])
-  colnames(mapped) <- c('mymapping.cDNA','mymapping.bp','mymapping.ref')
-  mapped$mymapping.correctly_mapped <- ret
-  result <- cbind(mapped,original)
-  
-  return(result)
+  #return(result)
   #row <- res[i,]
   #s <- mrg1[mrg1$enstid_version %in% row$enstid]
   #q <- setup_mapping_minus((s$seq), row$bp_end)
@@ -126,6 +83,7 @@ bool <- (lapply(1:nrow(res), function(i){
 }))
 
 status <- as.data.frame(do.call(rbind, bool))
+status
 #fwrite(status, 'derived/210709_clinvar_mane_mapping_status.txt', sep = '\t')
 
 # index 59 + 1 when jumping interval
@@ -198,27 +156,3 @@ q[q$bp == 80654746,] # G
 q[q$bp == 80654747,] # C
 q[q$bp == 80654748,] # G
 q[q$bp == 80654749,] # T
-
-# this matches!!
-setup_mapping_rev <- function(x, reference){
-  
-  sequence_len <- nchar(x)
-  mapping_structure = data.frame(
-    index = 1:sequence_len,
-    #bp = rev((reference):(reference+sequence_len-1)),
-    bp = ((reference):(reference+sequence_len-1)),
-    ref = (unlist(strsplit(x, split = '')))
-  )
-  print(mapping_structure[c(1,nrow(mapping_structure)),])
-  
-  return(mapping_structure)
-  
-}
-
-
-
-
-
-
-
-
