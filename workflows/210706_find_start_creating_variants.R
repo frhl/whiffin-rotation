@@ -1,21 +1,30 @@
 
+# setup compute environment
+library(parallel)
+library(doParallel)
+cores <- detectCores()
+registerDoParallel(cores)
+
 devtools::load_all()
 
 # get data
 d <- fread('~/Projects/08_genesets/genesets/data/MANE/210709_MANE.GRCh38.v0.95.combined-table.txt')
-d <- d1[d1$type == 'five_prime_UTR']
+d <- d[d$type == 'five_prime_UTR']
 #d <- head(d)
 
 # enumerate codons that can be 
-codon_target <- 'ATG'
+codon_target <- 'CGA'
 pre_codon <- get_pre_codons(codon_target)
 
-result_list <- lapply(1:nrow(d), function(i){
+#result_list <- (foreach (i=1:nrow(d)) %dopar% {
+result_list <- lapply(head(1:nrow(d)), function(i){
   
   row <- d[i,]
   sequence <- row$seq
   splitted_sequence <- split_seq(sequence)
   len <- nchar(sequence)
+  
+  mapping <- make_mapping(sequence, row$bp_cdna, row$bp)
   
   # go over every codon possible
   mat_codons <- do.call(rbind, lapply(1:nrow(pre_codon), function(j){
@@ -53,10 +62,22 @@ result_list <- lapply(1:nrow(d), function(i){
     
   }))
   
+  # map cdna postion to global position
+  if (nrow(mat_codons) > 0){
+    mat$grch38_bp <- unlist(lapply(mat_codons$cdna_pos, function(pos){mapping$bp[mapping$cdna == pos]}))
+  }
+  
+  
   
   
 })
 
 result <- as.data.table(do.call(rbind, result_list))
+result$type <- factor(result$type)
+result$chr <- factor(result$chr)
+
+head(result)
+
+fwrite(result, 'extdata/210910_CGA_creating_variants.txt',sep = '\n')
 
 
