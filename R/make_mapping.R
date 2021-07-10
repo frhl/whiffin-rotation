@@ -1,4 +1,9 @@
-
+#' @title make cdna to grch38 mapping
+#' @description useds information from mane to make a mapping
+#' @param seq srting. RNA seq 
+#' @param cdna string cdna postions, e.g. "1-5;6;10"
+#' @param bp string grch38 positions, e.g. "105-109;204-208"
+#' @param export
 
 make_mapping <- function(seq, cdna, bp){
   
