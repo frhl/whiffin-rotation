@@ -1,209 +1,87 @@
 
+# setup compute environment
+library(parallel)
+library(doParallel)
+cores <- detectCores()
+registerDoParallel(cores)
+
 devtools::load_all()
 
+# get data
+d <- fread('~/Projects/08_genesets/genesets/data/MANE/210710_MANE.GRCh38.v0.95.combined-table.txt')
+d <- d[d$type == 'five_prime_UTR']
+d <- d[d$seq != '',]
+#d <- head(d)
 
-d1 <- fread('~/Projects/08_genesets/genesets/data/MANE/210708_MANE.GRCh38.v0.95.combined-table.txt')
-d1$bp[d1$bp == '-'] <- NA
-d1 <- d1[d1$type == 'five_prime_UTR']
-d2 <- fread('derived/tables/210708_MANE.v0.95.UTR_features.txt', sep = '\t')
-mrg <- merge(d1, d2)
-mrg1 <- mrg[mrg$chr == 1,]
-#mrg1 <- mrg[mrg$u5_len > 50 & mrg$u5_AUG > 1 & mrg$enstid_version %in% minus,]
-s <- mrg1[4,]
-ss <- mrg1[mrg1$gene_symbol %in% 'ABCC2']
-# bcftools query -f '%CHROM %POS %REF %ALT\n' clinvar_20210626.vcf.gz | awk '$1==16 && $2>2340573 && $2<2340728' 
-s
+# enumerate codons that can be 
+codon_target <- 'ATG'
+pre_codon <- get_pre_codons(codon_target)
 
-variants <- fread('extdata/clinvar/clinvar_20210626_chr1.txt')
-colnames(variants) <- c('chr','bp','ref','alt')
-
-result <- do.call(rbind, lapply(1:nrow(mrg1), function(i){
-  row <- mrg1[i]
-  if (!is.na(row$bp)){
-    bps <- as.data.frame(do.call(rbind, lapply(unlist(strsplit(row$bp, split = ';')), function(x) unlist(strsplit(x, split = '-')))))
-    res <- do.call(rbind, lapply(1:nrow(bps), function(j){
-      selected <- as.numeric(unlist(bps[j,]))
-      vars <- variants[variants$bp > min(selected) & variants$bp < max(selected)]
-      if (nrow(vars) == 0) return(NULL)
-      if (row$bp == '-') return(NULL)
-      vars$enstid <- row$enstid_version
-      vars$interval <- row$bp
-      vars$strand <- row$strand
-      vars$bp_start <- min(selected)
-      vars$bp_end <- max(selected)
-      vars$count <- j
+result_list <- (foreach (i=1:nrow(d)) %dopar% {
+#result_list <- lapply(head(1:nrow(d)), function(i){
+  
+  row <- d[i,]
+  sequence <- row$seq
+  splitted_sequence <- split_seq(sequence)
+  len <- nchar(sequence)
+  
+  mapping <- make_mapping(sequence, row$bp_cdna, row$bp)
+  
+  # go over every codon possible
+  mat_codons <- do.call(rbind, lapply(1:nrow(pre_codon), function(j){
+    
+    cur_codon <- pre_codon[j,]
+    positions <- find_codon(sequence, cur_codon$codon)
+    
+    # For all matching codons get positons
+    mat <- as.data.frame(do.call(rbind, lapply(positions, function(p){
+      position <- p
+      range <- max(0, position-5):min(len, position+5)
+      context <- paste0(splitted_sequence[range], collapse = '')
       
-      return(vars)
-    }))
-    return(res)
-  }
+      data.table(
+        gene_symbol = row$gene_symbol,
+        enstid_version = row$ensgid_version,
+        ensgid_version = row$ensgid_version,
+        type = row$type,
+        chr = row$chr,
+        bp = row$bp,
+        bp_cdna = row$bp_cdna,
+        context = context, 
+        position = position,
+        codon_before = cur_codon$codon,
+        codon_target = codon_target,
+        before = cur_codon$before,
+        after = cur_codon$after,
+        cdna_pos = p - 2
+      )
 
-}))
+    })))
+    
 
-
-
-
-
-
-
-
-
-mrg1[grepl('80654490', mrg1$bp)]
-
-
-
-## WORKS FOR DIRECTION = +1
-
-# this matches!!
-setup_mapping <- function(x, reference){
-  sequence_len <- nchar(x)
-  mapping_structure = data.frame(
-    index = sequence_len:1,
-    bp = reference:(reference-sequence_len+1),
-    ref = rev(unlist(strsplit(x, split = '')))
-  )
-  return(mapping_structure)
-  
-}
-
-
-setup_mapping_minus <- function(x, reference){
-  sequence_len <- nchar(x)
-  mapping_structure = data.frame(
-    index = rev(1:sequence_len),
-    bp = rev(reference:(reference-sequence_len+1)),
-    ref = rev(unlist(strsplit(x, split = '')))
-  )
-  return(mapping_structure)
-  
-}
-
-
-# mrg1[mrg1$enstid_version %in% 'ENST00000370225.4']
-res <- result[!is.na(result$bp),]
-res <- res[nchar(res$ref) == 1]
-res <- res[res$strand== '-',]
-
-
-
-bool <- unlist(lapply(1:nrow(res), function(i){
-  
-  row <- res[i,]
-  s <- mrg1[mrg1$enstid_version %in% row$enstid]
-  q <- setup_mapping(s$seq, row$bp_end)
-  ret <- q[q$bp == row$bp,]$ref %in% row$ref
+    return(mat)
+    
+  }))
   
   
-  row <- res[i,]
-  s <- mrg1[mrg1$enstid_version %in% row$enstid]
-  q <- setup_mapping_minus((s$seq), row$bp_end)
+  # map cdna postion to global position
+  if (nrow(mat_codons) > 0){
+    mat_codons$grch38_bp = unlist(lapply(mat_codons$cdna_pos, function(pos){mapping$bp[mapping$cdna == pos]}))
+  } 
   
-  ret <- q[q$bp == row$bp,]$ref %in% row$ref
+  return(mat_codons)
   
   
   
+})
 
-  q
-  row
-  q[q$bp == row$bp,]
-  q[q$bp == row$bp-1,]
-  
-  #q[q$bp == row$bp,]
-  
-  return(ret)
-  
-}))
-
-# index 59 + 1 when jumping interval
-
-x <- "GTCAGTCAGTCACCCCACAGTCTCCTCTCTCTTCTTTTCTACTGTGCTATCCTAGAATCAAGGATTTCAGCAACA"
-
-sum(bool)/length(bool)
-
-res[!bool,]
-index <- (1:nrow(res))[!bool]
-
-# mrg1[mrg1$gene_symbol %in% 'AMPD2']
-s <- mrg1[mrg1$gene_symbol %in% 'AMPD2']
-q <- setup_mapping(s$seq, 109621175)
-q[q$bp == 109621025,]
-q[q$bp == 109621064,]
-q[q$bp == 109621101,]
-q[q$bp == 109621109,]
-q[q$bp == 109621124,]
-
-# mrg1[mrg1$gene_symbol %in% 'ABCC2']
-s <- mrg1[mrg1$gene_symbol %in% 'ABCC2']
-q <- setup_mapping(s$seq, 99782844)
-q[q$bp == 99782756,]
-q[q$bp == 99782802,]
-q[q$bp == 99782805,]
-q[q$bp == 99782821,]
-q[q$bp == 99782822,]
+result <- as.data.table(do.call(rbind, result_list))
 
 
-## let's check direction = -1
-#s <- mrg1[grepl('107163510', mrg1$bp)]
-s <- mrg1[grepl('107867496', mrg1$bp)]
-q <- setup_mapping(s$seq,  107866597) #80654490) # 80654983
+fwrite(result, 'extdata/210910_uATG_creating_variants.txt',sep = '\t')
 
 
-
-
-q[q$bp == 108207452,]
-
-q[q$bp == 108207498,]  # 13 113671563 A G
-q[q$bp == 113671594,]  # 13 113671594 T C
-
-q[q$bp == 114326121,] # 13 114326121 A G
-q[q$bp == 114326176,] # 13 114326176 A G
-
-
-
-
-
-q[q$bp == 80654863,] # G
-q[q$bp == 80654723,] # G
-
-
-
-
-q[q$bp == 80654728,] #A# match
-q[q$bp == 80654729,] #T# not match
-q[q$bp == 80654732,] #C# not match
-
-q[q$bp == 80654737,]  # C
-
-
-q[q$bp == 80654741,] # A
-q[q$bp == 80654742,] # G
-q[q$bp == 80654743,] # C
-
-q[q$bp == 80654746,] # G
-q[q$bp == 80654747,] # C
-q[q$bp == 80654748,] # G
-q[q$bp == 80654749,] # T
-
-# this matches!!
-setup_mapping_rev <- function(x, reference){
-  
-  sequence_len <- nchar(x)
-  mapping_structure = data.frame(
-    index = 1:sequence_len,
-    #bp = rev((reference):(reference+sequence_len-1)),
-    bp = ((reference):(reference+sequence_len-1)),
-    ref = (unlist(strsplit(x, split = '')))
-  )
-  print(mapping_structure[c(1,nrow(mapping_structure)),])
-  
-  return(mapping_structure)
-  
-}
-
-
-
-
-
-
-
+result <- fread('extdata/210910_uATG_creating_variants.txt', sep = '\t')
+colnames(variants)[2] <- 'grch38_bp'
+merge(result, variants, by = c('chr','grch38_bp'))
 
