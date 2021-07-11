@@ -33,7 +33,7 @@ res_mat_obs <- as.data.frame(do.call(rbind, res_obs))
 colnames(res_mat_obs) <- paste0('obs.',codons)
 res_mat_obs$ensgid_version <- d$ensgid_version
 res_mat_obs$enstid_version <- d$enstid_version
-fwrite(res_mat_obs, 'derived/210707b_MANE.GRCh38.v0.95_five_prime_utr_codons_obs.csv', sep = ',')
+fwrite(res_mat_obs, 'derived/210710_MANE.GRCh38.v0.95_five_prime_utr_codons_obs.csv', sep = ',')
 
 # simulate expected codons given sequence context
 write('simulating expected codons..',stdout())
@@ -41,10 +41,11 @@ write(paste('Running',replicates*iterations,'simulations.'),stdout())
 
 res <- lapply(1:replicates, function(i){
   write(paste0(get_time(), ' - Replicate ',i),stdout())
-  res_expt <- sim_expected_codons(d$seq[interval], k = 2, iter = iterations, codons = codons, parallel = T)
+  set.seed(i)
+  res_expt <- sim_expected_codons(d$seq[interval], k = 2, iter = iterations, codons = codons, parallel = T, seed = i)
   
   # save confidence intervals
-  outfile_ci <- paste0('derived/210707b_MANE.GRCh38.v0.95_five_prime_utr_codons_expt_ci_rep',i,'.csv')
+  outfile_ci <- paste0('derived/210711_MANE.GRCh38.v0.95_five_prime_utr_codons_expt_ci_rep',i,'.csv')
   res_mat_expt <- as.data.frame(do.call(rbind, res_expt))
   colnames(res_mat_expt) <- paste0('expt.',codons)
   res_mat_expt$ensgid_version <- d$ensgid_version[interval]
@@ -52,10 +53,11 @@ res <- lapply(1:replicates, function(i){
   fwrite(res_mat_expt, outfile_ci, sep = ',')
   
   # save only estimates
-  outfile_est <- paste0('derived/210707b_MANE.GRCh38.v0.95_five_prime_utr_codons_expt_rep',i,'.csv')
+  outfile_est <- paste0('derived/210711_MANE.GRCh38.v0.95_five_prime_utr_codons_expt_rep',i,'.csv')
   mat_split_expt <- as.data.frame(matrixsplit(res_mat_expt, ';', as.numeric, 3))
   mat_split_expt$ensgid_version <- d$ensgid_version[interval]
   mat_split_expt$enstid_version <- d$enstid_version[interval]
+  print(mat_split_expt)
   fwrite(mat_split_expt, outfile_est, sep = ',')
   
 })

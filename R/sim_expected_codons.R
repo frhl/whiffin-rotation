@@ -9,7 +9,7 @@
 #' @param cores how many cores should be used when in parallel?
 #' @export
 
-sim_expected_codons <- function(seqs, codons = 'ATG', k = 2, iter = 1000, verbose = T, parallel = F, cores = detectCores()){
+sim_expected_codons <- function(seqs, codons = 'ATG', k = 2, iter = 1000, verbose = T, parallel = F, cores = detectCores(), seed = 1){
   
   stopifnot(length(seqs) > 0)
   use_condaenv('r-reticulate')
@@ -42,7 +42,7 @@ sim_expected_codons <- function(seqs, codons = 'ATG', k = 2, iter = 1000, verbos
       
       # prepare sequence
       cur_seq <- seqs[i]
-      sim_seq <- shuffle_utrs(cur_seq, k, as.integer(iter))
+      sim_seq <- shuffle_utrs(cur_seq, k, as.integer(iter), seed)
       
       # We calculated the median and 2.5% and 97.5% quantiles of the number of AUGs in the shuffled 5′ UTRs 
       mat <- do.call(cbind, lapply(codons, function(cur_codon){

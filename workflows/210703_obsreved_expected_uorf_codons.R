@@ -1,5 +1,6 @@
 # constraint modelling in 5' UTR
 
+devtools::load_all()
 library(data.table)
 
 
@@ -52,7 +53,7 @@ ggplot(d, aes(x=reorder(codon, oe), y = oe)) +
 # ATG/GCA depletion in genes w/wo uORFS #
 #########################################
 
-features <- fread('derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t')
+features <- fread('derived/tables/210709_MANE.v0.95.UTR_features.txt', sep = '\t')
 
 genes_w_uorf <- features$enstid_version[features$u5_ORF > 0]
 genes_wo_uorf <- features$enstid_version[features$u5_ORF == 0]

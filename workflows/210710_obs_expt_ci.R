@@ -1,9 +1,17 @@
 # constraint modelling in 5' UTR
 
 library(data.table)
-d_obs_ci <- fread('derived/210701_MANE.GRCh38.v0.95_codons_expt_ci.csv', sep = ',')
+
+
+files_expt <- list.files('download/210709_hpc_derived/', pattern = '210707_MANE.GRCh38.v0.95_five_prime_utr_codons_expt_rep', full.names = T)
 d_obs <- fread('derived/210701_MANE.GRCh38.v0.95_codons_expt.csv', sep = ',')
-d_expt <- fread('derived/210701_MANE.GRCh38.v0.95_codons_obs.csv', sep = ',')
+
+X <- lapply(files_expt, function(f) head(as.martrix(fread(f)[,1:3])))
+
+Y <- do.call(cbind, X)
+Y <- array(Y, dim=c(dim(X[[1]]), length(X)))
+res <- apply(Y, c(1, 2), mean, na.rm = TRUE)
+colMeans(aperm(Y, c(3, 1, 2)), na.rm = TRUE)
 
 
 # merge observed / expected

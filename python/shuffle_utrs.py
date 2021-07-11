@@ -2,11 +2,12 @@
 
 
 # from https://link.springer.com/article/10.1186/1471-2105-9-192
-from ushuffle import shuffle, Shuffler
+from ushuffle import shuffle, Shuffler, set_seed
 
 
-def shuffle_utrs(seq, k = 2, max_iter = 10):
+def shuffle_utrs(seq, k = 2, max_iter = 10, seed = 1):
 	
+	set_seed(seed)
 	seq = str(seq)
 	seq = seq.encode('UTF-8')
 	#seq = b"ababcdcdabdcabvababab"
