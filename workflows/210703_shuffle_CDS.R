@@ -11,14 +11,14 @@ source_python('python/shuffle_utrs.py')
 d <- fread('../../210629_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
 #d <- fread('~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
 d <- d[d$type == 'CDS']
-features <- fread('derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t')
+features <- fread('derived/tables/210709_MANE.v0.95.UTR_features.txt', sep = '\t')
 #ensgids <- features$ensgid #[features$u5_AUG > 0]
 
 
 # paramters to evaluate
 replicates = 1
-iterations = 1000
-interval = TRUE
+iterations = 2
+interval = 1:5  #TRUE
 all_codons <- generate_codons()
 codons <- all_codons
 
