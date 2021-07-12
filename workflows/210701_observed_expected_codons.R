@@ -192,7 +192,7 @@ quantilef <- function(x) paste0(quantile(x, probs = c(0.025,0.5,0.975), na.rm = 
 
 expression <- fread('derived/tables/210609_prt_rna_numerical.txt', sep = '\t')
 #aggr_rna <- aggregate(rna ~ gene.id, data = expression, FUN = function(x) quantilef(x))
-aggr_rna <- aggregate(prt ~ gene.id, data = expression, FUN = function(x) max(x, na.rm = T))
+aggr_rna <- aggregate(rna ~ gene.id, data = expression, FUN = function(x) max(x, na.rm = T))
 colnames(aggr_rna) <- c("gene.id","rna")
 seq_quantile <- seq(0,1, by = 0.1)
 quantile_rna <- quantile(aggr_rna$rna, probs = seq_quantile)
@@ -234,17 +234,20 @@ ggplot(expr1, aes(x=codon, y = oe, group = perc, color = perc, ymax = oe + sem, 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = 'bottom')
 
 
-do.call(rbind, lapply(depletion_order[1:5], function(codon){
+interesting_codons <- c('ATG','TAG','TGA','TAA', 'CGA')
+
+do.call(rbind, lapply(interesting_codons, function(codon){
   d_cur = expr1[expr1$codon %in% codon,]
-  stats = cor.test(d_cur$perc, d_cur$oe, method = 'pearson')
-  data.frame(codon = codon, estimate = stats$estimate, pvalue = stats$p.value)
+  cors = cor.test(d_cur$perc, d_cur$oe, method = 'pearson')
+  stats <- summary(lm(oe ~ perc, data = d_cur))
+  coef <- as.data.frame(t(stats$coefficients[2,]))
+  colnames(coef) <- c('estimate','std.error','t.value','p.value')
+  d <- data.frame(codon = codon, estimate = coef$estimate, pvalue = coef$p.value, pearson.cor = cors$estimate)
+  d$bonf.sig <- d$pvalue < 0.05 / length(interesting_codons)
+  return(d)
 }))
 
 
-
-
-
-interesting_codons <- c('ATG','TAG','TGA','TAA', 'CGA')
 expr1$codon <- factor(expr1$codon)
 ggplot(expr1[expr1$codon %in% interesting_codons,], aes(x=perc, y = oe, group = codon, color = codon, ymax = oe + sem, ymin = oe - sem)) +
   geom_smooth(method = 'lm', se = T, linetype = 'dashed') +
@@ -254,8 +257,10 @@ ggplot(expr1[expr1$codon %in% interesting_codons,], aes(x=perc, y = oe, group = 
   ggtitle('Depletion versus protein expression') +
   ylab('Observed / Expected') +
   xlab('Percentile (Max protein expression across 32 tissues)') +
-  color_scale 
+  color_scale +
   theme_bw()
+
+  
 ggsave('derived/plots/210712_Protein_expression.pdf', width = 5, height = 4)
 
 

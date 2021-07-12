@@ -11,7 +11,7 @@ source_python('python/shuffle_utrs.py')
 d <- fread('../../210629_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
 #d <- fread('~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
 d <- d[d$type == 'CDS']
-features <- fread('derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t')
+features <- fread('derived/tables/210709_MANE.v0.95.UTR_features.txt', sep = '\t')
 #ensgids <- features$ensgid #[features$u5_AUG > 0]
 
 
@@ -50,7 +50,7 @@ res <- lapply(1:replicates, function(i){
   colnames(res_mat_expt) <- paste0('expt.',codons)
   res_mat_expt$ensgid_version <- d$ensgid_version[interval]
   res_mat_expt$enstid_version <- d$enstid_version[interval]
-  fwrite(res_mat_expt, outfile_ci, sep = ',')
+  #fwrite(res_mat_expt, outfile_ci, sep = ',')
   
   # save only estimates
   outfile_est <- paste0('derived/210711_MANE.GRCh38.v0.95_CDS_expt_rep',i,'.csv')
@@ -58,7 +58,7 @@ res <- lapply(1:replicates, function(i){
   mat_split_expt$ensgid_version <- d$ensgid_version[interval]
   mat_split_expt$enstid_version <- d$enstid_version[interval]
   print(mat_split_expt)
-  fwrite(mat_split_expt, outfile_est, sep = ',')
+  #fwrite(mat_split_expt, outfile_est, sep = ',')
   
 })
 
