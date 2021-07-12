@@ -6,6 +6,12 @@ d_obs <- fread('derived/210701_MANE.GRCh38.v0.95_codons_expt.csv', sep = ',')
 d_expt <- fread('derived/210701_MANE.GRCh38.v0.95_codons_obs.csv', sep = ',')
 
 
+# setup colors
+library(RColorBrewer)
+color = brewer.pal(6, 'Set2') 
+names(color) <- c('ATG','CGA','TAG','TGA','TAA')
+color_scale <- scale_colour_manual(name = "codon",values = color)
+
 # merge observed / expected
 mrg <- merge(d_expt, d_obs)
 mrg$ensgid_version <- NULL
@@ -22,15 +28,19 @@ expt <- mrg[,index_expt, with = F]
 d <- as.data.frame(colSums(obs) / colSums(expt))
 colnames(d) <- 'oe'
 d$codon <- unlist(lapply(strsplit(rownames(d), split = '\\.'), function(x) x[2]))
+d$sem <- apply(expt, 2, sem)
+color_axis <- ifelse(d$codon %in% names(color), 'red','grey')[order(d$oe)]
 depletion_order <- d$codon[order(d$oe)]
-ggplot(d, aes(x=reorder(codon, oe), y = oe)) +
+ggplot(d, aes(x=reorder(codon, oe), y = oe, ymax = oe + sem, ymin = oe-sem)) +
   geom_point() +
+  geom_errorbar(width = 0.5) +
   geom_hline(yintercept = 1, linetype = 'dashed') +
-  ggtitle('Observed versus Expected 5" UTR codons',
+  ggtitle("Observed versus expected 5' UTR codons",
           '1000 simulations preservering di-nt frequency for each sequnce') +
   ylab('Observed / Expected') +
   xlab('Codon') +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, color = color_axis))
 
 # mong CG-containing codons, CGA codons for arginine are unique due to 
 # their ability to create stop codons TGA (UGA in mRNA) upon epigenetic-mediated mutation
@@ -204,15 +214,17 @@ expr1 <- do.call(rbind, lapply(seq_quantile*100, function(perc){
   d_out$codon <- indexsplit(rownames(d_out), 2)
   rownames(d_out) <- NULL
   d_out$oe <- d_out$obs / d_out$expt
+  d_out$sem <- apply(selected_expt, 2, sem)
   return(d_out)
   
 }))
 
 
 expr1$codon <- factor(expr1$codon, levels = depletion_order)
-ggplot(expr1, aes(x=codon, y = oe, group = perc, color = perc)) +
+expr1$group <- factor(expr1$perc)
+ggplot(expr1, aes(x=codon, y = oe, group = perc, color = perc, ymax = oe + sem, ymin = oe - sem)) +
   geom_point(size = 1) +
-  geom_line() +
+  geom_errorbar(width = 0.05, position = 'dodge') +
   labs(color = 'Percentile (Max Protein expression across 32 tissues)') +
   geom_hline(yintercept = 1, linetype = 'dashed') +
   ggtitle('Observed versus Expected 5" UTR codons',
@@ -222,10 +234,6 @@ ggplot(expr1, aes(x=codon, y = oe, group = perc, color = perc)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = 'bottom')
 
 
-fit <- lm(oe ~ perc , )
-summary(fit)
-
-
 do.call(rbind, lapply(depletion_order[1:5], function(codon){
   d_cur = expr1[expr1$codon %in% codon,]
   stats = cor.test(d_cur$perc, d_cur$oe, method = 'pearson')
@@ -233,20 +241,70 @@ do.call(rbind, lapply(depletion_order[1:5], function(codon){
 }))
 
 
-ggplot(expr1[expr1$codon %in% depletion_order[1:5],], aes(x=perc, y = oe, group = codon, color = codon)) +
+
+
+
+interesting_codons <- c('ATG','TAG','TGA','TAA', 'CGA')
+expr1$codon <- factor(expr1$codon)
+ggplot(expr1[expr1$codon %in% interesting_codons,], aes(x=perc, y = oe, group = codon, color = codon, ymax = oe + sem, ymin = oe - sem)) +
   geom_smooth(method = 'lm', se = T, linetype = 'dashed') +
   geom_point(size = 2) +
+  geom_errorbar(width = 1, position = 'dodge') +
   geom_hline(yintercept = 1, linetype = 'dashed') +
-  ggtitle('Comparison of codon depletion versus tissue expression',
-          '1000 simulations preservering di-nt frequency for each sequnce') +
+  ggtitle('Depletion versus protein expression') +
   ylab('Observed / Expected') +
-  xlab('Percentile (Max Protein expression across 32 tissues)') +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  xlab('Percentile (Max protein expression across 32 tissues)') +
+  color_scale 
+  theme_bw()
+ggsave('derived/plots/210712_Protein_expression.pdf', width = 5, height = 4)
+
+
+#############################################################
+# What about position in sequence -- is there any depletion #
+#############################################################
+
+
+features <- fread('derived/tables/210709_MANE.v0.95.UTR_features.txt', sep = '\t')
+
+# finally merge data and check
+genes <- obs
+
+
+res <- do.call(rbind, lapply(codons, function(codon){
+  m_codon <- mcombi[mcombi$codon == codon,]
+  aggr1 <- aggregate(expt ~ decile, data = m_codon, FUN = sum)
+  aggr2 <- aggregate(obs ~ decile, data = m_codon, FUN = sum)
+  aggr12 <- merge(aggr1, aggr2)
+  aggr12$codon <- codon
+  return(aggr12)
+}))
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###
+#
+#
+##
+#
+##
 
 
 
