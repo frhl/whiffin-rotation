@@ -1,0 +1,52 @@
+Loading utrsRus
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+Adding files missing in collate: calc_hyper.R, lapply_calc_hyper.R
+Loading required package: foreach
+Loading required package: iterators
+Warning messages:
+1: In write.csv(result_go, outpath, sep = "\t", row.names = F) :
+  attempt to set 'sep' ignored
+2: In write.csv(result_go, outpath, sep = "\t", row.names = F) :
+  attempt to set 'sep' ignored
+3: In write.csv(result_go, outpath, sep = "\t", row.names = F) :
+  attempt to set 'sep' ignored
+Loading utrsRus
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+Adding files missing in collate: calc_hyper.R, lapply_calc_hyper.R
+Loading required package: foreach
+Loading required package: iterators
+Loading utrsRus
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+Adding files missing in collate: calc_hyper.R, lapply_calc_hyper.R
+Loading required package: foreach
+Loading required package: iterators

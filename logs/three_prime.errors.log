@@ -13,3 +13,19 @@ Loading required package: reticulate
 Adding files missing in collate: create_mane_mapping.R, get_cap_to_start_len.R, load_genelist.R, map_mane.R, matrixsplit.R, melt_tri.R, sim_expected_codons.R, sim_seq.R, som_prob_codons.R
 Loading required package: foreach
 Loading required package: iterators
+sh: line 1: 244804 Bus error               '/gpfs3/apps/eb/skylake/software/Anaconda3/2020.07/bin/conda' info --json 2> /dev/null
+sh: line 1: 244822 Bus error               '/gpfs3/apps/eb/skylake/software/Anaconda3/2020.07/bin/conda' info --json 2> /dev/null
+sh: line 1: 244844 Bus error               '/gpfs3/apps/eb/skylake/software/Anaconda3/2020.07/bin/conda' info --json 2> /dev/null
+sh: line 1: 244837 Bus error               '/gpfs3/apps/eb/skylake/software/Anaconda3/2020.07/bin/conda' info --json 2> /dev/null
+sh: line 1: 244767 Bus error               '/gpfs3/apps/eb/skylake/software/Anaconda3/2020.07/bin/conda' info --json 2> /dev/null
+sh: line 1: 244766 Bus error               '/gpfs3/apps/eb/skylake/software/Anaconda3/2020.07/bin/conda' info --json 2> /dev/null
+sh: line 1: 244787 Bus error               '/gpfs3/apps/eb/skylake/software/Anaconda3/2020.07/bin/conda' info --json 2> /dev/null
+Error in { : task 364 failed - "lexical error: invalid char in json text.
+                                       NA
+                     (right here) ------^
+"
+Calls: lapply ... FUN -> sim_expected_codons -> %dopar% -> <Anonymous>
+In addition: Warning message:
+In mclapply(argsList, FUN, mc.preschedule = preschedule, mc.set.seed = set.seed,  :
+  scheduled core 1 did not deliver a result, all values of the job will be affected
+Execution halted

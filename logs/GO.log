@@ -1,0 +1,57 @@
+# running go_mf (doParallel)
+checking uORF = 0
+checking uORF = 1
+checking uORF = 2
+checking uORF = 3
+checking uORF = 4
+writing derived/210709_hypergeom_go_mf_uORF_analysis.txt...
+# running go_bp (doParallel)
+checking uORF = 0
+checking uORF = 1
+checking uORF = 2
+checking uORF = 3
+checking uORF = 4
+writing derived/210709_hypergeom_go_bp_uORF_analysis.txt...
+# running go_cc (doParallel)
+checking uORF = 0
+checking uORF = 1
+checking uORF = 2
+checking uORF = 3
+checking uORF = 4
+writing derived/210709_hypergeom_go_cc_uORF_analysis.txt...
+Done.
+# running go_mf (doParallel)
+checking uORF = 0
+checking uORF = 1
+checking uORF = 2
+checking uORF = 3
+checking uORF = 4
+writing derived/210709_hypergeom_go_mf_uORF_analysis.txt...
+# running go_bp (doParallel)
+checking uORF = 0
+checking uORF = 1
+checking uORF = 2
+checking uORF = 3
+checking uORF = 4
+writing derived/210709_hypergeom_go_bp_uORF_analysis.txt...
+# running go_cc (doParallel)
+checking uORF = 0
+checking uORF = 1
+checking uORF = 2
+checking uORF = 3
+checking uORF = 4
+writing derived/210709_hypergeom_go_cc_uORF_analysis.txt...
+Done.
+# running go_mf (doParallel)
+checking uORF = 0
+checking uORF = 1
+writing derived/210709_hypergeom_go_mf_uORF_gt_analysis.txt...
+# running go_bp (doParallel)
+checking uORF = 0
+checking uORF = 1
+writing derived/210709_hypergeom_go_bp_uORF_gt_analysis.txt...
+# running go_cc (doParallel)
+checking uORF = 0
+checking uORF = 1
+writing derived/210709_hypergeom_go_cc_uORF_gt_analysis.txt...
+Done.
