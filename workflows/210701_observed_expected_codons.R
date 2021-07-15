@@ -8,7 +8,7 @@ d_expt <- fread('derived/210701_MANE.GRCh38.v0.95_codons_obs.csv', sep = ',')
 
 # setup colors
 library(RColorBrewer)
-color = brewer.pal(6, 'Set2') 
+color = brewer.pal(5, 'Set2') 
 names(color) <- c('ATG','CGA','TAG','TGA','TAA')
 color_scale <- scale_colour_manual(name = "codon",values = color)
 
@@ -24,12 +24,17 @@ index_expt <- 67:(67+63)
 obs <- mrg[,index_obs, with = F] 
 expt <- mrg[,index_expt, with = F] 
 
+# pre atg codons
+pre_atg <- get_pre_codons('ATG')$codon
+
 # plot data
 d <- as.data.frame(colSums(obs) / colSums(expt))
 colnames(d) <- 'oe'
 d$codon <- unlist(lapply(strsplit(rownames(d), split = '\\.'), function(x) x[2]))
 d$sem <- apply(expt, 2, sem)
-color_axis <- ifelse(d$codon %in% names(color), 'red','grey')[order(d$oe)]
+color_axis <- ifelse(d$codon %in% 'ATG', 'darkgreen', ifelse(d$codon %in% names(color)[-2], 'red',ifelse(d$codon %in% pre_atg,'blue','grey')))[order(d$oe)]
+
+
 depletion_order <- d$codon[order(d$oe)]
 ggplot(d, aes(x=reorder(codon, oe), y = oe, ymax = oe + sem, ymin = oe-sem)) +
   geom_point() +
@@ -192,7 +197,7 @@ quantilef <- function(x) paste0(quantile(x, probs = c(0.025,0.5,0.975), na.rm = 
 
 expression <- fread('derived/tables/210609_prt_rna_numerical.txt', sep = '\t')
 #aggr_rna <- aggregate(rna ~ gene.id, data = expression, FUN = function(x) quantilef(x))
-aggr_rna <- aggregate(rna ~ gene.id, data = expression, FUN = function(x) max(x, na.rm = T))
+aggr_rna <- aggregate(prt ~ gene.id, data = expression, FUN = function(x) max(x, na.rm = T))
 colnames(aggr_rna) <- c("gene.id","rna")
 seq_quantile <- seq(0,1, by = 0.1)
 quantile_rna <- quantile(aggr_rna$rna, probs = seq_quantile)
@@ -202,6 +207,7 @@ levels(aggr_rna$percentile) <- seq_quantile*100
 mrg <- merge(d_expt, d_obs)
 aggr_mrg <- merge(mrg, aggr_rna, by.x = 'ensgid', by.y = 'gene.id')
 aggr_mrg$ensgid_version <- NULL
+aggr_mrg
 
 obs_aggr <- aggr_mrg[,get('(enstid)|(obs)|(perc)',aggr_mrg), with = F]
 expt_aggr <- aggr_mrg[,get('(enstid)|(expt)|(perc)',aggr_mrg), with = F]
@@ -239,29 +245,32 @@ interesting_codons <- c('ATG','TAG','TGA','TAA', 'CGA')
 do.call(rbind, lapply(interesting_codons, function(codon){
   d_cur = expr1[expr1$codon %in% codon,]
   cors = cor.test(d_cur$perc, d_cur$oe, method = 'pearson')
-  stats <- summary(lm(oe ~ perc, data = d_cur))
+  fit <- lm(oe ~ perc + u5_len, data = d_cur)
+  ci <- paste0('[',paste0(round(confint(fit)[2,],5), collapse= ','),']')
+  stats <- summary(fit)
   coef <- as.data.frame(t(stats$coefficients[2,]))
   colnames(coef) <- c('estimate','std.error','t.value','p.value')
   d <- data.frame(codon = codon, estimate = coef$estimate, pvalue = coef$p.value, pearson.cor = cors$estimate)
+  d$est <- paste(round(d$estimate, 5), ci)
   d$bonf.sig <- d$pvalue < 0.05 / length(interesting_codons)
   return(d)
 }))
 
 
-expr1$codon <- factor(expr1$codon)
+expr1$codon <- factor(expr1$codon, levels = generate_codons())
 ggplot(expr1[expr1$codon %in% interesting_codons,], aes(x=perc, y = oe, group = codon, color = codon, ymax = oe + sem, ymin = oe - sem)) +
   geom_smooth(method = 'lm', se = T, linetype = 'dashed') +
   geom_point(size = 2) +
   geom_errorbar(width = 1, position = 'dodge') +
   geom_hline(yintercept = 1, linetype = 'dashed') +
-  ggtitle('Depletion versus protein expression') +
+  ggtitle('Depletion versus RNA expression') +
   ylab('Observed / Expected') +
-  xlab('Percentile (Max protein expression across 32 tissues)') +
+  xlab('Percentile (Max RNA expression across 32 tissues)') +
   color_scale +
   theme_bw()
 
   
-ggsave('derived/plots/210712_Protein_expression.pdf', width = 5, height = 4)
+ggsave('derived/plots/210712_RNA_expression.pdf', width = 5, height = 4)
 
 
 #############################################################

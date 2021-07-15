@@ -2,6 +2,9 @@
 
 library(data.table)
 
+pdf('derived/plots/210713_5UTR_features.pdf', width = 5, height = 4)
+
+
 
 
 
@@ -16,14 +19,11 @@ d_expt <- fread('derived/210701_MANE.GRCh38.v0.95_codons_expt.csv', sep = ',')
 
     
     
-  
-pdf('derived/plots/210712_5UTR_features.pdf', width = 5, height = 4)
-
 
 # setup colors
 library(RColorBrewer)
 color = brewer.pal(6, 'Set2') 
-names(color) <- c('ATG','CGA','TAG','TGA','TAA')
+names(color) <- c('ATG','CGA','TAG','TGA','TAA', 'ACG')
 color_scale <- scale_colour_manual(name = "codon",values = color)
 
 
@@ -106,8 +106,8 @@ list_len <- lapply(unique(combined$u5_len_decile), function(decile){
 
 
 lens <- do.call(rbind, list_len)
-lens$codons <- as.factor(lens$codons)
-lens <- lens[lens$codons %in% c('ATG','CGA','TAG','TGA','TAA'),]
+lens$codons <- factor(lens$codons, levels = generate_codons())
+lens <- lens[lens$codons %in% c('ATG','CGA','TAG','TGA','TAA','ACG'),]
 ggplot(lens, aes(x=decile, y = oe, color = codons, group = codons, ymax = oe + sem, ymin = oe - sem)) +
   geom_point() + 
   geom_errorbar(width = 0.05, position = 'dodge') +
@@ -136,17 +136,19 @@ plot(combined$u5_gc_decile, combined$u5_gc)
 
 list_gc <- lapply(unique(combined$u5_gc_decile), function(decile){
   row_bool <- combined$u5_gc_decile == decile
+  mu_lens <- mean(combined$u5_len[row_bool])
   obs_get <- colSums(combined[row_bool, get('obs',combined), with = F])
   expt_get <- colSums(combined[row_bool, get('expt',combined), with = F])
   oe_sem <- apply(combined[row_bool, get('expt',combined), with = F], 2, sem)
   oe <- obs_get/expt_get
   oe_names <- gsub('obs\\.','',names(oe))
-  df <- data.table(decile = decile, codons = oe_names, oe = oe, sem = oe_sem)
+  df <- data.table(decile = decile, codons = oe_names, oe = oe, sem = oe_sem, lens = mu_lens)
   return(df)
 })
 
 gcs <- do.call(rbind, list_gc)
-gcs <- gcs[gcs$codons %in% c('ATG','CGA','TAG','TAA','TGA'),]
+gcs <- gcs[gcs$codons %in% c('ATG','CGA','TAG','TAA','TGA','ACG'),]
+gcs$codons <- factor(gcs$codons, levels = generate_codons())
 ggplot(gcs, aes(x=decile, y = oe, color = codons, group = codons, ymin = oe-sem, ymax = oe+sem)) +
   geom_point() + 
   geom_errorbar(width = 0.05, alpha = 0.3) +
@@ -211,31 +213,40 @@ get_genelist <- function(){
   return(df)
 }
 
+# load DDG2P data
+g2p <- fread('extdata/DDG2P_4_6_2021.csv')
+g2p <- g2p[g2p$`DDD category` %in% c('confirmed','probable')]
+colnames(g2p) <- gsub(' ','_',colnames(g2p))
+g2p <- data.frame(gene_symbol=g2p$gene_symbol, geneset = 'DD')
 
-#genelists <- list(
-#  olfactory = data.table(genelist = 'olfactory receptors', gene_symbol = fread('~/Projects/10_mcarthur_genelists/gene_lists/lists/olfactory_receptors.tsv', header = F)$V1),
-#  mgi = data.table(genelist = 'olfactory receptors', gene_symbol = fread('~/Projects/10_mcarthur_genelists/gene_lists/lists/mgi_essential.tsv', header = F)$V1),
-#  ar1 = data.table(genelist = 'olfactory receptors', gene_symbol = fread('~/Projects/10_mcarthur_genelists/gene_lists/lists/all_ar.tsv', header = F)$V1)
-#)
+# load collins
+collins2020 <- setDT(readxl::read_xlsx('~/Projects/08_genesets/genesets/data/dosage/Collins2021medrxvic_supplementary_data.xlsx', 13))
+colnames(collins2020)[1] <- 'gene_symbol'
 
-mcarthur<- get_genelist()
+# mc-arthur
+genelist <- get_genelist()
+genelist <- rbind(genelist, g2p)
 
+pdf('derived/plots/210713_5UTR_sub_features.pdf', width = 2.5, height = 4)
 for (geneset in unique(genelist$geneset)){
   
   combined <- merge(features, mrg, by = c('enstid_version'))
-  combined$genelist <- combined$gene_symbol %in% mcarthur$gene_symbol[mcarthur$geneset %in% geneset]
+  combined$genelist <- combined$gene_symbol %in% genelist$gene_symbol[genelist$geneset %in% geneset]
+  combined$in_genelist <- factor(ifelse(combined$genelist,'Y','N'))
   list_genelist <- lapply(c(TRUE,FALSE), function(bool){
     row_bool <- combined$genelist == bool
+    mu_lens <- mean(combined$u5_len[bool])
     obs_get <- colSums(combined[row_bool, get('obs',combined), with = F])
     expt_get <- colSums(combined[row_bool, get('expt',combined), with = F])
     oe_sem <- apply(combined[row_bool, get('expt',combined), with = F], 2, sem)
     oe <- obs_get/expt_get
     oe_names <- gsub('obs\\.','',names(oe))
-    df <- data.table(genelist = bool, codons = oe_names, oe = oe, sem = oe_sem)
+    df <- data.table(genelist = bool, codons = oe_names, oe = oe, sem = oe_sem, lens = mu_lens)
   })
   
   glist <- do.call(rbind, list_genelist)
   glist <- glist[glist$codons %in% c('ATG','CGA','TAG','TAA','TGA'),]
+  glist$codons <- factor(glist$codons, levels = generate_codons())
   p1 <- ggplot(glist, aes(x=genelist, y = oe, color = codons, group = codons, ymin = oe - sem, ymax = oe + sem)) +
     geom_point() + 
     geom_errorbar(width = 0.05, alpha = 0.7) +
@@ -246,9 +257,31 @@ for (geneset in unique(genelist$geneset)){
     ggtitle(paste0(UTR," Genelist: ", geneset)) +
     color_scale +
     theme_bw()
-  print(p1)
+  #print(p1)
+  
+  
+  # are these genes longer or more likely to be HI?
+  mrgcollins <- merge(combined, collins2020, by = 'gene_symbol')
+  p2 <- ggplot(mrgcollins, aes(y=(pHI), x=in_genelist)) +
+    geom_boxplot() +
+    ylab('pHI') +
+    ggsignif::geom_signif(test = 't.test', comparisons=list(c('Y','N'))) +
+    theme_bw() +
+    ggtitle(paste0(UTR," Genelist: ", geneset))
+  print(p2)
+  
+  # are these genes longer or more likely to be HI?
+  p3 <- ggplot(combined, aes(y=log10(u5_len), x=in_genelist)) +
+    geom_boxplot() +
+    ylab('Log10(UTR length)') +
+    ggsignif::geom_signif(test = 't.test', comparisons=list(c('Y','N'))) +
+    theme_bw() +
+    ggtitle(paste0(UTR," Genelist: ", geneset))
+  print(p3)
+  
 
 }
+
 
 graphics.off()
 

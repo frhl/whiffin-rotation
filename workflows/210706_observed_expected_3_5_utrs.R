@@ -52,7 +52,7 @@ ggplot(d, aes(x=reorder(codon, oe), y = oe, color =  utr)) +
 # ATG/GCA depletion in genes w/wo uORFS #
 #########################################
 
-features <- fread('derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t')
+features <- fread('derived/tables/210706_MANE.v0.95.UTR_features.txt', sep = '\t')
 
 genes_w_uorf <- features$enstid_version[features$u5_ORF > 0]
 genes_wo_uorf <- features$enstid_version[features$u5_ORF == 0]
@@ -195,35 +195,44 @@ quantilef <- function(x) paste0(quantile(x, probs = c(0.025,0.5,0.975), na.rm = 
 
 expression <- fread('derived/tables/210609_prt_rna_numerical.txt', sep = '\t')
 #aggr_rna <- aggregate(rna ~ gene.id, data = expression, FUN = function(x) quantilef(x))
-aggr_rna <- aggregate(prt ~ gene.id, data = expression, FUN = function(x) max(x, na.rm = T))
+aggr_rna <- aggregate(rna ~ gene.id, data = expression, FUN = function(x) max(x, na.rm = T))
 colnames(aggr_rna) <- c("gene.id","rna")
 seq_quantile <- seq(0,1, by = 0.1)
 quantile_rna <- quantile(aggr_rna$rna, probs = seq_quantile)
 aggr_rna$percentile <- cut(aggr_rna$rna, quantile_rna)
 levels(aggr_rna$percentile) <- seq_quantile*100
 
-mrg <- merge(d_expt, d_obs)
+mrg <- merge(d5_expt, d5_obs)
 aggr_mrg <- merge(mrg, aggr_rna, by.x = 'ensgid', by.y = 'gene.id')
 aggr_mrg$ensgid_version <- NULL
 
 obs_aggr <- aggr_mrg[,get('(enstid)|(obs)|(perc)',aggr_mrg), with = F]
 expt_aggr <- aggr_mrg[,get('(enstid)|(expt)|(perc)',aggr_mrg), with = F]
 
+
 expr1 <- do.call(rbind, lapply(seq_quantile*100, function(perc){
   
+  lens <- mean(features$u5_len[features$enstid_version %in% obs_aggr$enstid_version[obs_aggr$percentile %in% perc]])
   selected_obs <- obs_aggr[obs_aggr$percentile == perc, get('obs',obs_aggr), with = F]
   selected_expt <- expt_aggr[expt_aggr$percentile == perc, get('expt',expt_aggr), with = F]
   d_out <- data.frame(perc = perc, obs = colSums(selected_obs), expt = colSums(selected_expt))  
   d_out$codon <- indexsplit(rownames(d_out), 2)
   rownames(d_out) <- NULL
   d_out$oe <- d_out$obs / d_out$expt
+  d_out$len <- lens
   return(d_out)
   
 }))
 
 
-expr1$codon <- factor(expr1$codon, levels = depletion_order)
-ggplot(expr1, aes(x=codon, y = oe, group = perc, color = perc)) +
+
+
+
+expr1$codon <- factor(expr1$codon, levels = unique(expr1$codon[order(expr1$oe)]))
+
+
+#expr1$codon <- factor(expr1$codon, levels = depletion_order)
+ggplot(expr1, aes(x=reorder(codon, oe), y = oe, group = perc, color = perc)) +
   geom_point(size = 1) +
   geom_line() +
   labs(color = 'Percentile (Max Protein expression across 32 tissues)') +
@@ -246,7 +255,7 @@ do.call(rbind, lapply(depletion_order[1:5], function(codon){
 }))
 
 
-ggplot(expr1[expr1$codon %in% depletion_order[1:5],], aes(x=perc, y = oe, group = codon, color = codon)) +
+ggplot(expr1[expr1$codon %in% c('ATG','CGA','TAG','TGA','TAA','ACG'),], aes(x=perc, y = oe, group = codon, color = codon)) +
   geom_smooth(method = 'lm', se = T, linetype = 'dashed') +
   geom_point(size = 2) +
   geom_hline(yintercept = 1, linetype = 'dashed') +
@@ -257,9 +266,13 @@ ggplot(expr1[expr1$codon %in% depletion_order[1:5],], aes(x=perc, y = oe, group 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 
+## " are longer transcript more often transcribed"? 
+mrg <- merge(aggr_rna, features, by.x = 'gene.id',by.y = 'ensgid')
+summary(lm(rna ~ u5_len, data = mrg))
 
+cor.test(mrg$rna, mrg$u5_len)
 
-
+plot(mrg$rna, log10(mrg$u5_len), xlab = 'RNA Expression', ylab = 'log10(U5_len)')
 
 
 

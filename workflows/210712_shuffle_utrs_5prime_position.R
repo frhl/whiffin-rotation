@@ -19,13 +19,15 @@ features <- fread('derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t
 replicates = 1
 iterations = 1
 interval = 1:10 # TRUE
-all_codons <- generate_codons()
+all_codons <- c('AAA','ATG') #<- generate_codons()
 codons <- all_codons
 
 print('counting observed codons..')
 # count observed codons
-res_obs <- lapply(d$seq, function(seq){
-  mat <- do.call(cbind, lapply(codons, function(codon) count_codon(seq, codon)))
+res_obs <- lapply(head(d$seq, 100), function(seq){
+  mat <- do.call(cbind, lapply(codons, function(codon) paste0(find_codon(seq, codon), collapse = ';')))
+  mat[mat==''] <- NA
+  #mat <- paste0(mat, collapse = ';')
   colnames(mat) <- codons
   return(mat)
 })
@@ -42,7 +44,6 @@ write(paste('Running',replicates*iterations,'simulations.'),stdout())
 res <- lapply(1:replicates, function(i){
   write(paste0(get_time(), ' - Replicate ',i),stdout())
   set.seed(i)
-  sim_seq(d$seq[interval], f = function(x) find_codon(x))
   res_expt <- sim_expected_codons(d$seq[interval], k = 2, iter = iterations, codons = codons, parallel = T, seed = i)
   
   # save confidence intervals

@@ -2,7 +2,13 @@
 devtools::load_all()
 library(genoppi)
 library(cowplot)
-d <- fread('derived/tables/210708_MANE.v0.95.UTR_features.txt', sep = '\t')
+d <- fread('derived/tables/210709_MANE.v0.95.UTR_features.txt', sep = '\t')
+
+colnames(d)
+
+
+sum(d$u5_oORF != 0)
+sum(d$u5_oORF_total != 0)
 
 
 gtex_cats <- fread('~/Projects/08_genesets/genesets/data/gtex/GTEX.tstat.categories.genoppi.csv')
@@ -19,6 +25,7 @@ format_tissue_enrichment <- function(res){
   mat_res <- melt(mat_res)
   
   # prettify
+  mat_res$logp <- -log10(mat_res$value)
   mat_res$significant <- mat_res$value < 0.05
   mat_res$bonfsig <- mat_res$value < 0.05/53
   mat_res$label <- ifelse(mat_res$bonfsig, '**', ifelse(mat_res$significant, '*',''))
@@ -69,8 +76,24 @@ res <- lapply(0:5, function(i){
 mat_wo_uorf <- format_tissue_enrichment(res[1:2])
 mat_wo_uorf <- mat_wo_uorf[mat_wo_uorf$variable == 1,]
 mat_wo_uorf$variable <- factor(0)
-mat_uorf <- format_tissue_enrichment(res[2:9])
+#mat_uorf <- format_tissue_enrichment(res[2:9])
 mat_uorf <- format_tissue_enrichment(res[2:3])
+
+ggplot(mat_wo_uorf, aes(y=reorder(Tissue, Tissue.category.for.display), x = -log10(value), fill = Tissue.category.for.display )) +
+  geom_bar(stat='identity') +
+  geom_vline(xintercept = -log10(0.05/53), linetype = 'dashed') +
+  labs(fill = 'Tissue category') +
+  xlab('-log10(P-value)') +
+  ylab('GTEx (RNA expression)') +
+  theme_bw()
+
+ggplot(mat_uorf, aes(y=reorder(Tissue, Tissue.category.for.display), x = -log10(value), fill = Tissue.category.for.display )) +
+  geom_bar(stat='identity') +
+  geom_vline(xintercept = -log10(0.05/53), linetype = 'dashed') +
+  labs(fill = 'Tissue category') +
+  xlab('-log10(P-value)') +
+  ylab('GTEx (RNA expression)') +
+  theme_bw()
 
 
 p1 <- ggplot(mat_uorf, aes(x=variable, y = test,fill = log10(value), label = label)) +
@@ -115,6 +138,14 @@ mat_wo_oorfs <- mat_wo_oorfs[mat_wo_oorfs$variable == 1,]
 mat_wo_oorfs$variable <- factor(0)
 mat_oorf <- format_tissue_enrichment(res[2:3])
 
+ggplot(mat_oorf, aes(y=reorder(Tissue, Tissue.category.for.display), x = -log10(value), fill = Tissue.category.for.display )) +
+  geom_bar(stat='identity') +
+  geom_vline(xintercept = -log10(0.05/53), linetype = 'dashed') +
+  labs(fill = 'Tissue category') +
+  xlab('-log10(P-value)') +
+  ylab('GTEx (RNA expression)') +
+  theme_bw()
+
 p1 <- ggplot(mat_oorf, aes(x=variable, y = test,fill = log10(value), label = label)) +
   geom_tile(show.legend = F) +
   geom_text() +
@@ -156,6 +187,15 @@ mat_wo_nte <- format_tissue_enrichment(res[1:2])
 mat_wo_nte <- mat_wo_nte[mat_wo_nte$variable == 1,]
 mat_wo_nte$variable <- factor(0)
 mat_nte <- format_tissue_enrichment(res[2:6])
+
+ggplot(mat_nte, aes(y=reorder(Tissue, Tissue.category.for.display), x = -log10(value), fill = Tissue.category.for.display )) +
+  geom_bar(stat='identity') +
+  geom_vline(xintercept = -log10(0.05/53), linetype = 'dashed') +
+  labs(fill = 'Tissue category') +
+  xlab('-log10(P-value)') +
+  ylab('GTEx (RNA expression)') +
+  theme_bw()
+
 
 p1 <- ggplot(mat_nte, aes(x=variable, y = test,fill = log10(value), label = label)) +
   geom_tile(show.legend = F) +

@@ -1,5 +1,9 @@
 # constraint modelling in 5' UTR
 
+
+
+# OLD FILE. SEE 210705 same name!
+
 devtools::load_all()
 library(data.table)
 
@@ -164,11 +168,11 @@ genes_mono_allelic <- features$enstid_version[features$gene_symbol %in% g2p$gene
 genes_bi_allelic <- features$enstid_version[features$gene_symbol %in% g2p$gene_symbol[g2p$allelic_requirement %in% "biallelic"]]
 
 # observed versus expected
-obs_mono_allelic <- mrg[mrg$enstid_version %in% genes_mono_allelic, 3:66] 
-expt_mono_allelioc <- mrg[mrg$enstid_version %in% genes_mono_allelic, 67:(67+63)] 
+obs_mono_allelic <- mrg[mrg$enstid_version %in% genes_mono_allelic, get('obs',mrg), with = F] 
+expt_mono_allelioc <- mrg[mrg$enstid_version %in% genes_mono_allelic, get('expt',mrg), with = F] 
 
-obs_bi_allelic <- mrg[mrg$enstid_version %in% genes_bi_allelic, 3:66] 
-expt_bi_allelic <- mrg[mrg$enstid_version %in% genes_bi_allelic, 67:(67+63)]
+obs_bi_allelic <- mrg[mrg$enstid_version %in% genes_bi_allelic, get('obs',mrg), with = F] 
+expt_bi_allelic <- mrg[mrg$enstid_version %in% genes_bi_allelic, get('expt',mrg), with = F]
 
 # get observed versus expected stratified by uORF status
 d_mono <- data.frame(oe = colSums(obs_mono_allelic) / colSums(expt_mono_allelioc), requirement = 'mono allelic')
@@ -196,14 +200,15 @@ quantilef <- function(x) paste0(quantile(x, probs = c(0.025,0.5,0.975), na.rm = 
 
 expression <- fread('derived/tables/210609_prt_rna_numerical.txt', sep = '\t')
 #aggr_rna <- aggregate(rna ~ gene.id, data = expression, FUN = function(x) quantilef(x))
-aggr_rna <- aggregate(prt ~ gene.id, data = expression, FUN = function(x) max(x, na.rm = T))
+aggr_rna <- aggregate(rna ~ gene.id, data = expression, FUN = function(x) max(x, na.rm = T))
 colnames(aggr_rna) <- c("gene.id","rna")
 seq_quantile <- seq(0,1, by = 0.1)
 quantile_rna <- quantile(aggr_rna$rna, probs = seq_quantile)
 aggr_rna$percentile <- cut(aggr_rna$rna, quantile_rna)
 levels(aggr_rna$percentile) <- seq_quantile*100
 
-mrg <- merge(d_expt, d_obs)
+mrg <- cbind(d_expt, d_obs)
+#mrg <- merge(d_expt, d_obs, by = c('ensgid','enstid'))
 aggr_mrg <- merge(mrg, aggr_rna, by.x = 'ensgid', by.y = 'gene.id')
 aggr_mrg$ensgid_version <- NULL
 
