@@ -1,13 +1,19 @@
 
 
-retrieve_mane_rna <- function(file = 'extdata/MANE.GRCh38.v0.95.select_ensembl_rna.fna'){
+format_mane_rna <- function(file = NULL){
   
-  # read data and convert to matrix
-  x <- readLines(file)
+  
+  
+  
+
+
+  
+  
+   x <- readLines(file)
   
   # define boundaries for identifiers
   x[grepl('>',x)] <- paste0(x[grepl('>',x)] , '<')
-  x <- paste0(x, collapse = '')
+  x <- paste0(x, collmapse = '')
   
   # all data is merged, now split them by our boundary elements
   sequences <- data.frame(unlist(strsplit(x, split = '>')))

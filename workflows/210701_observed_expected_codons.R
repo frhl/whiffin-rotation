@@ -1,25 +1,32 @@
 # constraint modelling in 5' UTR
-
+devtools::load_all()
+library(RColorBrewer)
 library(data.table)
-d_obs_ci <- fread('derived/210701_MANE.GRCh38.v0.95_codons_expt_ci.csv', sep = ',')
-d_obs <- fread('derived/210701_MANE.GRCh38.v0.95_codons_expt.csv', sep = ',')
-d_expt <- fread('derived/210701_MANE.GRCh38.v0.95_codons_obs.csv', sep = ',')
 
+
+d_obs <- fread('download/210711_hpc_derived/210707_MANE.GRCh38.v0.95_three_prime_utr_codons_obs.csv', sep = ',')
+d_expt <- fread('download/210711_hpc_derived/210707_MANE.GRCh38.v0.95_three_prime_utr_codons_expt_rep2.csv', sep = ',')
+features <- fread('derived/tables/210629_MANE.v0.95.UTR_features.txt', sep = '\t')
+
+#d_obs_ci <- fread('derived/210701_MANE.GRCh38.v0.95_codons_expt_ci.csv', sep = ',')
+#d_obs <- fread('derived/210701_MANE.GRCh38.v0.95_codons_expt.csv', sep = ',')
+#d_expt <- fread('derived/210701_MANE.GRCh38.v0.95_codons_obs.csv', sep = ',')
 
 # setup colors
-library(RColorBrewer)
 color = brewer.pal(5, 'Set2') 
 names(color) <- c('ATG','CGA','TAG','TGA','TAA')
 color_scale <- scale_colour_manual(name = "codon",values = color)
 
 # merge observed / expected
 mrg <- merge(d_expt, d_obs)
+#mrg <- mrg[mrg$enstid_version %in% features$enstid_version[features$u3_len > 500], ]
 mrg$ensgid_version <- NULL
 mrg$ensgid <- NULL
 
+
 # observed versus expected
-index_obs <- 3:66
-index_expt <- 67:(67+63)
+index_obs <- get('obs',mrg)
+index_expt <- get('expt',mrg)
 
 obs <- mrg[,index_obs, with = F] 
 expt <- mrg[,index_expt, with = F] 
@@ -32,6 +39,7 @@ d <- as.data.frame(colSums(obs) / colSums(expt))
 colnames(d) <- 'oe'
 d$codon <- unlist(lapply(strsplit(rownames(d), split = '\\.'), function(x) x[2]))
 d$sem <- apply(expt, 2, sem)
+#apply(expt, 2, sd)
 color_axis <- ifelse(d$codon %in% 'ATG', 'darkgreen', ifelse(d$codon %in% names(color)[-2], 'red',ifelse(d$codon %in% pre_atg,'blue','grey')))[order(d$oe)]
 
 
@@ -40,7 +48,7 @@ ggplot(d, aes(x=reorder(codon, oe), y = oe, ymax = oe + sem, ymin = oe-sem)) +
   geom_point() +
   geom_errorbar(width = 0.5) +
   geom_hline(yintercept = 1, linetype = 'dashed') +
-  ggtitle("Observed versus expected 5' UTR codons",
+  ggtitle("Observed versus expected 3' UTR codons",
           '1000 simulations preservering di-nt frequency for each sequnce') +
   ylab('Observed / Expected') +
   xlab('Codon') +
