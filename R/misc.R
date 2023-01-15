@@ -70,6 +70,9 @@ indexsplit <- function(x, i, split = '\\.') unlist(lapply(x, function(y) unlist(
 #' @export
 wo_version <- function(x) unlist(lapply(strsplit(x, split = '\\.'), function(x) x[1]))
 
+#' @title standard error of mean
+sem <- function(x) sd(x)/sqrt(length(x))
+
 #' @title not in
 #' @description returns true for x not in y
 #' @param x value x

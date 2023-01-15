@@ -8,7 +8,7 @@
 #' @family plotting
 #' @export
 
-gg_hm <- function(df, bonf, group, colors = c("firebrick2","white")){
+gg_hm <- function(df, bonf, group, colors = c("firebrick2","white"), sig_labels = c('','*','**')){
   
   stopifnot(c('list_name','pvalue',group) %in% colnames(df))
   
@@ -16,9 +16,9 @@ gg_hm <- function(df, bonf, group, colors = c("firebrick2","white")){
   df$logpvalue <- -log10(df$pvalue)
   
   # set significance thresholds
-  df$significance <- '' #'Not significant'
-  df$significance[df$pvalue < 0.05] <- '*' #'Nominally significant'
-  df$significance[df$pvalue < bonf] <- '**' #'Bonferroni threshold'
+  df$significance <- sig_labels[1] #'Not significant'
+  df$significance[df$pvalue < 0.05] <- sig_labels[2] #'Nominally significant'
+  df$significance[df$pvalue < bonf] <- sig_labels[3] #'Bonferroni threshold'
   df$significance <- as.factor(df$significance)
   
   # generate plot

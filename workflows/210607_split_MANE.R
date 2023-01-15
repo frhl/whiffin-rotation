@@ -10,33 +10,22 @@ cds <- fread('~/Projects/08_genesets/genesets/data/MANE/210629_MANE.GRCh38.v0.95
 # combine rna (tranccript data with utr data)
 utr <- rbind(utr, cds)
 
-#colnames(cds) <- paste0('cds.',colnames(cds))
+# merge data
 colnames(utr) <- paste0('utr.',colnames(utr))
 mrg <- merge(utr[utr$utr.type %in% c('CDS',"exon","three_prime_UTR","five_prime_UTR"),], rna, by.x = 'utr.enstid_version', by.y = 'enstid_version')
-
-#x <- mrg[mrg$utr.enstid_version == 'ENST00000375915.4' & mrg$utr.type =='five_prime_UTR', ]
-#nchar(x$seq)
-
-# look at alternative spliced UTRs
-info <- aggregate(utr.type ~ enstid, data = mrg, FUN = function(x) sum(x=='five_prime_UTR'))
-
-# transcripts per gene / genes per transcript
-info <- aggregate(ensgid ~ enstid, data = mrg, FUN = function(x) length(unique(x)))
-table(info$ensgid == 1) # all tanscripts have one gene
-info <- aggregate(enstid ~ ensgid, data = mrg, FUN = function(x) length(unique(x)))
-table(info$enstid == 1) # 55 genes that have more than one transcript
 
 
 # Prep for writing out the data
 enstids <- unique(mrg$utr.enstid_version)
 enstid <- enstids 
 
+# helper functions
 revseq <- function(x) paste0(rev(unlist(strsplit(x, ''))), collapse = '')
 
-
-clinvar <- fread('extdata/clinvar/clinvar_20210626_chr1.txt')
-colnames(clinvar) <- c('chr','bp','ref','alt')
-mymapping <- list()
+# clinvar matching
+#clinvar <- fread('extdata/clinvar/clinvar_20210626_chr1.txt')
+#colnames(clinvar) <- c('chr','bp','ref','alt')
+#mymapping <- list()
 
 sequences <- lapply(enstids, function(enstid){
   
@@ -79,7 +68,7 @@ sequences <- lapply(enstids, function(enstid){
       stopifnot(length(df$utr.bp_start[i]:df$utr.bp_end[i]) == length(x1:x2))
       
       # keep track of interval 
-      interval_rev <- (y1:y2)+(i)
+      #interval_rev <- (y1:y2)+(i)
       interval <- (x1:x2)+(i)
       newseq <- paste0(unlist(strsplit(seq,split=''))[interval], collapse = '')
       df$newseq[i] <- ifelse(direction == 1, newseq, revseq(newseq))
@@ -128,15 +117,13 @@ sequences <- lapply(enstids, function(enstid){
 
 
 
-
-
 # combine data
 seq_df <- do.call(rbind, sequences)
 seq_df <- seq_df[,as.logical(!duplicated(t(seq_df))), with = F]
 colnames(seq_df) <- gsub('utr\\.bp_','exon\\.bp_',colnames(seq_df))
 colnames(seq_df) <- gsub('utr\\.','',colnames(seq_df))
-fwrite(seq_df, '~/Projects/08_genesets/genesets/data/MANE/210710_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
-seq_df <- fread('~/Projects/08_genesets/genesets/data/MANE/210710_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
+#fwrite(seq_df, '~/Projects/08_genesets/genesets/data/MANE/210710_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
+#seq_df <- fread('~/Projects/08_genesets/genesets/data/MANE/210710_MANE.GRCh38.v0.95.5-3_all_exon_seqs.txt', sep = '\t')
 
 
 sequences_combined <- do.call(rbind, lapply(enstids, function(enstid){

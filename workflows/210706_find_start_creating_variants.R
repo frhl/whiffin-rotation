@@ -78,10 +78,74 @@ result_list <- (foreach (i=1:nrow(d)) %dopar% {
 result <- as.data.table(do.call(rbind, result_list))
 
 
-fwrite(result, 'extdata/210910_uATG_creating_variants.txt',sep = '\t')
-
-
+#fwrite(result, 'extdata/210910_uATG_creating_variants.txt',sep = '\t')
 result <- fread('extdata/210910_uATG_creating_variants.txt', sep = '\t')
-colnames(variants)[2] <- 'grch38_bp'
-merge(result, variants, by = c('chr','grch38_bp'))
+#result <- fread('extdata/210910_uCGA_creating_variants.txt', sep = '\t')
+result$ref <- result$before
+result$alt <- result$after
 
+
+variants <- fread('extdata/clinvar/clinvar_unpacked.txt')
+colnames(variants) <- c('chr','pos','ref','alt', 'info')
+variants$info <- unlist(lapply(variants$info, function(x){
+  splitted <- unlist(strsplit(x, split = '\\;'))
+  extract <- splitted[grepl('CLNSIG',splitted) & !grepl('CLNSIGINCL',splitted)]
+  res <- gsub('CLNSIG\\=','',extract[1])
+  res <- gsub(',_other','',res)
+  res <- gsub(',_risk_factor','',res)
+  res <- gsub(',_protective','',res)
+  res <- gsub(',_drug_response','',res)
+  res <- gsub(',_confers_sensitivity','',res)
+  res <- gsub(',_Affects','',res)
+  res <- gsub(',_association','',res)
+  res <- gsub(',_confers_sensitivity','',res)
+  return(res)
+}))
+variants$info <- factor(variants$info, levels = unique(variants$info))
+colnames(variants)[2:3] <- 'grch38_bp'
+#fwrite(variants, 'extdata/clinvar_unpacked_clnsig.txt',sep = '\t')
+
+#variants <- fread('extdata/clinvar/clinvar_20210626_chr1_22.txt')
+#colnames(variants) <- c('chr','pos','ref','alt')
+
+
+
+
+
+#result <- fread('extdata/uAUG-creating_all_possible_annotated.txt')
+#variants <- fread('extdata/clinvar/clinvar_20210626_chr1_22.txt')
+#colnames(variants) <- c('chr','pos','ref','alt')
+categories <- c('Uncertain_significance', 'Likely_benign','Benign/Likely_benign', 'Benign', 'Likely_pathogenic','Pathogenic')
+mrg <- merge(result, variants, by = c('chr','grch38_bp','ref','alt'))
+mrg <- mrg[mrg$info %in% categories]
+mrg$info <- factor(mrg$info, levels = categories)
+
+convert <- mrg[,c('codon_before','ref','alt')]
+convert$change <- apply(convert[,c(2,3)], 1, paste0, collapse = '>')
+convert$ref <- NULL
+convert$alt <- NULL
+
+d <- as.data.frame(table(mrg$info, mrg$codon_before))
+p1 <- ggplot(d, aes(x=reorder(Var2, Freq), y=Var1, fill = log10(Freq), label = Freq)) +
+  scale_fill_gradient(low = 'white',high ='red') +
+  geom_tile() +
+  geom_text() +
+  theme_bw() +
+  xlab('pre-ATG codon') +
+  ylab('Clinvar significance') +
+  geom_hline(yintercept = 1.5, linetype = 'dashed') +
+  geom_hline(yintercept = 4.5, linetype = 'dashed')
+
+p2 <- ggplot(d, aes(x=reorder(Var2, Freq), y=Freq)) +
+  geom_bar(stat='identity') +
+  theme_minimal()
+  
+
+
+
+mrg[mrg$ref.x == mrg$ref.y,]
+
+#sort(table(mrg[mrg$before == mrg$ref,]$codon_before))
+#x <- sort(table(mrg[mrg$before == mrg$ref,]$codon_before))
+
+as.data.frame(x/sum(x))

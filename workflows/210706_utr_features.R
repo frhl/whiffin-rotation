@@ -6,7 +6,7 @@ library(readxl)
 library(ggsignif)
 library(scales)
 
-d <- fread('derived/tables/210708_MANE.v0.95.UTR_features.txt', sep = '\t')
+d <- fread('derived/tables/210709_MANE.v0.95.UTR_features.txt', sep = '\t')
 dseq <- fread('~/Projects/08_genesets/genesets/data/MANE/210708_MANE.GRCh38.v0.95.combined-table.txt', sep = '\t')
 expr <- fread('extdata/210709_table_s3_s2_combined.csv')
 
@@ -14,11 +14,16 @@ expr <- fread('extdata/210709_table_s3_s2_combined.csv')
 # overall features #
 ####################
 
+# "counts?"
+sum(d$u5_ORF != 0); sum(d$u5_ORF)
+sum(d$u5_oORF != 0); sum(d$u5_oORF)
+sum(d$u5_NTE != 0); sum(d$u5_NTE)
+
 # " do UTRs have introns, and if so, how many"?
 dseq$introns <- unlist(lapply(strsplit(dseq$bp, split = ';'), length))
 count_above_9 <- sum(dseq$introns[dseq$type == 'five_prime_UTR'] > 5)
 ggplot(dseq[dseq$introns < 10 & dseq$type == 'five_prime_UTR'], aes(x=introns)) +
-  geom_bar(fill = 'lightgreen', color = 'black') +
+  geom_bar(fill = 'grey', color = 'black') +
   scale_x_continuous(breaks=1:9) +
   geom_vline(xintercept = 9, linetype = 'dashed') +
   annotate(geom = 'text', x = 7, y = 10000, label = '3 Genes with > 9 Introns') +
@@ -32,11 +37,11 @@ sum(d$u5_len > 11 & d$u5_len < 747)
 ggplot(d, aes(x=(u5_len))) +
   geom_bar(fill = 'black', color = 'black', width = 0.02) +
   scale_x_log10(breaks = log_breaks()) +
-  geom_vline(xintercept = 11, linetype = 'dashed', color = 'red') +
-  geom_vline(xintercept = 747, linetype = 'dashed', color = 'red') +
-  annotate(geom = 'text', x = 100, y = 120, label = '17.697 Genes', color = 'red') +
-  annotate(geom = 'text', x = 7, y = 120, label = '2.5%', color = 'red') +
-  annotate(geom = 'text', x = 1300, y = 120, label = '97.5%', color = 'red') +
+  geom_vline(xintercept = 11, linetype = 'dashed', color = 'grey') +
+  geom_vline(xintercept = 747, linetype = 'dashed', color = 'grey') +
+  annotate(geom = 'text', x = 100, y = 120, label = '17.697 Genes', color = 'grey') +
+  annotate(geom = 'text', x = 7, y = 120, label = '2.5%', color = 'grey') +
+  annotate(geom = 'text', x = 1300, y = 120, label = '97.5%', color = 'grey') +
   xlab("5' UTR lengths") +
   ylab('count') +
   theme_classic()
@@ -51,7 +56,7 @@ dcollins <- merge(collins2020, d, by.x = 'gene', by.y = 'gene_symbol')
 dcollins <- dcollins[dcollins$u5_ORF < 5]
 dcollins$u5_ORF <- as.factor(dcollins$u5_ORF)
 ggplot(dcollins, aes(x=u5_ORF, y = pHI, group = u5_ORF)) +
-  geom_jitter(alpha = 0.05) +
+  #geom_jitter(alpha = 0.05) +
   geom_boxplot(fill = 'lightblue') +
   geom_signif(comparisons = list(c("0", "1")), test = 'wilcox.test') +
   geom_hline(yintercept = pHI_threshold, linetype = 'dashed') +
@@ -61,8 +66,13 @@ ggplot(dcollins, aes(x=u5_ORF, y = pHI, group = u5_ORF)) +
   theme_bw() 
   
 
+model <- dcollins
+model$u5_ORF <- as.numeric(as.character(model$u5_ORF))
+summary(lm(pTS ~ u5_ORF,data = model))
+summary(lm(pTS ~ u5_ORF + u5_len,data = model))
+
 ggplot(dcollins, aes(x=u5_ORF, y = pTS, group = u5_ORF)) +
-  geom_jitter(alpha = 0.05) +
+  #geom_jitter(alpha = 0.05) +
   geom_boxplot(fill = 'tomato1') +
   geom_signif(comparisons = list(c("0", "1")), test = 'wilcox.test') +
   geom_hline(yintercept = pTS_threshold, linetype = 'dashed') +
@@ -94,10 +104,10 @@ ggplot(dcollins, aes(x=u5_len, y = pTS, group = u5_len)) +
 n = 10
 
 # GO MF enrichment
-go_mf <- fread('download/210709_hpc_derived/210709_hypergeom_go_mf_uORF_gt_analysis.txt')
+go_mf <- fread('download/210711_hpc_derived/210709_hypergeom_go_mf_uORF_gt_analysis.txt')
 go_mf_wo_orf <- go_mf[go_mf$u5_ORF == 0]
 go_mf_wo_orf <- head(go_mf_wo_orf[go_mf_wo_orf$pvalue < 0.05], n)
-go_mf_w_orf <- go_mf[go_mf$u5_ORF == 1]
+go_mf_w_orf <- go_mf[go_mf$u5_ORF > 0]
 go_mf_w_orf <- head(go_mf_w_orf[go_mf_w_orf$pvalue < 0.05], n)
 bonf <- 0.05 / length(unique(go_mf$list_name))
 combi_mf <- go_mf[go_mf$list_name %in% c(go_mf_w_orf$list_name, go_mf_wo_orf$list_name) & go_mf$u5_ORF < 2]
@@ -106,13 +116,13 @@ combi_mf$u5_ORF <- factor(ifelse(combi_mf$u5_ORF,'1+','0'))
 p0 <- gg_bar(go_mf_wo_orf, bonf = bonf)
 p1 <- gg_bar(go_mf_w_orf, bonf = bonf)
 
-gg_hm(combi_mf, bonf, 'u5_ORF') + xlab('uORFs') + ylab("GO MF category")
+gg_hm(combi_mf, bonf, 'u5_ORF', sig_labels = c('','','**')) + xlab('uORFs') + ylab("GO MF category") + labs(fill='-log10(P-value)')
 
 # GO BP enrichment
 go_bp <- fread('download/210709_hpc_derived/210709_hypergeom_go_bp_uORF_gt_analysis.txt')
 go_bp_wo_orf <- go_bp[go_bp$u5_ORF == 0]
 go_bp_wo_orf <- head(go_bp_wo_orf[go_bp_wo_orf$pvalue < 0.05], n)
-go_bp_w_orf <- go_bp[go_bp$u5_ORF == 1]
+go_bp_w_orf <- go_bp[go_bp$u5_ORF > 0]
 go_bp_w_orf <- head(go_bp_w_orf[go_bp_w_orf$pvalue < 0.05], n)
 bonf <- 0.05 / length(unique(go_bp$list_name))
 combi_bp <- go_bp[go_bp$list_name %in% c(go_bp_w_orf$list_name, go_bp_wo_orf$list_name) & go_bp$u5_ORF < 2]
@@ -121,13 +131,13 @@ combi_bp$u5_ORF <- factor(ifelse(combi_bp$u5_ORF,'1+','0'))
 p0 <- gg_bar(go_bp_wo_orf, bonf = bonf)
 p1 <- gg_bar(go_bp_w_orf, bonf = bonf)
 
-gg_hm(combi_bp, bonf, 'u5_ORF') + xlab('uORFs') + ylab("GO BP category")
+gg_hm(combi_bp, bonf, 'u5_ORF', sig_labels = c('','','**')) + xlab('uORFs') + ylab("GO BP category") + labs(fill='-log10(P-value)')
 
 # GO CC enrichment
 go_cc <- fread('download/210709_hpc_derived/210709_hypergeom_go_cc_uORF_gt_analysis.txt')
 go_cc_wo_orf <- go_cc[go_cc$u5_ORF == 0]
 go_cc_wo_orf <- head(go_cc_wo_orf[go_cc_wo_orf$pvalue < 0.05], n)
-go_cc_w_orf <- go_cc[go_cc$u5_ORF == 1]
+go_cc_w_orf <- go_cc[go_cc$u5_ORF > 0]
 go_cc_w_orf <- head(go_cc_w_orf[go_cc_w_orf$pvalue < 0.05], n)
 bonf <- 0.05 / length(unique(go_cc$list_name))
 combi_mf <- go_mf[go_mf$list_name %in% c(go_mf_w_orf$list_name, go_mf_wo_orf$list_name) & go_mf$u5_ORF < 2]
@@ -138,7 +148,7 @@ combi_cc$u5_ORF <- factor(ifelse(combi_cc$u5_ORF,'1+','0'))
 p0 <- gg_bar(go_cc_wo_orf, bonf = bonf)
 p1 <- gg_bar(go_cc_w_orf, bonf = bonf)
 
-gg_hm(combi_cc, bonf, 'u5_ORF') + xlab('uORFs') + ylab("GO CC category")
+gg_hm(combi_cc, bonf, 'u5_ORF', sig_labels = c('','','**')) + xlab('uORFs') + ylab("GO CC category") + labs(fill='-log10(P-value)')
 
 
 
