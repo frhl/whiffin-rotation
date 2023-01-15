@@ -24,6 +24,7 @@
 extdata/
 download/
 derived/
+logs/
 
 # produced vignettes
 vignettes/*.html

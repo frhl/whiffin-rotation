@@ -157,3 +157,233 @@ Loading required package: foreach
 Loading required package: iterators
 Loading required package: foreach
 Loading required package: iterators
+i Loading utrsRus
+i Loading utrsRus
+i Loading utrsRus
+i Loading utrsRus
+i Loading utrsRus
+i Loading utrsRus
+i Loading utrsRus
+i Loading utrsRus
+i Loading utrsRus
+i Loading utrsRus
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+Loading required package: ggplot2
+Loading required package: ggplot2
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: ggplot2
+Loading required package: ggplot2
+Loading required package: reshape2
+Loading required package: data.table
+Loading required package: data.table
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+Loading required package: data.table
+Loading required package: data.table
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reshape2
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+Loading required package: reticulate
+Loading required package: ggplot2
+Loading required package: reshape2
+Loading required package: reshape2
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+
+Attaching package: 'reshape2'
+
+
+Attaching package: 'reshape2'
+
+Loading required package: reticulate
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+
+Attaching package: 'reshape2'
+
+Loading required package: data.table
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+Loading required package: reticulate
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reshape2
+Loading required package: reticulate
+Loading required package: reticulate
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
