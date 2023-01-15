@@ -23,6 +23,7 @@
 # data files
 extdata/
 download/
+derived/
 
 # produced vignettes
 vignettes/*.html

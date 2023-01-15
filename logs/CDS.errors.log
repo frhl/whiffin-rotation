@@ -14,3 +14,24 @@ Adding files missing in collate: 210711_sequence_position_constraint.R, calc_hyp
 Error in `[.data.frame`(x, i) : undefined columns selected
 Calls: <Anonymous> ... source_one -> eval -> eval -> [ -> [.data.table -> [.data.frame
 Execution halted
+Loading utrsRus
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+Adding files missing in collate: calc_hyper.R, get_oe.R, get_pre_codon.R, gg_hm.R, lapply_calc_hyper.R, make_mapping.R
+Loading required package: foreach
+Loading required package: iterators
+Error in fwrite(res_mat_expt, outfile_ci, sep = ",") : 
+  object 'outfile_ci' not found
+Calls: lapply -> FUN -> fwrite -> stopifnot
+In addition: Warning message:
+In 1:replicates : numerical expression has 2 elements: only the first used
+Execution halted
