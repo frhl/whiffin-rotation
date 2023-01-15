@@ -1,0 +1,159 @@
+i Loading utrsRus
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+Error in use_condaenv("r-reticulate") : 
+  Unable to locate conda environment 'r-reticulate'.
+Calls: main ... lapply -> FUN -> sim_expected_codons -> use_condaenv
+Execution halted
+i Loading utrsRus
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+Error in library(doParallel) : there is no package called 'doParallel'
+Calls: main -> lapply -> FUN -> sim_expected_codons -> library
+Execution halted
+i Loading utrsRus
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+Loading required package: foreach
+Loading required package: iterators
+Error in `$<-.data.frame`(`*tmp*`, "loeuf", value = c(ENST00000000233 = 2L,  : 
+  replacement has 18640 rows, data has 10
+Calls: main -> lapply -> FUN -> $<- -> $<-.data.frame
+Execution halted
+i Loading utrsRus
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+Loading required package: foreach
+Loading required package: iterators
+/var/spool/rescomp/compe026/job_scripts/80093301: line 35: replicates: unbound variable
+/var/spool/rescomp/compe003/job_scripts/80093301: line 35: replicates: unbound variable
+i Loading utrsRus
+i Loading utrsRus
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+Loading required package: ggplot2
+Loading required package: data.table
+Loading required package: reshape2
+
+Attaching package: 'reshape2'
+
+The following objects are masked from 'package:data.table':
+
+    dcast, melt
+
+Loading required package: reticulate
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+! Adding files missing in collate:
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_file.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_mane_url.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_oe.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/get_pre_codon.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/gg_hm.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/lapply_calc_hyper.R',
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/make_mapping.R',
+  and
+  '/gpfs3/well/lindgren/flassen/projects/utrs/whiffin-rotation/R/retrieve_mane_rna.R'
+Loading required package: foreach
+Loading required package: iterators
+Loading required package: foreach
+Loading required package: iterators

@@ -12,7 +12,7 @@
 sim_expected_codons <- function(seqs, codons = 'ATG', k = 2, iter = 1000, verbose = T, parallel = F, cores = detectCores(), seed = 1){
   
   stopifnot(length(seqs) > 0)
-  use_condaenv('r-reticulate')
+  #use_condaenv('r-reticulate')
   ushuffle <- reticulate::import('ushuffle')
   source_python('python/shuffle_utrs.py')
   count <- 0
@@ -36,7 +36,7 @@ sim_expected_codons <- function(seqs, codons = 'ATG', k = 2, iter = 1000, verbos
     res <- (foreach (i=1:nseqs) %dopar% {
       
       # load ushuffle
-      use_condaenv('r-reticulate')
+      #use_condaenv('r-reticulate')
       ushuffle <- reticulate::import('ushuffle')
       source_python('python/shuffle_utrs.py')
       

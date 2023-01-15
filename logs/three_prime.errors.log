@@ -29,3 +29,13 @@ In addition: Warning message:
 In mclapply(argsList, FUN, mc.preschedule = preschedule, mc.set.seed = set.seed,  :
   scheduled core 1 did not deliver a result, all values of the job will be affected
 Execution halted
+
+CommandNotFoundError: No command 'conda actiavte'.
+Did you mean 'conda activate'?
+
+/var/spool/rescomp/compe003/job_scripts/80093283: line 17: Rscript: command not found
+
+CommandNotFoundError: No command 'conda actiavte'.
+Did you mean 'conda activate'?
+
+/var/spool/rescomp/compe026/job_scripts/80093284: line 17: Rscript: command not found
